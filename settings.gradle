@@ -1,0 +1,3 @@
+
+rootProject.name = 'connector-pkfare'
+include 'connector-pkfare-service', 'connector-pkfare-server'

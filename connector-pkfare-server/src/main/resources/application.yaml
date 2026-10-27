@@ -1,0 +1,14 @@
+server:
+      shutdown: graceful
+      port: 9022
+      tomcat:
+        accesslog:
+          enabled: true
+          pattern: '%h %l %u %t "%r" connector-pkfare %{X-SID}i %{X-CID}i %{X-IATA}i %{X-TID}i %s %b %F %{ms}T'
+          buffered: true
+          directory: /var/log/vdc/connector-pkfare
+          file-date-format: .yyyy-MM-dd
+          prefix: connector-pkfare_access
+          suffix: .log
+          rotate: true
+          rename-on-rotate: true

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration debug="true">
+    <appender name="consoleLogger" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d %-5level %logger{35} [connector-pkfare] [%X{X-UID} %X{X-IATA} %X{X-SID} %X{X-CID} %X{X-TID}] - %msg %n</pattern>
+        </encoder>
+    </appender>
+
+    <logger level="DEBUG" name="com.verteil" additivity="false">
+        <appender-ref ref="ASYNC"/>
+        <appender-ref ref="consoleLogger"/>
+    </logger>
+    <logger level="TRACE" name="org.springframework.ws.client.MessageTracing" additivity="false">
+        <appender-ref ref="ASYNC"/>
+        <appender-ref ref="consoleLogger"/>
+    </logger>
+    <logger level="TRACE" name="org.springframework.ws.server.MessageTracing" additivity="false">
+        <appender-ref ref="ASYNC"/>
+        <appender-ref ref="consoleLogger"/>
+    </logger>
+
+    <logger level="DEBUG" name="NdcRequestLogger" additivity="false">
+        <appender-ref ref="ASYNC" />
+        <appender-ref ref="consoleLogger"/>
+    </logger>
+    <logger level="DEBUG" name="NdcResponseLogger" additivity="false">
+        <appender-ref ref="ASYNC" />
+        <appender-ref ref="consoleLogger"/>
+    </logger>
+
+    <!--  root logger -->
+    <root>
+        <level value="INFO" />
+        <appender-ref ref="ASYNC" />
+        <appender-ref ref="consoleLogger"/>
+    </root>
+
+</configuration>

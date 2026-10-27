@@ -1,0 +1,10 @@
+FROM 683455398069.dkr.ecr.ap-south-1.amazonaws.com/verteil-liquibase:4.30
+RUN mkdir -p /liquibase/changelog/connector-pkfare/connector-pkfare-service/src/
+COPY ./connector-pkfare/src/main/database/ /liquibase/changelog/connector-pkfare/connector-pkfare-service/src
+COPY ./connector-pkfare-service/src/main/database/run-liquibase.sh /run-liquibase.sh
+ENV LIQUIBASE_COMMAND_URL=${LIQUIBASE_COMMAND_URL}
+ENV LIQUIBASE_COMMAND_USERNAME=${LIQUIBASE_COMMAND_USERNAME}
+ENV LIQUIBASE_COMMAND_PASSWORD=${LIQUIBASE_COMMAND_PASSWORD}
+ENV LIQUIBASE_COMMAND_CHANGELOG_FILE=changelog/connector-pkfare/connector-pkfare-service/src/vdc-change-log.xml
+ENV LIQUIBASE_DATABASE_CHANGELOG_LOCK_TABLE_NAME=${LIQUIBASE_DATABASE_CHANGELOG_LOCK_TABLE_NAME}
+CMD ["/run-liquibase.sh"]

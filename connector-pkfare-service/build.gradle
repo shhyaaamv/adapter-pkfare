@@ -1,0 +1,39 @@
+dependencies {
+    implementation("com.verteil:vdc-thirdparties-connector-common:${verteilThirdPartiesCommonVersion}") {
+        exclude group: "javax.xml.soap", module: "javax.xml.soap-api"
+        exclude group: "org.apache.commons", module: "commons-text"
+        exclude group: "org.apache.cxf", module: "cxf-rt-transports-http"
+        exclude group: "org.apache.httpcomponents", module: "httpclient"
+        exclude group: "com.verteil", module: "vdc-thirdparties-common-helper"
+        exclude group: "com.verteil", module: "verteil-infra-configurator-common"
+        exclude group: "com.verteil", module: "verteil-commons-core"
+        exclude group: "com.verteil", module: "verteil-infra-notifier-common"
+        exclude group: "com.verteil", module: "verteil-infra-notifier-client"
+        exclude group: "org.springframework.ws", module: "spring-ws-core"
+    }
+    implementation("com.verteil:vdc-thirdparties-common-helper:${verteilThirdPartiesCommonVersion}") {
+        exclude group: "javax.xml.soap", module: "javax.xml.soap-api"
+        exclude group: "io.grpc"
+        exclude group: "org.apache.commons", module: "commons-text"
+    }
+    implementation 'com.verteil.chain:verteil-chain:1.0'
+
+    implementation ("com.verteil.configurator:vdc-configurator-client:${vdcConfiguratorClientVersion}"){
+        transitive = true
+    }
+    implementation ("com.verteil.configurator:vdc-configurator-common:${vdcConfiguratorClientVersion}"){
+        transitive = false
+    }
+
+
+    implementation "io.grpc:grpc-api:${grpcVersion}"
+    implementation "io.grpc:grpc-core:${grpcVersion}"
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation "io.grpc:grpc-netty:${grpcVersion}"
+    implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+}
