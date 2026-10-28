@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.2.xsd ">
+
+    <changeSet id="pkfare_adapter/cabin_mapping_configs" author="shhyaaamv" context="dev, qa, stage, prod.in, prod.eu, prod.openconnect" runOnChange="true">
+        <comment>Carrier PKF (carrier is varchar(3)): PKFARE cabin (cabin_brand_code) -> VDC cabin (value); premium economy is S on PKFARE and W on VDC</comment>
+        <sql>
+            INSERT INTO ${configurator_tbls}.cabin_brand_configs(config_group, "name", carrier, cabin_brand_code, value)
+            VALUES('CABIN_BRAND', 'MAPPED_CABIN', 'PKF', 'F', 'F') ON CONFLICT DO NOTHING;
+
+            INSERT INTO ${configurator_tbls}.cabin_brand_configs(config_group, "name", carrier, cabin_brand_code, value)
+            VALUES('CABIN_BRAND', 'MAPPED_CABIN', 'PKF', 'C', 'C') ON CONFLICT DO NOTHING;
+
+            INSERT INTO ${configurator_tbls}.cabin_brand_configs(config_group, "name", carrier, cabin_brand_code, value)
+            VALUES('CABIN_BRAND', 'MAPPED_CABIN', 'PKF', 'S', 'W') ON CONFLICT DO NOTHING;
+
+            INSERT INTO ${configurator_tbls}.cabin_brand_configs(config_group, "name", carrier, cabin_brand_code, value)
+            VALUES('CABIN_BRAND', 'MAPPED_CABIN', 'PKF', 'Y', 'Y') ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

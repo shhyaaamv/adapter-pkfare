@@ -1,3 +1,2 @@
-
-rootProject.name = 'connector-pkfare'
-include 'connector-pkfare-service', 'connector-pkfare-server'
+rootProject.name = 'adapter-pkfare'
+include 'adapter-pkfare-service', 'adapter-pkfare-server', 'adapter-pkfare-acceptance'

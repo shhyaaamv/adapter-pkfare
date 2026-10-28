@@ -1,0 +1,177 @@
+import static java.lang.ProcessHandle.of
+import static java.lang.Thread.sleep
+import static java.util.concurrent.TimeUnit.SECONDS
+
+configurations {
+    mock
+}
+
+def serverProject = project(':adapter-pkfare-server')
+// 8091, not 8090: 8090 is where a local vdc-configurator usually runs (application.yaml default)
+def wireMockPort = 8091
+def adapterPort = 9122
+
+def wiremockDir = layout.buildDirectory.dir("wiremock")
+def acceptanceDir = layout.buildDirectory.dir("acceptance")
+
+def assertPortAvailable = { int port, String serviceName ->
+    try (def socket = new ServerSocket()) {
+        socket.reuseAddress = true
+        socket.bind(new InetSocketAddress('localhost', port))
+    } catch (IOException exception) {
+        throw new GradleException(
+                "Cannot start ${serviceName}: port ${port} is already in use. " +
+                        "Stop the process using that port and rerun the acceptance tests.", exception)
+    }
+}
+
+def stopTaskProcess = { String taskName ->
+    def processTask = tasks.named(taskName).get()
+    if (!processTask.extensions.extraProperties.has('pid')) {
+        return
+    }
+
+    of(processTask.extensions.extraProperties.get('pid') as long).ifPresent { process ->
+        process.destroy()
+        try {
+            process.onExit().get(5, SECONDS)
+        } catch (Exception ignored) {
+            if (process.isAlive()) {
+                process.destroyForcibly()
+                process.onExit().get(5, SECONDS)
+            }
+        }
+    }
+}
+
+def waitForPort = { Process process, int port, String serviceName, File logFile, int timeoutMs = 50000 ->
+    long startTime = System.currentTimeMillis()
+    while (System.currentTimeMillis() - startTime <= timeoutMs) {
+        if (!process.isAlive()) {
+            throw new GradleException(
+                    "${serviceName} exited during startup with code ${process.exitValue()}. See ${logFile}")
+        }
+        try {
+            new Socket('localhost', port).withCloseable { }
+            logger.lifecycle("${serviceName} started on port ${port} with PID ${process.pid()}")
+            return
+        } catch (IOException ignored) {
+            sleep(500)
+        }
+    }
+    throw new GradleException("Timed out waiting for ${serviceName} on port ${port}. See ${logFile}")
+}
+
+tasks.register('copyWireMock', Copy) {
+    group = 'acceptance'
+    description = 'Copies the WireMock executable into the acceptance build directory.'
+    from(configurations.mock) {
+        include 'wiremock-standalone-*.jar'
+    }
+    into(wiremockDir)
+}
+
+tasks.register('startWireMock') {
+    group = 'acceptance'
+    description = 'Starts WireMock (vdc-configurator + Entry-Gate) with the acceptance mappings.'
+    dependsOn tasks.named('copyWireMock')
+    doLast {
+        assertPortAvailable(wireMockPort, 'WireMock')
+        def wireMockJar = wiremockDir.get().asFile.toPath().resolve("wiremock-standalone-${wiremockVersion}.jar").toFile()
+        def logFile = wiremockDir.get().asFile.toPath().resolve("logs/wiremock.log").toFile()
+        logFile.parentFile.mkdirs()
+        def process = new ProcessBuilder('java', '-jar', wireMockJar.absolutePath,
+                "--port=${wireMockPort}", '--verbose', "--root-dir=${projectDir}/src/test/resources/wiremock")
+                .redirectErrorStream(true)
+                .redirectOutput(logFile)
+                .start()
+        extensions.extraProperties.set('pid', process.pid())
+        try {
+            waitForPort(process, wireMockPort, 'WireMock', logFile)
+        } catch (Exception exception) {
+            stopTaskProcess('startWireMock')
+            throw exception
+        }
+    }
+}
+
+tasks.register('startAdapterPkfareServer') {
+    group = 'acceptance'
+    description = 'Starts adapter-pkfare with the acceptance profile.'
+    dependsOn serverProject.tasks.named('bootJar'), tasks.named('startWireMock')
+    doLast {
+        try {
+            assertPortAvailable(adapterPort, 'adapter-pkfare')
+        } catch (Exception exception) {
+            stopTaskProcess('startWireMock')
+            throw exception
+        }
+        def serverJar = serverProject.tasks.named('bootJar').get().archiveFile.get().asFile
+        def logFile = acceptanceDir.get().asFile.toPath().resolve("logs/adapter-pkfare.log").toFile()
+        logFile.parentFile.mkdirs()
+        def process = new ProcessBuilder('java', '-Dspring.profiles.active=acceptance',
+                "-DACCEPTANCE_SERVER_PORT=${adapterPort}",
+                "-DACCEPTANCE_WIREMOCK_PORT=${wireMockPort}", '-jar', serverJar.absolutePath)
+                .redirectErrorStream(true)
+                .redirectOutput(logFile)
+                .start()
+        extensions.extraProperties.set('pid', process.pid())
+
+        def pingUrl = URI.create("http://localhost:${adapterPort}/ping").toURL()
+        for (int attempt = 0; attempt < 50; attempt++) {
+            if (!process.isAlive()) {
+                break
+            }
+            try {
+                if (pingUrl.getText(connectTimeout: 500, readTimeout: 500) == 'pong') {
+                    logger.lifecycle("adapter-pkfare started on port ${adapterPort} with PID ${process.pid()}")
+                    return
+                }
+            } catch (IOException ignored) {
+                sleep(1000)
+            }
+        }
+        stopTaskProcess('startAdapterPkfareServer')
+        stopTaskProcess('startWireMock')
+        throw new GradleException("adapter-pkfare did not start. See ${logFile}")
+    }
+}
+
+tasks.register('runTests', Test) {
+    group = 'acceptance'
+    description = 'Runs the Cucumber acceptance suite against the started adapter and WireMock.'
+    dependsOn tasks.named('testClasses'), tasks.named('startAdapterPkfareServer')
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform()
+    systemProperty 'cucumber.execution.parallel.enabled', 'false'
+    systemProperty 'acceptance.adapterUrl', "http://localhost:${adapterPort}"
+    systemProperty 'acceptance.wiremockUrl', "http://localhost:${wireMockPort}"
+    systemProperty 'acceptance.outputDir', acceptanceDir.get().dir('output').asFile.absolutePath
+    include '**/RunAcceptanceTest.class'
+    outputs.upToDateWhen { false }
+    testLogging {
+        events 'passed', 'failed', 'skipped'
+        exceptionFormat 'full'
+        showStandardStreams = true
+    }
+}
+
+tasks.register('stopMockServers') {
+    group = 'acceptance'
+    description = 'Stops the adapter and WireMock processes started by this build.'
+    doLast {
+        ['startAdapterPkfareServer', 'startWireMock'].each(stopTaskProcess)
+    }
+}
+
+tasks.named('runTests') {
+    finalizedBy tasks.named('stopMockServers')
+}
+
+tasks.register('runAcceptanceTests') {
+    group = 'acceptance'
+    description = 'Starts adapter-pkfare and WireMock, runs the Cucumber acceptance tests, then stops both.'
+    dependsOn tasks.named('runTests')
+    finalizedBy tasks.named('stopMockServers')
+}

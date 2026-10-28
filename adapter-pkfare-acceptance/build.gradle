@@ -1,0 +1,21 @@
+apply plugin: 'java-library'
+apply from: 'acceptance.gradle'
+
+description = 'Acceptance tests for adapter-pkfare.'
+
+test {
+    enabled = false
+}
+
+dependencies {
+    // Assertions work on the raw JSON exchanged on the wire (Jackson trees), not on the adapter's model classes.
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation "io.cucumber:cucumber-spring:${cucumberVersion}"
+    testImplementation "io.cucumber:cucumber-java:${cucumberVersion}"
+    testImplementation "io.cucumber:cucumber-junit-platform-engine:${cucumberVersion}"
+    testImplementation 'org.junit.platform:junit-platform-suite'
+    testImplementation "org.skyscreamer:jsonassert:1.5.1"
+    mock "org.wiremock:wiremock-standalone:${wiremockVersion}"
+}

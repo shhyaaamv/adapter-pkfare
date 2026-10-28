@@ -1,0 +1,38 @@
+{
+  "Travelers": {
+    "Traveler": [
+      {"AnonymousTraveler": [{"PTC": {"value": "ADT"}}]},
+      {"AnonymousTraveler": [{"PTC": {"value": "ADT"}}]},
+      {"AnonymousTraveler": [{"PTC": {"value": "CHD"}}]},
+      {"AnonymousTraveler": [{"PTC": {"value": "INF"}}]}
+    ]
+  },
+  "CoreQuery": {
+    "OriginDestinations": {
+      "OriginDestination": [
+        {
+          "Departure": {"AirportCode": {"value": "COK"}, "Date": "2026-10-20"},
+          "Arrival": {"AirportCode": {"value": "DXB"}},
+          "OriginDestinationKey": "OD1"
+        },
+        {
+          "Departure": {"AirportCode": {"value": "DXB"}, "Date": "2026-10-28"},
+          "Arrival": {"AirportCode": {"value": "COK"}},
+          "OriginDestinationKey": "OD2"
+        }
+      ]
+    }
+  },
+  "Preference": {
+    "FarePreferences": {"Types": {"Type": [{"Code": "PUBL"}, {"Code": "PVT"}]}},
+    "CabinPreferences": {"CabinType": [{"Code": "Y"}]}
+  },
+  "ResponseParameters": {
+    "ShopResultPreference": "FULL",
+    "SortOrder": [
+      {"Order": "ASCENDING", "Parameter": "PRICE"},
+      {"Order": "ASCENDING", "Parameter": "STOP"},
+      {"Order": "ASCENDING", "Parameter": "DEPARTURE_TIME"}
+    ]
+  }
+}

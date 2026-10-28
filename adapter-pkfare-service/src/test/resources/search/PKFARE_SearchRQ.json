@@ -1,0 +1,15 @@
+{
+  "adultNumber": 2,
+  "arrCity": "DXB",
+  "cabinClass": "Y",
+  "childNumber": 1,
+  "cutOffTime": 28000,
+  "depCity": "COK",
+  "fromDate": "20261020",
+  "infantNumber": 1,
+  "retDate": "20261028",
+  "returnTagPrice": "Y",
+  "tag": "",
+  "tripType": "2",
+  "vendorCode": "SHA-TEST"
+}

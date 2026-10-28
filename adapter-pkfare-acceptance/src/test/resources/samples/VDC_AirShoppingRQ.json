@@ -1,0 +1,122 @@
+{
+    "Travelers": {
+        "Traveler": [
+            {
+                "AnonymousTraveler": [
+                    {
+                        "PTC": {
+                            "value": "ADT"
+                        }
+                    }
+                ]
+            },
+            {
+                "AnonymousTraveler": [
+                    {
+                        "PTC": {
+                            "value": "ADT"
+                        }
+                    }
+                ]
+            },
+            {
+                "AnonymousTraveler": [
+                    {
+                        "PTC": {
+                            "value": "INF"
+                        }
+                    }
+                ]
+            },
+            {
+                "AnonymousTraveler": [
+                    {
+                        "PTC": {
+                            "value": "CHD"
+                        },
+                        "Age": {
+                            "BirthDate": {
+                                "value": "2024-01-01"
+                            },
+                            "Value": {
+                                "value": "2"
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "CoreQuery": {
+        "OriginDestinations": {
+            "OriginDestination": [
+                {
+                    "Departure": {
+                        "AirportCode": {
+                            "value": "COK"
+                        },
+                        "Date": "2026-10-20"
+                    },
+                    "Arrival": {
+                        "AirportCode": {
+                            "value": "DXB"
+                        }
+                    },
+                    "OriginDestinationKey": "OD1"
+                },
+                {
+                    "Departure": {
+                        "AirportCode": {
+                            "value": "DXB"
+                        },
+                        "Date": "2026-10-28"
+                    },
+                    "Arrival": {
+                        "AirportCode": {
+                            "value": "COK"
+                        }
+                    },
+                    "OriginDestinationKey": "OD2"
+                }
+            ]
+        }
+    },
+    "Preference": {
+        "FarePreferences": {
+            "Types": {
+                "Type": [
+                    {
+                        "Code": "PUBL"
+                    },
+                    {
+                        "Code": "PVT"
+                    }
+                ]
+            }
+        },
+        "CabinPreferences": {
+            "CabinType": [
+                {
+                    "Code": "W"
+                }
+            ]
+        }
+    },
+    "ResponseParameters": {
+        "ShopResultPreference": "OPTIMIZED",
+        "SortOrder": [
+            {
+                "Order": "ASCENDING",
+                "Parameter": "STOP"
+            },
+            {
+                "Order": "ASCENDING",
+                "Parameter": "PRICE"
+            },
+            {
+                "Order": "ASCENDING",
+                "Parameter": "DEPARTURE_TIME"
+            }
+        ]
+    }
+}

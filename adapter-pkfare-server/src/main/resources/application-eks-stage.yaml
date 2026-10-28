@@ -1,0 +1,3 @@
+client:
+  address:
+    vdcConfigurator: http://vdc-configurator:8090/vdc-configurator

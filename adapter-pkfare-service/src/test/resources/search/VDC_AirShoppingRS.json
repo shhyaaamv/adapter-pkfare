@@ -1,0 +1,3390 @@
+{
+ "Document": {
+  "Name": "AI",
+  "ReferenceVersion": "21.3"
+ },
+ "Warnings": {
+  "Warning": [
+   {
+    "value": "40003",
+    "ShortText": "Missing Free baggage Details"
+   }
+  ]
+ },
+ "OffersGroup": {
+  "AirlineOffers": [
+   {
+    "TotalOfferQuantity": 3,
+    "Owner": {
+     "value": "AI"
+    },
+    "AirlineOffer": [
+     {
+      "PricedOffer": {
+       "OfferPrice": [
+        {
+         "RequestedDate": {
+          "Associations": [
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX11"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "ref": "AI-SEG9"
+              },
+              {
+               "ref": "AI-SEG6"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND1"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT1"
+              ]
+             }
+            }
+           },
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX11"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "ref": "AI-SEG18"
+              },
+              {
+               "ref": "AI-SEG19"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND2"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT2"
+              ]
+             }
+            }
+           }
+          ],
+          "PriceDetail": {
+           "TotalAmount": {
+            "SimpleCurrencyPrice": {
+             "value": 17577,
+             "Code": "INR"
+            }
+           },
+           "BaseAmount": {
+            "value": 14235,
+            "Code": "INR"
+           },
+           "Taxes": {
+            "Total": {
+             "value": 3342,
+             "Code": "INR"
+            },
+            "Breakdown": {
+             "Tax": [
+              {
+               "Amount": {
+                "value": 640,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 20,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 2682,
+                "Code": "INR"
+               },
+               "TaxCode": "K3"
+              }
+             ]
+            }
+           }
+          }
+         },
+         "FareDetail": {
+          "FareComponent": [
+           {
+            "SegmentReference": {
+             "value": "AI-SEG9"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG6"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG18"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG19"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           }
+          ]
+         },
+         "OfferItemID": "1H2AIZ_0KZ5PZIOJZNJNY5NWKKZS0AOOEQG-1-1"
+        },
+        {
+         "RequestedDate": {
+          "Associations": [
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX1",
+              "AI-PAX2"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA1"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_5_ADT"
+                ]
+               },
+               "ref": "AI-SEG9"
+              },
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA1"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_4_ADT"
+                ]
+               },
+               "ref": "AI-SEG6"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND1"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT1"
+              ]
+             }
+            }
+           },
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX1",
+              "AI-PAX2"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA2"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_2_ADT"
+                ]
+               },
+               "ref": "AI-SEG18"
+              },
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA2"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_2_ADT"
+                ]
+               },
+               "ref": "AI-SEG19"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND2"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT2"
+              ]
+             }
+            }
+           }
+          ],
+          "PriceDetail": {
+           "TotalAmount": {
+            "SimpleCurrencyPrice": {
+             "value": 88503,
+             "Code": "INR"
+            }
+           },
+           "BaseAmount": {
+            "value": 57130,
+            "Code": "INR"
+           },
+           "Taxes": {
+            "Total": {
+             "value": 31373,
+             "Code": "INR"
+            },
+            "Breakdown": {
+             "Tax": [
+              {
+               "Amount": {
+                "value": 12350,
+                "Code": "INR"
+               },
+               "TaxCode": "YQ"
+              },
+              {
+               "Amount": {
+                "value": 640,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 20,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 673,
+                "Code": "INR"
+               },
+               "TaxCode": "IN"
+              },
+              {
+               "Amount": {
+                "value": 12626,
+                "Code": "INR"
+               },
+               "TaxCode": "K3"
+              },
+              {
+               "Amount": {
+                "value": 1371,
+                "Code": "INR"
+               },
+               "TaxCode": "P2"
+              },
+              {
+               "Amount": {
+                "value": 1978,
+                "Code": "INR"
+               },
+               "TaxCode": "AE"
+              },
+              {
+               "Amount": {
+                "value": 1319,
+                "Code": "INR"
+               },
+               "TaxCode": "F6"
+              },
+              {
+               "Amount": {
+                "value": 132,
+                "Code": "INR"
+               },
+               "TaxCode": "TP"
+              },
+              {
+               "Amount": {
+                "value": 264,
+                "Code": "INR"
+               },
+               "TaxCode": "ZR"
+              }
+             ]
+            }
+           }
+          }
+         },
+         "FareDetail": {
+          "FareComponent": [
+           {
+            "SegmentReference": {
+             "value": "AI-SEG9"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG6"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG18"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG19"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           }
+          ]
+         },
+         "OfferItemID": "1H2AIZ_0KZ5PZIOJZNJNY5NWKKZS0AOOEQG-1-2"
+        },
+        {
+         "RequestedDate": {
+          "Associations": [
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX3"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA1"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_5_CHD"
+                ]
+               },
+               "ref": "AI-SEG9"
+              },
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA1"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_4_CHD"
+                ]
+               },
+               "ref": "AI-SEG6"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND1"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT1"
+              ]
+             }
+            }
+           },
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX3"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA2"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_2_CHD"
+                ]
+               },
+               "ref": "AI-SEG18"
+              },
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA2"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_2_CHD"
+                ]
+               },
+               "ref": "AI-SEG19"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND2"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT2"
+              ]
+             }
+            }
+           }
+          ],
+          "PriceDetail": {
+           "TotalAmount": {
+            "SimpleCurrencyPrice": {
+             "value": 74443,
+             "Code": "INR"
+            }
+           },
+           "BaseAmount": {
+            "value": 45215,
+            "Code": "INR"
+           },
+           "Taxes": {
+            "Total": {
+             "value": 29228,
+             "Code": "INR"
+            },
+            "Breakdown": {
+             "Tax": [
+              {
+               "Amount": {
+                "value": 12350,
+                "Code": "INR"
+               },
+               "TaxCode": "YQ"
+              },
+              {
+               "Amount": {
+                "value": 640,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 20,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 673,
+                "Code": "INR"
+               },
+               "TaxCode": "IN"
+              },
+              {
+               "Amount": {
+                "value": 10481,
+                "Code": "INR"
+               },
+               "TaxCode": "K3"
+              },
+              {
+               "Amount": {
+                "value": 1371,
+                "Code": "INR"
+               },
+               "TaxCode": "P2"
+              },
+              {
+               "Amount": {
+                "value": 1978,
+                "Code": "INR"
+               },
+               "TaxCode": "AE"
+              },
+              {
+               "Amount": {
+                "value": 1319,
+                "Code": "INR"
+               },
+               "TaxCode": "F6"
+              },
+              {
+               "Amount": {
+                "value": 132,
+                "Code": "INR"
+               },
+               "TaxCode": "TP"
+              },
+              {
+               "Amount": {
+                "value": 264,
+                "Code": "INR"
+               },
+               "TaxCode": "ZR"
+              }
+             ]
+            }
+           }
+          }
+         },
+         "FareDetail": {
+          "FareComponent": [
+           {
+            "SegmentReference": {
+             "value": "AI-SEG9"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG6"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG18"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG19"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           }
+          ]
+         },
+         "OfferItemID": "1H2AIZ_0KZ5PZIOJZNJNY5NWKKZS0AOOEQG-1-3"
+        }
+       ],
+       "Associations": [
+        {
+         "ApplicableFlight": {
+          "FlightSegmentReference": [
+           {
+            "ClassOfService": {
+             "Code": {
+              "value": "Y"
+             },
+             "MarketingName": {
+              "value": "ECONOMY",
+              "CabinDesignator": "Y"
+             }
+            },
+            "ref": "AI-SEG9"
+           },
+           {
+            "ClassOfService": {
+             "Code": {
+              "value": "E"
+             },
+             "MarketingName": {
+              "value": "PREMIUM ECONOMY",
+              "CabinDesignator": "W"
+             }
+            },
+            "ref": "AI-SEG6"
+           }
+          ],
+          "OriginDestinationReferences": [
+           "AI-OND1"
+          ],
+          "FlightReferences": {
+           "value": [
+            "AI-FLT1"
+           ]
+          }
+         },
+         "PriceClass": {
+          "PriceClassReference": "AI-PWINGF"
+         }
+        },
+        {
+         "ApplicableFlight": {
+          "FlightSegmentReference": [
+           {
+            "ClassOfService": {
+             "Code": {
+              "value": "Z"
+             },
+             "MarketingName": {
+              "value": "BUSINESS",
+              "CabinDesignator": "C"
+             }
+            },
+            "ref": "AI-SEG18"
+           },
+           {
+            "ClassOfService": {
+             "Code": {
+              "value": "Z"
+             },
+             "MarketingName": {
+              "value": "BUSINESS",
+              "CabinDesignator": "C"
+             }
+            },
+            "ref": "AI-SEG19"
+           }
+          ],
+          "OriginDestinationReferences": [
+           "AI-OND2"
+          ],
+          "FlightReferences": {
+           "value": [
+            "AI-FLT2"
+           ]
+          }
+         },
+         "PriceClass": {
+          "PriceClassReference": "AI-CWINGF"
+         }
+        }
+       ]
+      },
+      "OfferID": {
+       "value": "1H2AIZ_0KZ5PZIOJZNJNY5NWKKZS0AOOEQG",
+       "Owner": "AI",
+       "Channel": "NDC"
+      },
+      "TimeLimits": {
+       "OfferExpiration": {
+        "DateTime": "2026-10-15T16:25:17.740"
+       }
+      },
+      "TotalPrice": {
+       "SimpleCurrencyPrice": {
+        "value": 269026,
+        "Code": "INR"
+       }
+      },
+      "refs": [
+       {
+        "Ref": "VDC-FR-Cancel-2-0-8000-AI"
+       },
+       {
+        "Ref": "VDC-FR-Cancel-2-0-12000-AI"
+       },
+       {
+        "Ref": "VDC-FR-Change-2-0-4000-AI"
+       },
+       {
+        "Ref": "VDC-FBC-DXB-BOM-FG-48517864724143"
+       },
+       {
+        "Ref": "VDC-FBC-BOM-DXB-FG-48517865446852"
+       },
+       {
+        "Ref": "VDC-FBC-BOM-COK-FG-48517864724143"
+       },
+       {
+        "Ref": "VDC-FBC-COK-BOM-FG-48517865446852"
+       },
+       {
+        "Ref": "VDC-AIRLINE-SRID"
+       },
+       {
+        "Ref": "VDC-AGY-DC-0fOF2axVCIxwbd3gVIww"
+       }
+      ]
+     },
+     {
+      "PricedOffer": {
+       "OfferPrice": [
+        {
+         "RequestedDate": {
+          "Associations": [
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX11"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "ref": "AI-SEG9"
+              },
+              {
+               "ref": "AI-SEG4"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND1"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT3"
+              ]
+             }
+            }
+           },
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX11"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "ref": "AI-SEG18"
+              },
+              {
+               "ref": "AI-SEG19"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND2"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT2"
+              ]
+             }
+            }
+           }
+          ],
+          "PriceDetail": {
+           "TotalAmount": {
+            "SimpleCurrencyPrice": {
+             "value": 17577,
+             "Code": "INR"
+            }
+           },
+           "BaseAmount": {
+            "value": 14235,
+            "Code": "INR"
+           },
+           "Taxes": {
+            "Total": {
+             "value": 3342,
+             "Code": "INR"
+            },
+            "Breakdown": {
+             "Tax": [
+              {
+               "Amount": {
+                "value": 640,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 20,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 2682,
+                "Code": "INR"
+               },
+               "TaxCode": "K3"
+              }
+             ]
+            }
+           }
+          }
+         },
+         "FareDetail": {
+          "FareComponent": [
+           {
+            "SegmentReference": {
+             "value": "AI-SEG9"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG4"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG18"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG19"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           }
+          ]
+         },
+         "OfferItemID": "1H2AIZ_XGHLVMSBJGXZ0H7943E4TVFW7PXP-1-1"
+        },
+        {
+         "RequestedDate": {
+          "Associations": [
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX1",
+              "AI-PAX2"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA1"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_5_ADT"
+                ]
+               },
+               "ref": "AI-SEG9"
+              },
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA1"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_4_ADT"
+                ]
+               },
+               "ref": "AI-SEG4"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND1"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT3"
+              ]
+             }
+            }
+           },
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX1",
+              "AI-PAX2"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA2"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_2_ADT"
+                ]
+               },
+               "ref": "AI-SEG18"
+              },
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA2"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_2_ADT"
+                ]
+               },
+               "ref": "AI-SEG19"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND2"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT2"
+              ]
+             }
+            }
+           }
+          ],
+          "PriceDetail": {
+           "TotalAmount": {
+            "SimpleCurrencyPrice": {
+             "value": 88503,
+             "Code": "INR"
+            }
+           },
+           "BaseAmount": {
+            "value": 57130,
+            "Code": "INR"
+           },
+           "Taxes": {
+            "Total": {
+             "value": 31373,
+             "Code": "INR"
+            },
+            "Breakdown": {
+             "Tax": [
+              {
+               "Amount": {
+                "value": 12350,
+                "Code": "INR"
+               },
+               "TaxCode": "YQ"
+              },
+              {
+               "Amount": {
+                "value": 640,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 20,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 673,
+                "Code": "INR"
+               },
+               "TaxCode": "IN"
+              },
+              {
+               "Amount": {
+                "value": 12626,
+                "Code": "INR"
+               },
+               "TaxCode": "K3"
+              },
+              {
+               "Amount": {
+                "value": 1371,
+                "Code": "INR"
+               },
+               "TaxCode": "P2"
+              },
+              {
+               "Amount": {
+                "value": 1978,
+                "Code": "INR"
+               },
+               "TaxCode": "AE"
+              },
+              {
+               "Amount": {
+                "value": 1319,
+                "Code": "INR"
+               },
+               "TaxCode": "F6"
+              },
+              {
+               "Amount": {
+                "value": 132,
+                "Code": "INR"
+               },
+               "TaxCode": "TP"
+              },
+              {
+               "Amount": {
+                "value": 264,
+                "Code": "INR"
+               },
+               "TaxCode": "ZR"
+              }
+             ]
+            }
+           }
+          }
+         },
+         "FareDetail": {
+          "FareComponent": [
+           {
+            "SegmentReference": {
+             "value": "AI-SEG9"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG4"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG18"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG19"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           }
+          ]
+         },
+         "OfferItemID": "1H2AIZ_XGHLVMSBJGXZ0H7943E4TVFW7PXP-1-2"
+        },
+        {
+         "RequestedDate": {
+          "Associations": [
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX3"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA1"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_5_CHD"
+                ]
+               },
+               "ref": "AI-SEG9"
+              },
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA1"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_4_CHD"
+                ]
+               },
+               "ref": "AI-SEG4"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND1"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT3"
+              ]
+             }
+            }
+           },
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX3"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA2"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_2_CHD"
+                ]
+               },
+               "ref": "AI-SEG18"
+              },
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA2"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_2_CHD"
+                ]
+               },
+               "ref": "AI-SEG19"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND2"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT2"
+              ]
+             }
+            }
+           }
+          ],
+          "PriceDetail": {
+           "TotalAmount": {
+            "SimpleCurrencyPrice": {
+             "value": 74443,
+             "Code": "INR"
+            }
+           },
+           "BaseAmount": {
+            "value": 45215,
+            "Code": "INR"
+           },
+           "Taxes": {
+            "Total": {
+             "value": 29228,
+             "Code": "INR"
+            },
+            "Breakdown": {
+             "Tax": [
+              {
+               "Amount": {
+                "value": 12350,
+                "Code": "INR"
+               },
+               "TaxCode": "YQ"
+              },
+              {
+               "Amount": {
+                "value": 640,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 20,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 673,
+                "Code": "INR"
+               },
+               "TaxCode": "IN"
+              },
+              {
+               "Amount": {
+                "value": 10481,
+                "Code": "INR"
+               },
+               "TaxCode": "K3"
+              },
+              {
+               "Amount": {
+                "value": 1371,
+                "Code": "INR"
+               },
+               "TaxCode": "P2"
+              },
+              {
+               "Amount": {
+                "value": 1978,
+                "Code": "INR"
+               },
+               "TaxCode": "AE"
+              },
+              {
+               "Amount": {
+                "value": 1319,
+                "Code": "INR"
+               },
+               "TaxCode": "F6"
+              },
+              {
+               "Amount": {
+                "value": 132,
+                "Code": "INR"
+               },
+               "TaxCode": "TP"
+              },
+              {
+               "Amount": {
+                "value": 264,
+                "Code": "INR"
+               },
+               "TaxCode": "ZR"
+              }
+             ]
+            }
+           }
+          }
+         },
+         "FareDetail": {
+          "FareComponent": [
+           {
+            "SegmentReference": {
+             "value": "AI-SEG9"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG4"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG18"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG19"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           }
+          ]
+         },
+         "OfferItemID": "1H2AIZ_XGHLVMSBJGXZ0H7943E4TVFW7PXP-1-3"
+        }
+       ],
+       "Associations": [
+        {
+         "ApplicableFlight": {
+          "FlightSegmentReference": [
+           {
+            "ClassOfService": {
+             "Code": {
+              "value": "Y"
+             },
+             "MarketingName": {
+              "value": "ECONOMY",
+              "CabinDesignator": "Y"
+             }
+            },
+            "ref": "AI-SEG9"
+           },
+           {
+            "ClassOfService": {
+             "Code": {
+              "value": "E"
+             },
+             "MarketingName": {
+              "value": "PREMIUM ECONOMY",
+              "CabinDesignator": "W"
+             }
+            },
+            "ref": "AI-SEG4"
+           }
+          ],
+          "OriginDestinationReferences": [
+           "AI-OND1"
+          ],
+          "FlightReferences": {
+           "value": [
+            "AI-FLT3"
+           ]
+          }
+         },
+         "PriceClass": {
+          "PriceClassReference": "AI-PWINGF"
+         }
+        },
+        {
+         "ApplicableFlight": {
+          "FlightSegmentReference": [
+           {
+            "ClassOfService": {
+             "Code": {
+              "value": "Z"
+             },
+             "MarketingName": {
+              "value": "BUSINESS",
+              "CabinDesignator": "C"
+             }
+            },
+            "ref": "AI-SEG18"
+           },
+           {
+            "ClassOfService": {
+             "Code": {
+              "value": "Z"
+             },
+             "MarketingName": {
+              "value": "BUSINESS",
+              "CabinDesignator": "C"
+             }
+            },
+            "ref": "AI-SEG19"
+           }
+          ],
+          "OriginDestinationReferences": [
+           "AI-OND2"
+          ],
+          "FlightReferences": {
+           "value": [
+            "AI-FLT2"
+           ]
+          }
+         },
+         "PriceClass": {
+          "PriceClassReference": "AI-CWINGF"
+         }
+        }
+       ]
+      },
+      "OfferID": {
+       "value": "1H2AIZ_XGHLVMSBJGXZ0H7943E4TVFW7PXP",
+       "Owner": "AI",
+       "Channel": "NDC"
+      },
+      "TimeLimits": {
+       "OfferExpiration": {
+        "DateTime": "2026-10-15T16:25:17.740"
+       }
+      },
+      "TotalPrice": {
+       "SimpleCurrencyPrice": {
+        "value": 269026,
+        "Code": "INR"
+       }
+      },
+      "refs": [
+       {
+        "Ref": "VDC-FR-Cancel-2-0-8000-AI"
+       },
+       {
+        "Ref": "VDC-FR-Cancel-2-0-12000-AI"
+       },
+       {
+        "Ref": "VDC-FR-Change-2-0-4000-AI"
+       },
+       {
+        "Ref": "VDC-FBC-DXB-BOM-FG-48517864724143"
+       },
+       {
+        "Ref": "VDC-FBC-BOM-DXB-FG-48517865446852"
+       },
+       {
+        "Ref": "VDC-FBC-BOM-COK-FG-48517864724143"
+       },
+       {
+        "Ref": "VDC-FBC-COK-BOM-FG-48517865446852"
+       },
+       {
+        "Ref": "VDC-AIRLINE-SRID"
+       },
+       {
+        "Ref": "VDC-AGY-DC-0fOF2axVCIxwbd3gVIww"
+       }
+      ]
+     },
+     {
+      "PricedOffer": {
+       "OfferPrice": [
+        {
+         "RequestedDate": {
+          "Associations": [
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX11"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "ref": "AI-SEG9"
+              },
+              {
+               "ref": "AI-SEG6"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND1"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT1"
+              ]
+             }
+            }
+           },
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX11"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "ref": "AI-SEG20"
+              },
+              {
+               "ref": "AI-SEG19"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND2"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT4"
+              ]
+             }
+            }
+           }
+          ],
+          "PriceDetail": {
+           "TotalAmount": {
+            "SimpleCurrencyPrice": {
+             "value": 17577,
+             "Code": "INR"
+            }
+           },
+           "BaseAmount": {
+            "value": 14235,
+            "Code": "INR"
+           },
+           "Taxes": {
+            "Total": {
+             "value": 3342,
+             "Code": "INR"
+            },
+            "Breakdown": {
+             "Tax": [
+              {
+               "Amount": {
+                "value": 640,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 20,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 2682,
+                "Code": "INR"
+               },
+               "TaxCode": "K3"
+              }
+             ]
+            }
+           }
+          }
+         },
+         "FareDetail": {
+          "FareComponent": [
+           {
+            "SegmentReference": {
+             "value": "AI-SEG9"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG6"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG20"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG19"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           }
+          ]
+         },
+         "OfferItemID": "1H2AIZ_7NA81UDTHL1S5558STR1RYNMQWG6-1-1"
+        },
+        {
+         "RequestedDate": {
+          "Associations": [
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX1",
+              "AI-PAX2"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA1"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_5_ADT"
+                ]
+               },
+               "ref": "AI-SEG9"
+              },
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA1"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_4_ADT"
+                ]
+               },
+               "ref": "AI-SEG6"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND1"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT1"
+              ]
+             }
+            }
+           },
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX1",
+              "AI-PAX2"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA2"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_2_ADT"
+                ]
+               },
+               "ref": "AI-SEG20"
+              },
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA2"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_2_ADT"
+                ]
+               },
+               "ref": "AI-SEG19"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND2"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT4"
+              ]
+             }
+            }
+           }
+          ],
+          "PriceDetail": {
+           "TotalAmount": {
+            "SimpleCurrencyPrice": {
+             "value": 88503,
+             "Code": "INR"
+            }
+           },
+           "BaseAmount": {
+            "value": 57130,
+            "Code": "INR"
+           },
+           "Taxes": {
+            "Total": {
+             "value": 31373,
+             "Code": "INR"
+            },
+            "Breakdown": {
+             "Tax": [
+              {
+               "Amount": {
+                "value": 12350,
+                "Code": "INR"
+               },
+               "TaxCode": "YQ"
+              },
+              {
+               "Amount": {
+                "value": 640,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 20,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 673,
+                "Code": "INR"
+               },
+               "TaxCode": "IN"
+              },
+              {
+               "Amount": {
+                "value": 12626,
+                "Code": "INR"
+               },
+               "TaxCode": "K3"
+              },
+              {
+               "Amount": {
+                "value": 1371,
+                "Code": "INR"
+               },
+               "TaxCode": "P2"
+              },
+              {
+               "Amount": {
+                "value": 1978,
+                "Code": "INR"
+               },
+               "TaxCode": "AE"
+              },
+              {
+               "Amount": {
+                "value": 1319,
+                "Code": "INR"
+               },
+               "TaxCode": "F6"
+              },
+              {
+               "Amount": {
+                "value": 132,
+                "Code": "INR"
+               },
+               "TaxCode": "TP"
+              },
+              {
+               "Amount": {
+                "value": 264,
+                "Code": "INR"
+               },
+               "TaxCode": "ZR"
+              }
+             ]
+            }
+           }
+          }
+         },
+         "FareDetail": {
+          "FareComponent": [
+           {
+            "SegmentReference": {
+             "value": "AI-SEG9"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG6"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG20"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG19"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           }
+          ]
+         },
+         "OfferItemID": "1H2AIZ_7NA81UDTHL1S5558STR1RYNMQWG6-1-2"
+        },
+        {
+         "RequestedDate": {
+          "Associations": [
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX3"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA1"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_5_CHD"
+                ]
+               },
+               "ref": "AI-SEG9"
+              },
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA1"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_4_CHD"
+                ]
+               },
+               "ref": "AI-SEG6"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND1"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT1"
+              ]
+             }
+            }
+           },
+           {
+            "AssociatedTraveler": {
+             "TravelerReferences": [
+              "AI-PAX3"
+             ]
+            },
+            "ApplicableFlight": {
+             "FlightSegmentReference": [
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA2"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_2_CHD"
+                ]
+               },
+               "ref": "AI-SEG20"
+              },
+              {
+               "BagDetailAssociation": {
+                "CheckedBagReferences": [
+                 "AI-FBA2"
+                ],
+                "CarryOnReferences": [
+                 "AI-CARRY_ON_ALLOWANCE_2_CHD"
+                ]
+               },
+               "ref": "AI-SEG19"
+              }
+             ],
+             "OriginDestinationReferences": [
+              "AI-OND2"
+             ],
+             "FlightReferences": {
+              "value": [
+               "AI-FLT4"
+              ]
+             }
+            }
+           }
+          ],
+          "PriceDetail": {
+           "TotalAmount": {
+            "SimpleCurrencyPrice": {
+             "value": 74443,
+             "Code": "INR"
+            }
+           },
+           "BaseAmount": {
+            "value": 45215,
+            "Code": "INR"
+           },
+           "Taxes": {
+            "Total": {
+             "value": 29228,
+             "Code": "INR"
+            },
+            "Breakdown": {
+             "Tax": [
+              {
+               "Amount": {
+                "value": 12350,
+                "Code": "INR"
+               },
+               "TaxCode": "YQ"
+              },
+              {
+               "Amount": {
+                "value": 640,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 20,
+                "Code": "INR"
+               },
+               "TaxCode": "YR"
+              },
+              {
+               "Amount": {
+                "value": 673,
+                "Code": "INR"
+               },
+               "TaxCode": "IN"
+              },
+              {
+               "Amount": {
+                "value": 10481,
+                "Code": "INR"
+               },
+               "TaxCode": "K3"
+              },
+              {
+               "Amount": {
+                "value": 1371,
+                "Code": "INR"
+               },
+               "TaxCode": "P2"
+              },
+              {
+               "Amount": {
+                "value": 1978,
+                "Code": "INR"
+               },
+               "TaxCode": "AE"
+              },
+              {
+               "Amount": {
+                "value": 1319,
+                "Code": "INR"
+               },
+               "TaxCode": "F6"
+              },
+              {
+               "Amount": {
+                "value": 132,
+                "Code": "INR"
+               },
+               "TaxCode": "TP"
+              },
+              {
+               "Amount": {
+                "value": 264,
+                "Code": "INR"
+               },
+               "TaxCode": "ZR"
+              }
+             ]
+            }
+           }
+          }
+         },
+         "FareDetail": {
+          "FareComponent": [
+           {
+            "SegmentReference": {
+             "value": "AI-SEG9"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG6"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-8000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517865446852"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG20"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           },
+           {
+            "SegmentReference": {
+             "value": "AI-SEG19"
+            },
+            "FareRules": {
+             "Penalty": {
+              "refs": [
+               "AI-Cancel-2-0-12000",
+               "AI-Change-2-0-4000"
+              ]
+             }
+            },
+            "refs": [
+             "AI-FG-48517864724143"
+            ]
+           }
+          ]
+         },
+         "OfferItemID": "1H2AIZ_7NA81UDTHL1S5558STR1RYNMQWG6-1-3"
+        }
+       ],
+       "Associations": [
+        {
+         "ApplicableFlight": {
+          "FlightSegmentReference": [
+           {
+            "ClassOfService": {
+             "Code": {
+              "value": "Y"
+             },
+             "MarketingName": {
+              "value": "ECONOMY",
+              "CabinDesignator": "Y"
+             }
+            },
+            "ref": "AI-SEG9"
+           },
+           {
+            "ClassOfService": {
+             "Code": {
+              "value": "E"
+             },
+             "MarketingName": {
+              "value": "PREMIUM ECONOMY",
+              "CabinDesignator": "W"
+             }
+            },
+            "ref": "AI-SEG6"
+           }
+          ],
+          "OriginDestinationReferences": [
+           "AI-OND1"
+          ],
+          "FlightReferences": {
+           "value": [
+            "AI-FLT1"
+           ]
+          }
+         },
+         "PriceClass": {
+          "PriceClassReference": "AI-PWINGF"
+         }
+        },
+        {
+         "ApplicableFlight": {
+          "FlightSegmentReference": [
+           {
+            "ClassOfService": {
+             "Code": {
+              "value": "Z"
+             },
+             "MarketingName": {
+              "value": "BUSINESS",
+              "CabinDesignator": "C"
+             }
+            },
+            "ref": "AI-SEG20"
+           },
+           {
+            "ClassOfService": {
+             "Code": {
+              "value": "Z"
+             },
+             "MarketingName": {
+              "value": "BUSINESS",
+              "CabinDesignator": "C"
+             }
+            },
+            "ref": "AI-SEG19"
+           }
+          ],
+          "OriginDestinationReferences": [
+           "AI-OND2"
+          ],
+          "FlightReferences": {
+           "value": [
+            "AI-FLT4"
+           ]
+          }
+         },
+         "PriceClass": {
+          "PriceClassReference": "AI-CWINGF"
+         }
+        }
+       ]
+      },
+      "OfferID": {
+       "value": "1H2AIZ_7NA81UDTHL1S5558STR1RYNMQWG6",
+       "Owner": "AI",
+       "Channel": "NDC"
+      },
+      "TimeLimits": {
+       "OfferExpiration": {
+        "DateTime": "2026-10-15T16:25:17.740"
+       }
+      },
+      "TotalPrice": {
+       "SimpleCurrencyPrice": {
+        "value": 269026,
+        "Code": "INR"
+       }
+      },
+      "refs": [
+       {
+        "Ref": "VDC-FR-Cancel-2-0-8000-AI"
+       },
+       {
+        "Ref": "VDC-FR-Cancel-2-0-12000-AI"
+       },
+       {
+        "Ref": "VDC-FR-Change-2-0-4000-AI"
+       },
+       {
+        "Ref": "VDC-FBC-DXB-BOM-FG-48517864724143"
+       },
+       {
+        "Ref": "VDC-FBC-BOM-DXB-FG-48517865446852"
+       },
+       {
+        "Ref": "VDC-FBC-BOM-COK-FG-48517864724143"
+       },
+       {
+        "Ref": "VDC-FBC-COK-BOM-FG-48517865446852"
+       },
+       {
+        "Ref": "VDC-AIRLINE-SRID"
+       },
+       {
+        "Ref": "VDC-AGY-DC-0fOF2axVCIxwbd3gVIww"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "DataLists": {
+  "AnonymousTravelerList": {
+   "AnonymousTraveler": [
+    {
+     "ObjectKey": "AI-PAX11",
+     "PTC": {
+      "value": "INF"
+     }
+    },
+    {
+     "ObjectKey": "AI-PAX2",
+     "PTC": {
+      "value": "ADT"
+     }
+    },
+    {
+     "ObjectKey": "AI-PAX3",
+     "PTC": {
+      "value": "CHD"
+     }
+    },
+    {
+     "ObjectKey": "AI-PAX1",
+     "PTC": {
+      "value": "ADT"
+     }
+    }
+   ]
+  },
+  "CarryOnAllowanceList": {
+   "CarryOnAllowance": [
+    {
+     "ListKey": "AI-CARRY_ON_ALLOWANCE_4_CHD",
+     "AllowanceDescription": {
+      "ApplicableParty": "Traveler",
+      "Descriptions": {
+       "Description": [
+        {
+         "Text": {
+          "value": "Max width 20 cm, height 55 cm and length 40 cm. The total dimensions of the bag must not exceed 115 cm (45.27 in)"
+         }
+        }
+       ]
+      }
+     },
+     "PieceAllowance": [
+      {
+       "ApplicableParty": "Traveler",
+       "TotalQuantity": 1,
+       "PieceMeasurements": [
+        {
+         "Quantity": 1
+        }
+       ]
+      }
+     ],
+     "WeightAllowance": {
+      "ApplicableParty": "Traveler",
+      "MaximumWeight": [
+       {
+        "Value": 7,
+        "UOM": "Kilogram"
+       }
+      ]
+     }
+    },
+    {
+     "ListKey": "AI-CARRY_ON_ALLOWANCE_5_CHD",
+     "AllowanceDescription": {
+      "ApplicableParty": "Traveler",
+      "Descriptions": {
+       "Description": [
+        {
+         "Text": {
+          "value": "Max width 20 cm, height 55 cm and length 40 cm. The total dimensions of the bag must not exceed 115 cm (45.27 in)"
+         }
+        }
+       ]
+      }
+     },
+     "PieceAllowance": [
+      {
+       "ApplicableParty": "Traveler",
+       "TotalQuantity": 1,
+       "PieceMeasurements": [
+        {
+         "Quantity": 1
+        }
+       ]
+      }
+     ],
+     "WeightAllowance": {
+      "ApplicableParty": "Traveler",
+      "MaximumWeight": [
+       {
+        "Value": 7,
+        "UOM": "Kilogram"
+       }
+      ]
+     }
+    },
+    {
+     "ListKey": "AI-CARRY_ON_ALLOWANCE_5_ADT",
+     "AllowanceDescription": {
+      "ApplicableParty": "Traveler",
+      "Descriptions": {
+       "Description": [
+        {
+         "Text": {
+          "value": "Max width 20 cm, height 55 cm and length 40 cm. The total dimensions of the bag must not exceed 115 cm (45.27 in)"
+         }
+        }
+       ]
+      }
+     },
+     "PieceAllowance": [
+      {
+       "ApplicableParty": "Traveler",
+       "TotalQuantity": 1,
+       "PieceMeasurements": [
+        {
+         "Quantity": 1
+        }
+       ]
+      }
+     ],
+     "WeightAllowance": {
+      "ApplicableParty": "Traveler",
+      "MaximumWeight": [
+       {
+        "Value": 7,
+        "UOM": "Kilogram"
+       }
+      ]
+     }
+    },
+    {
+     "ListKey": "AI-CARRY_ON_ALLOWANCE_4_ADT",
+     "AllowanceDescription": {
+      "ApplicableParty": "Traveler",
+      "Descriptions": {
+       "Description": [
+        {
+         "Text": {
+          "value": "Max width 20 cm, height 55 cm and length 40 cm. The total dimensions of the bag must not exceed 115 cm (45.27 in)"
+         }
+        }
+       ]
+      }
+     },
+     "PieceAllowance": [
+      {
+       "ApplicableParty": "Traveler",
+       "TotalQuantity": 1,
+       "PieceMeasurements": [
+        {
+         "Quantity": 1
+        }
+       ]
+      }
+     ],
+     "WeightAllowance": {
+      "ApplicableParty": "Traveler",
+      "MaximumWeight": [
+       {
+        "Value": 7,
+        "UOM": "Kilogram"
+       }
+      ]
+     }
+    },
+    {
+     "ListKey": "AI-CARRY_ON_ALLOWANCE_2_CHD",
+     "AllowanceDescription": {
+      "ApplicableParty": "Traveler",
+      "Descriptions": {
+       "Description": [
+        {
+         "Text": {
+          "value": "Max width 20 cm, height 55 cm and length 40 cm. The total dimensions of the bag must not exceed 115 cm (45.27 in)"
+         }
+        }
+       ]
+      }
+     },
+     "PieceAllowance": [
+      {
+       "ApplicableParty": "Traveler",
+       "TotalQuantity": 1,
+       "PieceMeasurements": [
+        {
+         "Quantity": 1
+        }
+       ]
+      }
+     ],
+     "WeightAllowance": {
+      "ApplicableParty": "Traveler",
+      "MaximumWeight": [
+       {
+        "Value": 10,
+        "UOM": "Kilogram"
+       }
+      ]
+     }
+    },
+    {
+     "ListKey": "AI-CARRY_ON_ALLOWANCE_2_ADT",
+     "AllowanceDescription": {
+      "ApplicableParty": "Traveler",
+      "Descriptions": {
+       "Description": [
+        {
+         "Text": {
+          "value": "Max width 20 cm, height 55 cm and length 40 cm. The total dimensions of the bag must not exceed 115 cm (45.27 in)"
+         }
+        }
+       ]
+      }
+     },
+     "PieceAllowance": [
+      {
+       "ApplicableParty": "Traveler",
+       "TotalQuantity": 1,
+       "PieceMeasurements": [
+        {
+         "Quantity": 1
+        }
+       ]
+      }
+     ],
+     "WeightAllowance": {
+      "ApplicableParty": "Traveler",
+      "MaximumWeight": [
+       {
+        "Value": 10,
+        "UOM": "Kilogram"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "CheckedBagAllowanceList": {
+   "CheckedBagAllowance": [
+    {
+     "ListKey": "AI-FBA1",
+     "AllowanceDescription": {
+      "ApplicableParty": "Traveler",
+      "Descriptions": {
+       "Description": [
+        {
+         "Text": {
+          "value": "Checked"
+         }
+        }
+       ]
+      }
+     },
+     "WeightAllowance": {
+      "ApplicableParty": "Traveler",
+      "MaximumWeight": [
+       {
+        "Value": 25,
+        "UOM": "Kilogram"
+       }
+      ]
+     }
+    },
+    {
+     "ListKey": "AI-FBA2",
+     "AllowanceDescription": {
+      "ApplicableParty": "Traveler",
+      "Descriptions": {
+       "Description": [
+        {
+         "Text": {
+          "value": "Checked"
+         }
+        }
+       ]
+      }
+     },
+     "WeightAllowance": {
+      "ApplicableParty": "Traveler",
+      "MaximumWeight": [
+       {
+        "Value": 40,
+        "UOM": "Kilogram"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "FareList": {
+   "FareGroup": [
+    {
+     "ListKey": "AI-FG-48517864724143",
+     "Fare": {
+      "FareCode": {
+       "Code": "758"
+      },
+      "FareDetail": {
+       "Remarks": {
+        "Remark": [
+         {
+          "value": "PVT"
+         }
+        ]
+       }
+      }
+     },
+     "FareBasisCode": {
+      "Code": "ZP2CWSI3"
+     }
+    },
+    {
+     "ListKey": "AI-FG-48517865446852",
+     "Fare": {
+      "FareCode": {
+       "Code": "758"
+      },
+      "FareDetail": {
+       "Remarks": {
+        "Remark": [
+         {
+          "value": "PVT"
+         }
+        ]
+       }
+      }
+     },
+     "FareBasisCode": {
+      "Code": "ELVPW2I3"
+     }
+    }
+   ]
+  },
+  "FlightSegmentList": {
+   "FlightSegment": [
+    {
+     "SegmentKey": "AI-SEG20",
+     "Departure": {
+      "AirportCode": {
+       "value": "DXB"
+      },
+      "Date": "2026-10-28T21:10:00.000",
+      "Time": "21:10",
+      "Terminal": {
+       "Name": "1"
+      }
+     },
+     "Arrival": {
+      "AirportCode": {
+       "value": "BOM"
+      },
+      "Date": "2026-10-29T01:50:00.000",
+      "Time": "01:50",
+      "Terminal": {
+       "Name": "2"
+      }
+     },
+     "MarketingCarrier": {
+      "AirlineID": {
+       "value": "AI"
+      },
+      "Name": "Air India",
+      "FlightNumber": {
+       "value": "2202"
+      }
+     },
+     "OperatingCarrier": {
+      "AirlineID": {
+       "value": "AI"
+      },
+      "Name": "AIR INDIA"
+     },
+     "Equipment": {
+      "AircraftCode": {
+       "value": "321"
+      }
+     },
+     "FlightDetail": {
+      "FlightDuration": {
+       "Value": "PT3H10M"
+      }
+     }
+    },
+    {
+     "SegmentKey": "AI-SEG6",
+     "Departure": {
+      "AirportCode": {
+       "value": "BOM"
+      },
+      "Date": "2026-10-20T16:05:00.000",
+      "Time": "16:05",
+      "Terminal": {
+       "Name": "2"
+      }
+     },
+     "Arrival": {
+      "AirportCode": {
+       "value": "DXB"
+      },
+      "Date": "2026-10-20T17:55:00.000",
+      "Time": "17:55",
+      "Terminal": {
+       "Name": "1"
+      }
+     },
+     "MarketingCarrier": {
+      "AirlineID": {
+       "value": "AI"
+      },
+      "Name": "Air India",
+      "FlightNumber": {
+       "value": "2217"
+      }
+     },
+     "OperatingCarrier": {
+      "AirlineID": {
+       "value": "AI"
+      },
+      "Name": "AIR INDIA"
+     },
+     "Equipment": {
+      "AircraftCode": {
+       "value": "32N"
+      }
+     },
+     "FlightDetail": {
+      "FlightDuration": {
+       "Value": "PT3H20M"
+      }
+     }
+    },
+    {
+     "SegmentKey": "AI-SEG4",
+     "Departure": {
+      "AirportCode": {
+       "value": "BOM"
+      },
+      "Date": "2026-10-20T17:25:00.000",
+      "Time": "17:25",
+      "Terminal": {
+       "Name": "2"
+      }
+     },
+     "Arrival": {
+      "AirportCode": {
+       "value": "DXB"
+      },
+      "Date": "2026-10-20T19:10:00.000",
+      "Time": "19:10",
+      "Terminal": {
+       "Name": "1"
+      }
+     },
+     "MarketingCarrier": {
+      "AirlineID": {
+       "value": "AI"
+      },
+      "Name": "Air India",
+      "FlightNumber": {
+       "value": "2201"
+      }
+     },
+     "OperatingCarrier": {
+      "AirlineID": {
+       "value": "AI"
+      },
+      "Name": "AIR INDIA"
+     },
+     "Equipment": {
+      "AircraftCode": {
+       "value": "321"
+      }
+     },
+     "FlightDetail": {
+      "FlightDuration": {
+       "Value": "PT3H15M"
+      }
+     }
+    },
+    {
+     "SegmentKey": "AI-SEG9",
+     "Departure": {
+      "AirportCode": {
+       "value": "COK"
+      },
+      "Date": "2026-10-20T08:50:00.000",
+      "Time": "08:50",
+      "Terminal": {
+       "Name": "1"
+      }
+     },
+     "Arrival": {
+      "AirportCode": {
+       "value": "BOM"
+      },
+      "Date": "2026-10-20T11:30:00.000",
+      "Time": "11:30",
+      "Terminal": {
+       "Name": "2"
+      }
+     },
+     "MarketingCarrier": {
+      "AirlineID": {
+       "value": "AI"
+      },
+      "Name": "Air India",
+      "FlightNumber": {
+       "value": "2744"
+      }
+     },
+     "OperatingCarrier": {
+      "AirlineID": {
+       "value": "AI"
+      },
+      "Name": "AIR INDIA"
+     },
+     "Equipment": {
+      "AircraftCode": {
+       "value": "32N"
+      }
+     },
+     "FlightDetail": {
+      "FlightDuration": {
+       "Value": "PT2H40M"
+      }
+     }
+    },
+    {
+     "SegmentKey": "AI-SEG19",
+     "Departure": {
+      "AirportCode": {
+       "value": "BOM"
+      },
+      "Date": "2026-10-29T06:35:00.000",
+      "Time": "06:35",
+      "Terminal": {
+       "Name": "2"
+      }
+     },
+     "Arrival": {
+      "AirportCode": {
+       "value": "COK"
+      },
+      "Date": "2026-10-29T08:35:00.000",
+      "Time": "08:35",
+      "Terminal": {
+       "Name": "1"
+      }
+     },
+     "MarketingCarrier": {
+      "AirlineID": {
+       "value": "AI"
+      },
+      "Name": "Air India",
+      "FlightNumber": {
+       "value": "2787"
+      }
+     },
+     "OperatingCarrier": {
+      "AirlineID": {
+       "value": "AI"
+      },
+      "Name": "AIR INDIA"
+     },
+     "Equipment": {
+      "AircraftCode": {
+       "value": "32N"
+      }
+     },
+     "FlightDetail": {
+      "FlightDuration": {
+       "Value": "PT2H0M"
+      }
+     }
+    },
+    {
+     "SegmentKey": "AI-SEG18",
+     "Departure": {
+      "AirportCode": {
+       "value": "DXB"
+      },
+      "Date": "2026-10-28T23:40:00.000",
+      "Time": "23:40",
+      "Terminal": {
+       "Name": "1"
+      }
+     },
+     "Arrival": {
+      "AirportCode": {
+       "value": "BOM"
+      },
+      "Date": "2026-10-29T04:25:00.000",
+      "Time": "04:25",
+      "Terminal": {
+       "Name": "2"
+      }
+     },
+     "MarketingCarrier": {
+      "AirlineID": {
+       "value": "AI"
+      },
+      "Name": "Air India",
+      "FlightNumber": {
+       "value": "984"
+      }
+     },
+     "OperatingCarrier": {
+      "AirlineID": {
+       "value": "AI"
+      },
+      "Name": "AIR INDIA"
+     },
+     "Equipment": {
+      "AircraftCode": {
+       "value": "788"
+      }
+     },
+     "FlightDetail": {
+      "FlightDuration": {
+       "Value": "PT3H15M"
+      }
+     }
+    }
+   ]
+  },
+  "FlightList": {
+   "Flight": [
+    {
+     "FlightKey": "AI-FLT2",
+     "Journey": {
+      "Time": "PT7H25M"
+     },
+     "SegmentReferences": {
+      "value": [
+       "AI-SEG18",
+       "AI-SEG19"
+      ]
+     }
+    },
+    {
+     "FlightKey": "AI-FLT1",
+     "Journey": {
+      "Time": "PT10H35M"
+     },
+     "SegmentReferences": {
+      "value": [
+       "AI-SEG9",
+       "AI-SEG6"
+      ]
+     }
+    },
+    {
+     "FlightKey": "AI-FLT4",
+     "Journey": {
+      "Time": "PT9H55M"
+     },
+     "SegmentReferences": {
+      "value": [
+       "AI-SEG20",
+       "AI-SEG19"
+      ]
+     }
+    },
+    {
+     "FlightKey": "AI-FLT3",
+     "Journey": {
+      "Time": "PT11H50M"
+     },
+     "SegmentReferences": {
+      "value": [
+       "AI-SEG9",
+       "AI-SEG4"
+      ]
+     }
+    }
+   ]
+  },
+  "OriginDestinationList": {
+   "OriginDestination": [
+    {
+     "OriginDestinationKey": "AI-OND2",
+     "FlightReferences": {
+      "value": [
+       "AI-FLT19",
+       "AI-FLT15",
+       "AI-FLT4",
+       "AI-FLT5",
+       "AI-FLT18",
+       "AI-FLT16",
+       "AI-FLT6",
+       "AI-FLT17",
+       "AI-FLT2",
+       "AI-FLT20"
+      ]
+     },
+     "DepartureCode": {
+      "value": "DXB"
+     },
+     "ArrivalCode": {
+      "value": "COK"
+     }
+    },
+    {
+     "OriginDestinationKey": "AI-OND1",
+     "FlightReferences": {
+      "value": [
+       "AI-FLT10",
+       "AI-FLT9",
+       "AI-FLT12",
+       "AI-FLT14",
+       "AI-FLT1",
+       "AI-FLT7",
+       "AI-FLT11",
+       "AI-FLT13",
+       "AI-FLT3",
+       "AI-FLT8"
+      ]
+     },
+     "DepartureCode": {
+      "value": "COK"
+     },
+     "ArrivalCode": {
+      "value": "DXB"
+     }
+    }
+   ]
+  },
+  "PenaltyList": {
+   "Penalty": [
+    {
+     "ObjectKey": "AI-Cancel-2-0-12000",
+     "Details": {
+      "Detail": [
+       {
+        "Type": "Cancel",
+        "Application": {
+         "Code": "2"
+        },
+        "Amounts": {
+         "Amount": [
+          {
+           "CurrencyAmountValue": {
+            "value": 0,
+            "Code": "INR"
+           },
+           "AmountApplication": "MIN",
+           "ApplicableFeeRemarks": {
+            "Remark": [
+             {
+              "value": "INR 12000 till 4 hours prior to Departure"
+             }
+            ]
+           }
+          },
+          {
+           "CurrencyAmountValue": {
+            "value": 12000,
+            "Code": "INR"
+           },
+           "AmountApplication": "MAX",
+           "ApplicableFeeRemarks": {
+            "Remark": [
+             {
+              "value": "INR 12000 till 4 hours prior to Departure"
+             }
+            ]
+           }
+          }
+         ]
+        }
+       }
+      ]
+     },
+     "CancelFeeInd": true,
+     "RefundableInd": true
+    },
+    {
+     "ObjectKey": "AI-Cancel-2-0-8000",
+     "Details": {
+      "Detail": [
+       {
+        "Type": "Cancel",
+        "Application": {
+         "Code": "2"
+        },
+        "Amounts": {
+         "Amount": [
+          {
+           "CurrencyAmountValue": {
+            "value": 0,
+            "Code": "INR"
+           },
+           "AmountApplication": "MIN",
+           "ApplicableFeeRemarks": {
+            "Remark": [
+             {
+              "value": "INR 8000 till 4 hours prior to Departure"
+             }
+            ]
+           }
+          },
+          {
+           "CurrencyAmountValue": {
+            "value": 8000,
+            "Code": "INR"
+           },
+           "AmountApplication": "MAX",
+           "ApplicableFeeRemarks": {
+            "Remark": [
+             {
+              "value": "INR 8000 till 4 hours prior to Departure"
+             }
+            ]
+           }
+          }
+         ]
+        }
+       }
+      ]
+     },
+     "CancelFeeInd": true,
+     "RefundableInd": true
+    },
+    {
+     "ObjectKey": "AI-Change-2-0-4000",
+     "Details": {
+      "Detail": [
+       {
+        "Type": "Change",
+        "Application": {
+         "Code": "2"
+        },
+        "Amounts": {
+         "Amount": [
+          {
+           "CurrencyAmountValue": {
+            "value": 0,
+            "Code": "INR"
+           },
+           "AmountApplication": "MIN",
+           "ApplicableFeeRemarks": {
+            "Remark": [
+             {
+              "value": "INR 4000 till 4 hours prior to Departure"
+             }
+            ]
+           }
+          },
+          {
+           "CurrencyAmountValue": {
+            "value": 4000,
+            "Code": "INR"
+           },
+           "AmountApplication": "MAX",
+           "ApplicableFeeRemarks": {
+            "Remark": [
+             {
+              "value": "INR 4000 till 4 hours prior to Departure"
+             }
+            ]
+           }
+          }
+         ]
+        }
+       }
+      ]
+     },
+     "ChangeFeeInd": true,
+     "ChangeAllowedInd": true
+    }
+   ]
+  },
+  "PriceClassList": {
+   "PriceClass": [
+    {
+     "ObjectKey": "AI-CWINGF",
+     "Name": "Value",
+     "Code": "CWINGF",
+     "Descriptions": {
+      "Description": [
+       {
+        "Text": {
+         "value": "Cancel before departure - INR 12000 till 4 hours prior to Departure"
+        }
+       },
+       {
+        "Text": {
+         "value": "Change before departure - INR 4000 till 4 hours prior to Departure"
+        }
+       },
+       {
+        "Text": {
+         "value": "Carry on baggage allowance - Allowed 10 kgs for 1 pc"
+        }
+       },
+       {
+        "Text": {
+         "value": "Checked in baggage allowance - Allowed upto 40 kgs"
+        }
+       },
+       {
+        "Category": "SEAT_FREESELECTION",
+        "Text": {
+         "value": "Seat selection - Free"
+        }
+       }
+      ]
+     },
+     "DisplayOrder": "1"
+    },
+    {
+     "ObjectKey": "AI-PWINGF",
+     "Name": "Value",
+     "Code": "PWINGF",
+     "Descriptions": {
+      "Description": [
+       {
+        "Text": {
+         "value": "Cancel before departure - INR 8000 till 4 hours prior to Departure"
+        }
+       },
+       {
+        "Text": {
+         "value": "Change before departure - INR 4000 till 4 hours prior to Departure"
+        }
+       },
+       {
+        "Text": {
+         "value": "Carry on baggage allowance - Allowed 7 kgs for 1 pc"
+        }
+       },
+       {
+        "Text": {
+         "value": "Checked in baggage allowance - Allowed upto 25 kgs"
+        }
+       },
+       {
+        "Category": "SEAT_FREESELECTION",
+        "Text": {
+         "value": "Seat selection - Free"
+        }
+       }
+      ]
+     },
+     "DisplayOrder": "1"
+    }
+   ]
+  }
+ }
+}

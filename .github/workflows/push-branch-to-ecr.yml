@@ -44,7 +44,7 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: prod-connector-pkfare
+          ECR_REPOSITORY: prod-adapter-pkfare
         run: |
           aws ecr get-login-password --region ap-south-1 | sudo buildah login --username AWS --password-stdin 683455398069.dkr.ecr.ap-south-1.amazonaws.com
           sudo buildah --no-cache --isolation=chroot build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.event.inputs.tag_version }} .

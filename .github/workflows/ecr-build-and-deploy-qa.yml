@@ -1,4 +1,4 @@
-name: build and deploy connector-pkfare to ECR
+name: build and deploy adapter-pkfare to ECR
 on:
   push:
     branches:
@@ -42,8 +42,8 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: connector-pkfare
-          ECR_REPOSITORY_DB: connector-pkfare-db-migration
+          ECR_REPOSITORY: adapter-pkfare
+          ECR_REPOSITORY_DB: adapter-pkfare-db-migration
           IMAGE_TAG: latest
         run: |
           aws ecr get-login-password --region ap-south-1 | sudo buildah login --username AWS --password-stdin 683455398069.dkr.ecr.ap-south-1.amazonaws.com
@@ -59,7 +59,7 @@ jobs:
         with:
           name: bom
           path: |
-            ${{ github.workspace }}/connector-pkfare-server/build/reports/bom.json
+            ${{ github.workspace }}/adapter-pkfare-server/build/reports/bom.json
       - name: Check out ArgoCD repository
         uses: actions/checkout@v4
         with:
@@ -68,11 +68,11 @@ jobs:
           ref: master
       - name: Update Docker image version in ArgoCD repository
         run: |
-          perl -pi -e 's/connector-pkfare-db-migration:[A-Za-z0-9]+$/connector-pkfare-db-migration:'"$GIT_TAG"'/g' SANDBOX/qa-services/shared/v1-connectors/connector-pkfare.yaml
-          perl -pi -e 's/connector-pkfare:[A-Za-z0-9]+$/connector-pkfare:'"$GIT_TAG"'/g' SANDBOX/qa-services/shared/v1-connectors/connector-pkfare.yaml
+          perl -pi -e 's/adapter-pkfare-db-migration:[A-Za-z0-9]+$/adapter-pkfare-db-migration:'"$GIT_TAG"'/g' SANDBOX/qa-services/shared/v1-connectors/adapter-pkfare.yaml
+          perl -pi -e 's/adapter-pkfare:[A-Za-z0-9]+$/adapter-pkfare:'"$GIT_TAG"'/g' SANDBOX/qa-services/shared/v1-connectors/adapter-pkfare.yaml
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
-          git commit -am "Update docker image version $GIT_TAG for connector-pkfare service in QA cluster"
+          git commit -am "Update docker image version $GIT_TAG for adapter-pkfare service in QA cluster"
           git push origin master
   publish_bom:
     name: publish bom

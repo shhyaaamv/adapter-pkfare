@@ -1,0 +1,43 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "url": "/vdc-configurator/evaluator",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "configurator/pkfare_configs.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "url": "/vdc-configurator/evaluator/multicontexts",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "configurator/search_airshopping_combined.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "url": "/vdc-configurator/evaluator/masterdataconfig/CABIN_BRAND",
+        "method": "POST"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "configurator/cabin-brand-configs.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+server:
+      shutdown: graceful
+      port: 9022
+      # Resolve the caller IP from X-Forwarded-For only when the hop is a trusted internal proxy (Tomcat RemoteIpValve);
+      # the PKFARE IP whitelist relies on this. Override server.tomcat.remoteip.internal-proxies if the ingress range differs.
+      forward-headers-strategy: native
+      tomcat:
+        accesslog:
+          enabled: true
+          pattern: '%h %l %u %t "%r" adapter-pkfare %{X-SID}i %{X-CID}i %{X-IATA}i %{X-TID}o %s %b %F %{ms}T'
+          buffered: true
+          directory: /var/log/vdc/adapter-pkfare
+          file-date-format: .yyyy-MM-dd
+          prefix: adapter-pkfare_access
+          suffix: .log
+          rotate: true
+          rename-on-rotate: true
+
+logging:
+  level:
+    com.verteil.configurator.vdc.client: WARN
+
+spring:
+  application:
+    name: adapter-pkfare
+  lifecycle:
+    timeout-per-shutdown-phase: 180s
+  threads:
+    virtual:
+      enabled: true
+
+connector:
+  http:
+    poolMax: 300
+    poolTimeoutMillis: 500
+    connectTimeoutMillis: 5000
+    responseTimeoutMillis: 180000
+  monitor:
+    idleTime: 180
+    task:
+      interval: 30000
+
+adapter:
+  search-cache:
+    # upper bound on cached shopping results + flights across all cached SEARCH responses (per pod)
+    max-weight: 50000
+
+client:
+  address:
+    vdcConfigurator: http://localhost:8090/vdc-configurator
+
+# Shared Redis (token cache shared across pods); property names are those read by connector-common's ConnectorRedisConfig
+ordermanagement:
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password:
+    database: ${REDIS_DATABASE:0}
+    ssl:
+      enabled: ${REDIS_SSL_ENABLED:false}
+    timeout:
+      seconds: 5
+
+management:
+  server:
+    port: 7045
+    accesslog:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, metrics

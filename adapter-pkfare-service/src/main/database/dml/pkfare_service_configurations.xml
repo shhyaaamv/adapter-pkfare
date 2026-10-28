@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.2.xsd ">
+
+    <changeSet id="pkfare_adapter/enable_service_configs" author="shhyaaamv" context="dev, qa, stage, prod.in, prod.eu, prod.openconnect" runOnChange="true">
+        <comment>Services the PKFARE adapter exposes to PKFARE. Resolved with the PKFARE vendorCode as office_code, so a
+            service can also be switched per vendor with an office_code row.</comment>
+        <sql>
+            INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
+            VALUES('PKFARE_API', 'ENABLE_SERVICE', NULL, NULL, NULL, NULL, 'false') ON CONFLICT DO NOTHING;
+
+            INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
+            VALUES('PKFARE_API', 'ENABLE_SERVICE', NULL, NULL, 'Search', NULL, 'true') ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="pkfare_adapter/message_log_configs" author="shhyaaamv" context="dev, qa, stage, prod.in, prod.eu, prod.openconnect" runOnChange="true">
+        <comment>Masked trace logging of PKFARE and Entry-Gate messages</comment>
+        <sql>
+            INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
+            VALUES('PKFARE_API', 'MESSAGE_LOG', NULL, NULL, NULL, NULL, 'true') ON CONFLICT DO NOTHING;
+
+            INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
+            VALUES('PKFARE_API', 'PROD_ERROR_MONITORING.ENABLED', NULL, NULL, NULL, NULL, 'true') ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="pkfare_adapter/ip_whitelist_configs" author="shhyaaamv" context="stage, prod.in, prod.eu, prod.openconnect" runOnChange="true">
+        <comment>Caller IP must match IP_WHITELIST (seeded per environment). The adapter also defaults to true when unset.</comment>
+        <sql>
+            INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
+            VALUES('PKFARE_API', 'IP_WHITELIST_ENABLED', NULL, NULL, NULL, NULL, 'true') ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="pkfare_adapter/test_vendor_configs" author="shhyaaamv" context="dev, qa" runOnChange="true">
+        <comment>Sample PKFARE vendorCode for dev/QA testing, with the caller IP whitelist switched off</comment>
+        <sql>
+            INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
+            VALUES('PKFARE_API', 'VENDOR_CODES', NULL, NULL, NULL, NULL, 'PKFARETESTCODE') ON CONFLICT DO NOTHING;
+
+            INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
+            VALUES('PKFARE_API', 'IP_WHITELIST_ENABLED', NULL, NULL, NULL, NULL, 'false') ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

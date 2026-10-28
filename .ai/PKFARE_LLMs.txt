@@ -1,0 +1,22 @@
+Supplier Content Aggregation Direct Connection API_v2.1 [SEARCH](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3470115.md): ## Multi-product feature updates
+Supplier Content Aggregation Direct Connection API_v2.1 [QTE (Pricing)](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3470116.md): ## Multi-product feature updates
+Supplier Content Aggregation Direct Connection API_v2.1 [Order](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3470117.md): ## Multi-product feature updates
+Supplier Content Aggregation Direct Connection API_v2.1 [Cancel](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3470118.md): ## Interface Description
+Supplier Content Aggregation Direct Connection API_v2.1 [Order Status Push](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3470119.md): ## API Description
+Supplier Content Aggregation Direct Connection API_v2.1 [SeatMap](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3470120.md): ## Status Code:
+Air Order Management API V2 [Check-in Notify API](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3469956.md): ## Description
+Air Order Management API V2 [Flight Reschedule NotificationV3](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3469958.md): ## Description
+Air Order Management API V2 [Get Order Details V3](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3469969.md): ## Multi-product feature updates
+Air Order Management API V2 [uploadAttachmentFile](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3470652.md): ### Description
+Air Order Management API V2 [downloadAttachmentFile](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3470653.md): ### Description
+Air Order Management API V2 [Ticket IssuanceV3](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3470648.md): ###  Description:
+Air Order Management API V2 [Get Pending Ticketing OrdersV5](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3470649.md): ## Description
+Ancillary Order Management API V1 [Query Ancillary Order List](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3469973.md): ## Description
+Ancillary Order Management API V1 [Update Ancillary Status](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3469975.md): ## Description
+Ancillary Order Management API V1 [Query Ancillary Order Detail](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3469974.md):
+Ancillary Order Management API V1 [GetAncillaryServices](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3470683.md): ## Interface Description
+Change API [changeReshop](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3470766.md): ###  Description
+Change API [changeReprice](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3470767.md): ###  Description
+Change API [changeRepriceNotify](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3470768.md): ###  Description
+API History Versions [Ticket Issuance](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3469957.md): ## Description
+API History Versions [Get Pending Ticketing Orders](https://apifox.pkfare.com/apidoc/docs-site/345088/api-3469972.md): ## Description

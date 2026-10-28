@@ -1,0 +1,67 @@
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation ("org.springframework.boot:spring-boot-starter-actuator"){
+        exclude group: 'org.glassfish.jersey.core', module: 'jersey-client'
+        exclude group: 'org.glassfish.jersey.core', module: 'jersey-common'
+        exclude group: 'org.glassfish.jersey.core', module: 'jersey-server'
+        exclude group: 'org.glassfish.jersey.core', module: 'jersey-media-multipart'
+    }
+
+    implementation("com.verteil:vdc-thirdparties-connector-common:${verteilThirdPartiesCommonVersion}") {
+        exclude group: "javax.xml.soap", module: "javax.xml.soap-api"
+        exclude group: "org.apache.commons", module: "commons-text"
+        exclude group: "org.apache.cxf", module: "cxf-rt-transports-http"
+        exclude group: "org.apache.httpcomponents", module: "httpclient"
+        exclude group: "com.verteil", module: "vdc-thirdparties-common-helper"
+        exclude group: "com.verteil", module: "verteil-infra-configurator-common"
+        exclude group: "com.verteil", module: "verteil-commons-core"
+        exclude group: "com.verteil", module: "verteil-infra-notifier-common"
+        exclude group: "com.verteil", module: "verteil-infra-notifier-client"
+        exclude group: "org.springframework.ws", module: "spring-ws-core"
+    }
+    implementation("com.verteil:vdc-thirdparties-common-helper:${verteilThirdPartiesCommonVersion}") {
+        exclude group: "javax.xml.soap", module: "javax.xml.soap-api"
+        exclude group: "io.grpc"
+        exclude group: "org.apache.commons", module: "commons-text"
+        exclude group: "com.verteil", module: "verteil-commons-core"
+    }
+
+    // PKFARE's own SEARCH/QTE/... request and response models (openapi-generated, Jackson annotated)
+    implementation "com.verteil.schema:pkfare-api-schema:${pkfareApiSchemaVersion}"
+
+    implementation 'com.verteil.chain:verteil-chain:1.0'
+
+    implementation ("com.verteil.configurator:vdc-configurator-client:${vdcConfiguratorClientVersion}"){
+        transitive = true
+    }
+    implementation ("com.verteil.configurator:vdc-configurator-common:${vdcConfiguratorClientVersion}"){
+        transitive = false
+    }
+    implementation ("com.verteil:verteil-infra-configurator-common:${verteilVersion}"){
+        transitive = false
+    }
+
+    implementation "com.fasterxml.jackson.module:jackson-module-jaxb-annotations"
+    implementation "com.github.ben-manes.caffeine:caffeine:3.2.2"
+    implementation 'io.lettuce:lettuce-core:6.7.1.RELEASE'
+
+    implementation ("com.verteil:prometheus-metric:${verteilPrometheusMetricVersion}"){
+        transitive = false
+    }
+    implementation "io.github.resilience4j:resilience4j-circuitbreaker:${resilience4jVersion}"
+    implementation "io.github.resilience4j:resilience4j-bulkhead:${resilience4jVersion}"
+
+    implementation "org.apache.httpcomponents.client5:httpclient5:${httpclientVersion}"
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}"
+    testImplementation 'org.mockito:mockito-core:5.21.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.21.0'
+    testImplementation 'org.assertj:assertj-core:3.27.3'
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.12.2"
+    testImplementation "org.skyscreamer:jsonassert:1.5.1"
+}

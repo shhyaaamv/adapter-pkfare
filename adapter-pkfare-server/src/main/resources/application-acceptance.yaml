@@ -1,0 +1,13 @@
+server:
+  port: ${ACCEPTANCE_SERVER_PORT:9122}
+  tomcat:
+    accesslog:
+      enabled: false
+
+management:
+  server:
+    port: 0
+
+client:
+  address:
+    vdcConfigurator: http://localhost:${ACCEPTANCE_WIREMOCK_PORT:8091}/vdc-configurator

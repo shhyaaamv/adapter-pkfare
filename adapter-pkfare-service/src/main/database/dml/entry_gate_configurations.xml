@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.2.xsd ">
+
+    <changeSet id="pkfare_adapter/entry_gate_path_configs" author="shhyaaamv" context="dev, qa, stage, prod.in, prod.eu, prod.openconnect" runOnChange="true">
+        <comment>Entry-Gate endpoints</comment>
+        <sql>
+            INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", value)
+            VALUES ('PKFARE_API', 'AUTH_SCOPE', 'api'),
+                   ('PKFARE_API', 'AUTH_PATH', '/oauth2/token'),
+                   ('PKFARE_API', 'PATH', '/entrygate/rest/request') ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="pkfare_adapter/entry_gate_auth_configs" author="shhyaaamv" context="qa" runOnChange="true">
+        <comment>QA Entry-Gate host and OAuth2 client credentials (pkfare_test_api_user)</comment>
+        <sql>
+            INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", value)
+            VALUES ('PKFARE_API', 'HOST', 'https://qaapi.sandbox.verteil.com'),
+                   ('PKFARE_API', 'USERNAME', 'pkfare_test_api_user'),
+                   ('PKFARE_API', 'PASSWORD', 'ZRmJsPLOlKixVNopxaz2XvFqLR4EqglORDlyk0BL38puajvPet6VLQQyZ8nsH1t4') ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="pkfare_adapter/entry_gate_timeout_configs" author="shhyaaamv" context="dev, qa, stage, prod.in, prod.eu, prod.openconnect" runOnChange="true">
+        <comment>Entry-Gate timeouts. The AirShopping timeout is further capped by PKFARE's cutOffTime minus CUTOFF_BUFFER_MILLIS.</comment>
+        <sql>
+            INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
+            VALUES('PKFARE_API', 'TIMEOUT_MILLIS', NULL, NULL, NULL, NULL, '30000') ON CONFLICT DO NOTHING;
+
+            INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
+            VALUES('PKFARE_API', 'TIMEOUT_MILLIS', NULL, NULL, 'AirShopping', NULL, '30000') ON CONFLICT DO NOTHING;
+
+            INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
+            VALUES('PKFARE_API', 'CUTOFF_BUFFER_MILLIS', NULL, NULL, 'AirShopping', NULL, '500') ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="pkfare_adapter/token_cache_configs" author="shhyaaamv" context="dev, qa, stage, prod.in, prod.eu, prod.openconnect" runOnChange="true">
+        <comment>Cluster-wide Entry-Gate token cache (Redis lock) settings</comment>
+        <sql>
+            INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
+            VALUES('PKFARE_API', 'TOKEN_LOCK_LEASE_MILLIS', NULL, NULL, NULL, NULL, '10000') ON CONFLICT DO NOTHING;
+
+            INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
+            VALUES('PKFARE_API', 'TOKEN_LOCK_WAIT_MILLIS', NULL, NULL, NULL, NULL, '6000') ON CONFLICT DO NOTHING;
+
+            INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
+            VALUES('PKFARE_API', 'LOCK_POLL_MILLIS', NULL, NULL, NULL, NULL, '50') ON CONFLICT DO NOTHING;
+
+            INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
+            VALUES('PKFARE_API', 'TOKEN_TTL_SECONDS', NULL, NULL, NULL, NULL, '1800') ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
