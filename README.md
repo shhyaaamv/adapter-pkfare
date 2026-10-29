@@ -69,7 +69,7 @@ All settings are resolved with the PKFARE **vendorCode as `office_code`**, so an
 | `TIMEOUT_MILLIS` | `AirShopping` | `30000` | Entry-Gate timeout, capped by `cutOffTime − CUTOFF_BUFFER_MILLIS` |
 | `CUTOFF_BUFFER_MILLIS` | `AirShopping` | `500` | safety margin under PKFARE's cutoff |
 | `FARE_PREFERENCES` | `Search` | `PUBL,PVT` | `Preference.FarePreferences` |
-| `SHOP_RESULT_PREFERENCE` / `_TAGGED` | `Search` | `BEST` / `FULL` | for `returnTagPrice` N / Y |
+| `SHOP_RESULT_PREFERENCE` / `_TAGGED` | `Search` | `BEST` / `OPTIMIZED` | for `returnTagPrice` N / Y |
 | `SORT_ORDER` | `Search` | `PRICE,STOP,DEPARTURE_TIME` | `ResponseParameters.SortOrder` |
 | `NO_RESULT_ERROR_CODES` | `Search` | no | Entry-Gate error codes meaning "no availability" → status 0 |
 | `TICKET_ISSUE_TIME` | `Search` | `120` | `ticketList[].ticketIssueTime` (not in VDC) |

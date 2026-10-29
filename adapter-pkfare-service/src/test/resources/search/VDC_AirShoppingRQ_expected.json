@@ -28,7 +28,7 @@
     "CabinPreferences": {"CabinType": [{"Code": "Y"}]}
   },
   "ResponseParameters": {
-    "ShopResultPreference": "FULL",
+    "ShopResultPreference": "OPTIMIZED",
     "SortOrder": [
       {"Order": "ASCENDING", "Parameter": "PRICE"},
       {"Order": "ASCENDING", "Parameter": "STOP"},

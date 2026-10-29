@@ -6,12 +6,19 @@ import com.verteil.schema.pkfare.SearchShoppingResult;
 import com.verteil.schema.pkfare.SearchTicket;
 import com.verteil.schemas.ndc16_1.AirShoppingRS.OffersGroup.AirlineOffers;
 import com.verteil.schemas.ndc16_1.AirShoppingRS.OffersGroup.AirlineOffers.AirlineOffer;
+import com.verteil.schemas.ndc16_1.AirlineIDType;
+import com.verteil.schemas.ndc16_1.DescriptionType;
+import com.verteil.schemas.ndc16_1.FareBasisCodeType;
 import com.verteil.schemas.ndc16_1.FareComponentType;
+import com.verteil.schemas.ndc16_1.FareDetailType;
 import com.verteil.schemas.ndc16_1.FareList;
 import com.verteil.schemas.ndc16_1.FlightCOSCoreType;
+import com.verteil.schemas.ndc16_1.FlightCabinCoreType;
 import com.verteil.schemas.ndc16_1.FlightSegmentReference;
+import com.verteil.schemas.ndc16_1.ItemIDType;
 import com.verteil.schemas.ndc16_1.PriceClassType;
 import com.verteil.schemas.ndc16_1.PricedFlightOfferType;
+import com.verteil.schemas.ndc16_1.ShoppingResponseIDType;
 import com.verteil.thirdparties.adapter.pkfare.common.model.CabinMapping;
 import com.verteil.thirdparties.adapter.pkfare.common.utils.RefUtil;
 import com.verteil.thirdparties.adapter.pkfare.offer.search.model.ItinerarySegment;
@@ -118,7 +125,10 @@ public class ShoppingResultConverter {
         reference.setFlightSeq(segment.flightSeq());
         reference.setTicketSeq(PK_DEFAULT_TICKET_SEQ);
         reference.setCabinClass(cabin(segment, classOfService, context));
-        reference.setRbd(Optional.ofNullable(classOfService).map(FlightCOSCoreType::getCode).map(code -> code.getValue()).orElse(null));
+        reference.setRbd(Objects.requireNonNull(Optional.ofNullable(classOfService)
+                .map(FlightCOSCoreType::getCode)
+                .map(FlightCOSCoreType.Code::getValue)
+                .orElse(null)));
         reference.setSeatCount(seatCount(classOfService, context));
         return reference;
     }
@@ -129,12 +139,12 @@ public class ShoppingResultConverter {
                 .map(FlightCOSCoreType.MarketingName::getCabinDesignator)
                 .orElseGet(() -> Optional.ofNullable(segment.reference())
                         .map(FlightSegmentReference::getCabin)
-                        .map(cabin -> cabin.getCabinDesignator())
-                        .map(cabinDesignator -> cabinDesignator.getValue())
+                        .map(FlightCabinCoreType::getCabinDesignator)
+                        .map(FlightCabinCoreType.CabinDesignator::getValue)
                         .orElse(null));
         CabinMapping cabinMapping = context.cabinMapping();
         return cabinMapping.toPk(vdcCabin)
-                .or(() -> Optional.ofNullable(context.request().getCabinClass())
+                .or(() -> Optional.of(context.request().getCabinClass())
                         .filter(requested -> cabinMapping.toVdc(requested).isPresent())
                         .map(requested -> requested.trim().toUpperCase(Locale.ROOT)))
                 .orElse(DEFAULT_CABIN);
@@ -143,7 +153,7 @@ public class ShoppingResultConverter {
     private static int seatCount(FlightCOSCoreType classOfService, SearchMappingContext context) {
         int seats = Optional.ofNullable(classOfService)
                 .map(FlightCOSCoreType::getCode)
-                .map(code -> code.getSeatsLeft())
+                .map(FlightCOSCoreType.Code::getSeatsLeft)
                 .filter(seatsLeft -> seatsLeft > 0)
                 .or(() -> Optional.ofNullable(context.defaultSeatCount()).filter(defaultSeatCount -> defaultSeatCount > 0))
                 // VDC does not say how many seats are left: promise exactly what was asked for (seat-occupying passengers).
@@ -175,19 +185,19 @@ public class ShoppingResultConverter {
         return Optional.ofNullable(offer.getValidatingCarrier())
                 .filter(StringUtils::isNotBlank)
                 .or(() -> offerOwner(offer))
-                .orElseGet(() -> Optional.ofNullable(airlineOffers.getOwner()).map(owner -> owner.getValue()).orElse(null));
+                .orElseGet(() -> Optional.ofNullable(airlineOffers.getOwner()).map(AirlineIDType::getValue).orElse(null));
     }
 
     private static Optional<String> offerOwner(AirlineOffer offer) {
-        return Optional.ofNullable(offer.getOfferID()).map(offerId -> offerId.getOwner()).filter(StringUtils::isNotBlank);
+        return Optional.ofNullable(offer.getOfferID()).map(ItemIDType::getOwner).filter(StringUtils::isNotBlank);
     }
 
     private static String productType(List<PassengerOfferPrice> passengerPrices, SearchMappingContext context) {
         Set<String> remarks = passengerPrices.stream()
                 .flatMap(passengerPrice -> fareGroups(passengerPrice.offerPrice(), context))
                 .flatMap(fareGroup -> Optional.ofNullable(fareGroup.getFare())
-                        .map(fare -> fare.getFareDetail())
-                        .map(fareDetail -> fareDetail.getRemarks())
+                        .map(FareList.FareGroup.Fare::getFareDetail)
+                        .map(FareDetailType::getRemarks)
                         .stream())
                 .flatMap(fareRemarks -> fareRemarks.getRemark().stream())
                 .flatMap(remark -> Optional.ofNullable(remark.getValue()).stream())
@@ -206,8 +216,11 @@ public class ShoppingResultConverter {
     private static String fareBasis(List<ItinerarySegment> itinerary, PassengerOfferPrice passengerPrice, SearchMappingContext context) {
         return Optional.ofNullable(passengerPrice.offerPrice().getFareDetail())
                 .map(fareDetail -> itinerary.stream().map(segment -> fareBasis(segment, fareDetail.getFareComponent(), context)).toList())
-                .filter(fareBases -> fareBases.stream().allMatch(Optional::isPresent))
-                .map(fareBases -> fareBases.stream().map(Optional::get).collect(Collectors.joining(FARE_BASIS_SEPARATOR)))
+                .filter(fareBases -> fareBases.stream()
+                        .allMatch(Optional::isPresent))
+                .map(fareBases -> fareBases.stream()
+                        .map(Optional::get)
+                        .collect(Collectors.joining(FARE_BASIS_SEPARATOR)))
                 .orElse(null);
     }
 
@@ -225,12 +238,13 @@ public class ShoppingResultConverter {
     /** The component's own fare basis code, else the first one of the fare groups it refers to. */
     private static Optional<String> fareBasis(FareComponentType component, SearchMappingContext context) {
         return Optional.ofNullable(component.getFareBasis())
-                .map(fareBasis -> fareBasis.getFareBasisCode())
-                .map(fareBasisCode -> fareBasisCode.getCode())
+                .map(FareComponentType.FareBasis::getFareBasisCode)
+                .map(FareBasisCodeType::getCode)
                 .filter(StringUtils::isNotBlank)
                 .or(() -> RefUtil.keys(component.getRefs()).stream()
                         .flatMap(key -> context.index().fareGroup(key).stream())
-                        .flatMap(group -> Optional.ofNullable(group.getFareBasisCode()).map(fareBasisCode -> fareBasisCode.getCode()).stream())
+                        .flatMap(group -> Optional.ofNullable(group.getFareBasisCode())
+                                .map(FareList.FareGroup.FareBasisCode::getCode).stream())
                         .filter(StringUtils::isNotBlank)
                         .findFirst());
     }
@@ -271,7 +285,7 @@ public class ShoppingResultConverter {
         List<String> details = priceClasses(offer, context).stream()
                 .flatMap(priceClass -> Optional.ofNullable(priceClass.getDescriptions()).stream())
                 .flatMap(descriptions -> descriptions.getDescription().stream())
-                .flatMap(description -> Optional.ofNullable(description.getText()).map(text -> text.getValue()).stream())
+                .flatMap(description -> Optional.ofNullable(description.getText()).map(DescriptionType.Text::getValue).stream())
                 .filter(StringUtils::isNotBlank)
                 .distinct()
                 .toList();
@@ -288,8 +302,8 @@ public class ShoppingResultConverter {
                 ItineraryConverter.offerId(offer),
                 validatingCarrierOrOwner(airlineOffers, offer),
                 Optional.ofNullable(context.response().getShoppingResponseID())
-                        .map(shoppingResponseId -> shoppingResponseId.getResponseID())
-                        .map(responseId -> responseId.getValue())
+                        .map(ShoppingResponseIDType::getResponseID)
+                        .map(ShoppingResponseIDType.ResponseID::getValue)
                         .orElse(null),
                 offer.getPricedOffer().getOfferPrice().stream().map(PricedFlightOfferType.OfferPrice::getOfferItemID).filter(Objects::nonNull).toList(),
                 itinerary.stream().map(ItinerarySegment::segmentKey).toList());

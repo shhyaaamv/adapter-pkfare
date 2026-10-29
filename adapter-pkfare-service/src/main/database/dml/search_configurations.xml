@@ -14,7 +14,7 @@
             VALUES('PKFARE_API', 'SHOP_RESULT_PREFERENCE', NULL, NULL, 'Search', NULL, 'BEST') ON CONFLICT DO NOTHING;
 
             INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
-            VALUES('PKFARE_API', 'SHOP_RESULT_PREFERENCE_TAGGED', NULL, NULL, 'Search', NULL, 'FULL') ON CONFLICT DO NOTHING;
+            VALUES('PKFARE_API', 'SHOP_RESULT_PREFERENCE_TAGGED', NULL, NULL, 'Search', NULL, 'OPTIMIZED') ON CONFLICT DO NOTHING;
 
             INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
             VALUES('PKFARE_API', 'SORT_ORDER', NULL, NULL, 'Search', NULL, 'PRICE,STOP,DEPARTURE_TIME') ON CONFLICT DO NOTHING;

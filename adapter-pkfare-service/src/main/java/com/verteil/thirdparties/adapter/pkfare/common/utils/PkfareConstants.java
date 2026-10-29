@@ -121,7 +121,7 @@ public final class PkfareConstants {
     public static final List<String> DEFAULT_FARE_PREFERENCES = List.of(VDC_PUBLIC_FARE_REMARK, VDC_PRIVATE_FARE_REMARK);
     public static final List<String> DEFAULT_SORT_ORDER = List.of("PRICE", "STOP", "DEPARTURE_TIME");
     public static final String DEFAULT_SHOP_RESULT_PREFERENCE = "BEST";
-    public static final String DEFAULT_SHOP_RESULT_PREFERENCE_TAGGED = "FULL";
+    public static final String DEFAULT_SHOP_RESULT_PREFERENCE_TAGGED = "OPTIMIZED";
     public static final long DEFAULT_CUTOFF_BUFFER_MILLIS = 500L;
     public static final int DEFAULT_TICKET_ISSUE_TIME = 120;
     public static final int DEFAULT_TIMEOUT_MILLIS = 30000;
