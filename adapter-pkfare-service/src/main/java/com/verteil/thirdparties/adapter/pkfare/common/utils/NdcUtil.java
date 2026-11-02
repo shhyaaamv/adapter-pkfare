@@ -40,7 +40,9 @@ public final class NdcUtil {
     }
 
     public static String toPkDateTime(LocalDateTime dateTime) {
-        return Optional.ofNullable(dateTime).map(localDateTime -> localDateTime.format(PK_DATE_TIME)).orElse(null);
+        return Optional.ofNullable(dateTime)
+                .map(localDateTime -> localDateTime.format(PK_DATE_TIME))
+                .orElse(null);
     }
 
     public static Integer toMinutes(Duration duration) {
@@ -66,11 +68,16 @@ public final class NdcUtil {
     }
 
     public static BigDecimal amount(CurrencyAmountOptType amount) {
-        return Optional.ofNullable(amount).map(CurrencyAmountOptType::getValue).map(NdcUtil::scale).orElse(null);
+        return Optional.ofNullable(amount)
+                .map(CurrencyAmountOptType::getValue)
+                .map(NdcUtil::scale)
+                .orElse(null);
     }
 
     public static BigDecimal scale(BigDecimal value) {
-        return Optional.ofNullable(value).map(amount -> amount.setScale(AMOUNT_SCALE, RoundingMode.HALF_UP)).orElse(null);
+        return Optional.ofNullable(value)
+                .map(amount -> amount.setScale(AMOUNT_SCALE, RoundingMode.HALF_UP))
+                .orElse(null);
     }
 
     public static Optional<CurrencyAmountOptType> totalAmount(OfferPriceLeadDetailType.PriceDetail priceDetail) {

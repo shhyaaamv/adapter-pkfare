@@ -152,7 +152,9 @@ public class SearchRQConverter {
     }
 
     private static void addTravelers(Travelers travelers, String ptc, int count) {
-        IntStream.range(0, count).mapToObj(_ -> traveler(ptc)).forEach(travelers.getTraveler()::add);
+        IntStream.range(0, count)
+                .mapToObj(_ -> traveler(ptc))
+                .forEach(travelers.getTraveler()::add);
     }
 
     private static Travelers.Traveler traveler(String ptc) {
@@ -231,22 +233,24 @@ public class SearchRQConverter {
         responseParameters.setShopResultPreference(AirShoppingRQ.ShopResultPreference.valueOf(preference.trim().toUpperCase(Locale.ROOT)));
 
         // getSortOrder() is a plain getter on this class (no lazy list), so the list is set explicitly
-        responseParameters.setSortOrder(sortOrder(configuration).stream().map(parameter -> {
-            AirShoppingRQ.Sort sort = new AirShoppingRQ.Sort();
-            sort.setParameter(AirShoppingRQ.Sort.Parameter.valueOf(parameter.trim().toUpperCase(Locale.ROOT)));
-            sort.setOrder(AirShoppingRQ.Sort.Order.ASCENDING);
-            return sort;
-        }).collect(Collectors.toCollection(ArrayList::new)));
+        responseParameters.setSortOrder(sortOrder(configuration).stream()
+                .map(parameter -> {
+                    AirShoppingRQ.Sort sort = new AirShoppingRQ.Sort();
+                    sort.setParameter(AirShoppingRQ.Sort.Parameter.valueOf(parameter.trim().toUpperCase(Locale.ROOT)));
+                    sort.setOrder(AirShoppingRQ.Sort.Order.ASCENDING);
+                    return sort;
+                })
+                .collect(Collectors.toCollection(ArrayList::new)));
         return responseParameters;
     }
 
-    private static List<String> fareTypes(VdcConfiguration configuration) {
+    private List<String> fareTypes(VdcConfiguration configuration) {
         return Optional.ofNullable(configuration)
                 .map(vdcConfiguration -> vdcConfiguration.getListFromCsv(PKFARE_API, FARE_PREFERENCES, DEFAULT_FARE_PREFERENCES))
                 .orElse(DEFAULT_FARE_PREFERENCES);
     }
 
-    private static List<String> sortOrder(VdcConfiguration configuration) {
+    private List<String> sortOrder(VdcConfiguration configuration) {
         return Optional.ofNullable(configuration)
                 .map(vdcConfiguration -> vdcConfiguration.getListFromCsv(PKFARE_API, SORT_ORDER, DEFAULT_SORT_ORDER))
                 .orElse(DEFAULT_SORT_ORDER);

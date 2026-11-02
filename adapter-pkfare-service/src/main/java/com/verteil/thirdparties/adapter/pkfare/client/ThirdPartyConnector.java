@@ -22,7 +22,7 @@ import org.springframework.util.StopWatch;
 import java.io.IOException;
 import java.util.function.Supplier;
 
-import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.ENTRY_GATE_ERROR;
+import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.VERTEIL_ERROR;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.CONNECTION_ERROR_MSG;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.UNAUTHORIZED_REASON_CODE;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.UNAVAILABLE_REASON_CODE;
@@ -75,7 +75,7 @@ public class ThirdPartyConnector {
         } catch (BulkheadFullException | CallNotPermittedException exception) {
             log.error("CircuitBreakerException while connecting to Entry-Gate", exception);
             RESILIENCE_LOGGER.error("Resilience4j error {}", exception.getMessage());
-            throw new PkfareAdapterException(ENTRY_GATE_ERROR.getCode(), CONNECTION_ERROR_MSG, UNAVAILABLE_REASON_CODE);
+            throw new PkfareAdapterException(VERTEIL_ERROR.getCode(), CONNECTION_ERROR_MSG, UNAVAILABLE_REASON_CODE);
         }
     }
 
@@ -93,7 +93,7 @@ public class ThirdPartyConnector {
         } catch (IOException e) {
             stopWatch.stop();
             log.error("IOException while connecting to Entry-Gate, url={}", httpRequest.getRequestUri(), e);
-            throw new PkfareAdapterException(ENTRY_GATE_ERROR.getCode(), CONNECTION_ERROR_MSG, e, UNAVAILABLE_REASON_CODE);
+            throw new PkfareAdapterException(VERTEIL_ERROR.getCode(), CONNECTION_ERROR_MSG, e, UNAVAILABLE_REASON_CODE);
         }
     }
 
@@ -106,9 +106,9 @@ public class ThirdPartyConnector {
 
     private void validateHttpStatusCode(int statusCode) {
         if (statusCode == HttpStatus.UNAUTHORIZED.value()) {
-            throw new PkfareAdapterException(ENTRY_GATE_ERROR.getCode(), "HTTP " + statusCode + " from Entry-Gate", UNAUTHORIZED_REASON_CODE);
+            throw new PkfareAdapterException(VERTEIL_ERROR.getCode(), "HTTP " + statusCode + " from Verteil", UNAUTHORIZED_REASON_CODE);
         } else if (statusCode >= 400) {
-            throw new PkfareAdapterException(ENTRY_GATE_ERROR.getCode(), "HTTP " + statusCode + " from Entry-Gate", UNAVAILABLE_REASON_CODE);
+            throw new PkfareAdapterException(VERTEIL_ERROR.getCode(), "HTTP " + statusCode + " from Verteil", UNAVAILABLE_REASON_CODE);
         }
     }
 }

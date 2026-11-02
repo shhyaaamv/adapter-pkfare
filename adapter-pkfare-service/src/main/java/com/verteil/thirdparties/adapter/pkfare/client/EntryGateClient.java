@@ -118,7 +118,9 @@ public class EntryGateClient {
 
             final Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
             final String finalRequest = jsonRequest;
-            final String finalResponse = Optional.ofNullable(httpResponse).map(HttpCallResult::body).orElse(null);
+            final String finalResponse = Optional.ofNullable(httpResponse)
+                    .map(HttpCallResult::body)
+                    .orElse(null);
             Thread.startVirtualThread(() -> loggerHelper.logRequestAndResponse(finalRequest, finalResponse, copyOfContextMap, configuration));
         }
     }

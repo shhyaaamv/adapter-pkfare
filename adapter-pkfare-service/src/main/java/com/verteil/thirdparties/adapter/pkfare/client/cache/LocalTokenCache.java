@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.ENTRY_GATE_ERROR;
+import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.VERTEIL_ERROR;
 import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.INTERNAL_ERROR;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.DEFAULT_TOKEN_TTL_SECONDS;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.HOST;
@@ -158,7 +158,7 @@ public class LocalTokenCache {
             }
         }
         log.warn("Timed out waiting for shared Entry-Gate session for key [{}] within {}ms", authKey, lockWaitMillis);
-        throw new PkfareAdapterException(ENTRY_GATE_ERROR.getCode(), TOKEN_WAIT_TIMEOUT_MSG, UNAVAILABLE_REASON_CODE);
+        throw new PkfareAdapterException(VERTEIL_ERROR.getCode(), TOKEN_WAIT_TIMEOUT_MSG, UNAVAILABLE_REASON_CODE);
     }
 
     private EntryGateSession login(String authKey, Configuration configuration) {
@@ -187,7 +187,9 @@ public class LocalTokenCache {
         if (isEmpty(json)) return null;
         try {
             EntryGateSession session = objectMapper.readValue(json, EntryGateSession.class);
-            return Optional.ofNullable(session).filter(found -> nonNull(found.accessToken())).orElse(null);
+            return Optional.ofNullable(session)
+                    .filter(found -> nonNull(found.accessToken()))
+                    .orElse(null);
         } catch (JsonProcessingException e) {
             log.warn("Unable to deserialize shared Entry-Gate session from Redis for key [{}]: {}", authKey, e.getMessage());
             return null;
@@ -195,7 +197,9 @@ public class LocalTokenCache {
     }
 
     private static boolean isValid(EntryGateSession session, long now) {
-        return Optional.ofNullable(session).map(found -> found.isValid(now, TOKEN_EXPIRY_BUFFER_SECONDS)).orElse(false);
+        return Optional.ofNullable(session)
+                .map(found -> found.isValid(now, TOKEN_EXPIRY_BUFFER_SECONDS))
+                .orElse(false);
     }
 
     private static String authKeyOf(String accountId) {
@@ -211,7 +215,7 @@ public class LocalTokenCache {
             Thread.sleep(millis);
         } catch (InterruptedException _) {
             Thread.currentThread().interrupt();
-            throw new PkfareAdapterException(ENTRY_GATE_ERROR.getCode(), TOKEN_WAIT_TIMEOUT_MSG, UNAVAILABLE_REASON_CODE);
+            throw new PkfareAdapterException(VERTEIL_ERROR.getCode(), TOKEN_WAIT_TIMEOUT_MSG, UNAVAILABLE_REASON_CODE);
         }
     }
 }

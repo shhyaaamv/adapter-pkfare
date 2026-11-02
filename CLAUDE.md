@@ -85,12 +85,12 @@ Commands return `CONTINUE_PROCESSING` or `PROCESSING_COMPLETE`. A cache hit and 
 - Some JAXB getters are plain (non-lazy) and return null lists, e.g. `AirShoppingRQ.ResponseParameters.getSortOrder()`. Set those lists explicitly.
 
 **Response mapping** (`offer/search/converter`):
-- `SearchRSConverter` maps one `AirlineOffer` to one `shoppingResultList[]` entry via `ShoppingResultConverter`, which composes `ItineraryConverter`, `TicketPriceConverter`, `FreeBaggageConverter`, `FareRuleConverter` and `OfferDataConverter`.
+- `SearchRSConverter` maps one `AirlineOffer` to one `shoppingResultList[]` entry via `ShoppingResultConverter`, which composes `ItineraryConverter`, `TicketPriceConverter`, `FreeBaggageConverter` and `FareRuleConverter`.
 - `ItineraryConverter` groups segments by origin-destination and orders the groups by departure. That gives `travelDirection` (1 out / 2 return) and `flightSeq`.
 - `SearchMappingContext` holds an `AirShoppingRSIndex` (DataLists lookups) and the `flightRefNums` registry. `flightList` is emitted only for registered segments, so build everything that can fail *before* registering flight refs.
 - Offers PKFARE can't represent are skipped and logged, never failing the search.
 - VDC `OfferPrice` amounts are **per passenger** (verified against the sample).
-- `data` = Base64 JSON of `OfferData`, which the QTE flow will decode.
+- `data` = `AirlineOffer.OfferID` value, which the QTE flow will use to price the offer.
 
 **Caller IP**: `request.getRemoteAddr()` with `server.forward-headers-strategy: native`, so X-Forwarded-For is trusted only from internal proxies. `IpWhitelist` accepts IPs/CIDRs and fails closed when empty. The check runs unless `IP_WHITELIST_ENABLED` is `false` (default `true`).
 

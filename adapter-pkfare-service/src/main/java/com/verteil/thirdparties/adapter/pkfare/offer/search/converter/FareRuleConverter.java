@@ -70,20 +70,26 @@ public class FareRuleConverter {
 
     public List<SearchRefundInfo> refunds(List<ItinerarySegment> itinerary, List<PassengerOfferPrice> passengerPrices,
                                           String currency, boolean roundTrip, SearchMappingContext context) {
-        return passengerPrices.stream().flatMap(passengerPrice -> {
-            Map<Integer, List<PenaltyType>> byDirection = penaltiesByDirection(itinerary, passengerPrice, context);
-            return refundChangeTypes(roundTrip).stream().map(type -> refundInfo(passengerPrice.passengerType(), type,
-                    condition(byDirection, directions(type, byDirection.keySet()), Rule.REFUND, currency)));
-        }).toList();
+        return passengerPrices.stream()
+                .flatMap(passengerPrice -> {
+                    Map<Integer, List<PenaltyType>> byDirection = penaltiesByDirection(itinerary, passengerPrice, context);
+                    return refundChangeTypes(roundTrip).stream()
+                            .map(type -> refundInfo(passengerPrice.passengerType(), type,
+                                    condition(byDirection, directions(type, byDirection.keySet()), Rule.REFUND, currency)));
+                })
+                .toList();
     }
 
     public List<SearchChangeInfo> changes(List<ItinerarySegment> itinerary, List<PassengerOfferPrice> passengerPrices,
                                           String currency, boolean roundTrip, SearchMappingContext context) {
-        return passengerPrices.stream().flatMap(passengerPrice -> {
-            Map<Integer, List<PenaltyType>> byDirection = penaltiesByDirection(itinerary, passengerPrice, context);
-            return refundChangeTypes(roundTrip).stream().map(type -> changeInfo(passengerPrice.passengerType(), type,
-                    condition(byDirection, directions(type, byDirection.keySet()), Rule.CHANGE, currency)));
-        }).toList();
+        return passengerPrices.stream()
+                .flatMap(passengerPrice -> {
+                    Map<Integer, List<PenaltyType>> byDirection = penaltiesByDirection(itinerary, passengerPrice, context);
+                    return refundChangeTypes(roundTrip).stream()
+                            .map(type -> changeInfo(passengerPrice.passengerType(), type,
+                                    condition(byDirection, directions(type, byDirection.keySet()), Rule.CHANGE, currency)));
+                })
+                .toList();
     }
 
     private static SearchRefundInfo refundInfo(int passengerType, int type, Condition condition) {
@@ -142,7 +148,9 @@ public class FareRuleConverter {
                         .max(Comparator.comparing(CurrencyAmountOptType::getValue))
                         .stream())
                 .toList();
-        BigDecimal fee = maxAmounts.stream().map(CurrencyAmountOptType::getValue).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal fee = maxAmounts.stream()
+                .map(CurrencyAmountOptType::getValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         String feeCurrency = maxAmounts.stream()
                 .map(CurrencyAmountOptType::getCode)
                 .filter(Objects::nonNull)
@@ -169,13 +177,17 @@ public class FareRuleConverter {
                 .filter(detail -> rule.detailType.test(detail.getType()))
                 .flatMap(detail -> Optional.ofNullable(detail.getAmounts()).stream())
                 .flatMap(amounts -> amounts.getAmount().stream())
-                .filter(amount -> Optional.ofNullable(amount.getAmountApplication()).map(VDC_AMOUNT_APPLICATION_MAX::equalsIgnoreCase).orElse(true))
+                .filter(amount -> Optional.ofNullable(amount.getAmountApplication())
+                        .map(VDC_AMOUNT_APPLICATION_MAX::equalsIgnoreCase)
+                        .orElse(true))
                 .flatMap(amount -> Optional.ofNullable(amount.getCurrencyAmountValue()).stream())
                 .filter(amount -> nonNull(amount.getValue()));
     }
 
     private static Stream<PenaltyType.Details.Detail> details(PenaltyType penalty) {
-        return Optional.ofNullable(penalty.getDetails()).stream().flatMap(details -> details.getDetail().stream());
+        return Optional.ofNullable(penalty.getDetails())
+                .stream()
+                .flatMap(details -> details.getDetail().stream());
     }
 
     /**

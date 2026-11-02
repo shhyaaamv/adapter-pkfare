@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.AUTHENTICATION_FAILURE;
-import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.ENTRY_GATE_ERROR;
+import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.VERTEIL_ERROR;
 import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.SERVICE_DISABLED;
 import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.VALIDATION_FAILURE;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.PK_MSG_MAX_LENGTH;
@@ -43,7 +43,7 @@ public class ErrorResponseConverter {
         if (VALIDATION_FAILURE.getCode().equals(errorCode)) {
             return PK_STATUS_REQUEST_PARAMETER_ERROR;
         }
-        if (AUTHENTICATION_FAILURE.getCode().equals(errorCode) || ENTRY_GATE_ERROR.getCode().equals(errorCode)
+        if (AUTHENTICATION_FAILURE.getCode().equals(errorCode) || VERTEIL_ERROR.getCode().equals(errorCode)
                 || SERVICE_DISABLED.getCode().equals(errorCode)) {
             return PK_STATUS_OTHER_FAILURE;
         }

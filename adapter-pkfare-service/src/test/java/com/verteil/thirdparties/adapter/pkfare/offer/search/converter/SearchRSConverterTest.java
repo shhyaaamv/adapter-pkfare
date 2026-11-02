@@ -8,7 +8,6 @@ import com.verteil.schema.pkfare.SearchShoppingResult;
 import com.verteil.schema.pkfare.SearchTicket;
 import com.verteil.schemas.ndc16_1.AirShoppingRS;
 import com.verteil.thirdparties.adapter.pkfare.common.PkfareAdapterContext;
-import com.verteil.thirdparties.adapter.pkfare.offer.search.model.OfferData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,13 +29,11 @@ import static org.assertj.core.api.Assertions.tuple;
 class SearchRSConverterTest {
 
     private SearchRSConverter converter;
-    private OfferDataConverter offerDataConverter;
 
     @BeforeEach
     void setUp() {
-        offerDataConverter = new OfferDataConverter();
         ShoppingResultConverter shoppingResultConverter = new ShoppingResultConverter(new ItineraryConverter(),
-                new TicketPriceConverter(), new FreeBaggageConverter(), new FareRuleConverter(), offerDataConverter);
+                new TicketPriceConverter(), new FreeBaggageConverter(), new FareRuleConverter());
         converter = new SearchRSConverter(shoppingResultConverter, new FlightConverter());
     }
 
@@ -149,14 +146,10 @@ class SearchRSConverterTest {
     }
 
     @Test
-    void encodesOfferDataForPricing() {
+    void mapsOfferIdAsData() {
         SearchShoppingResult result = convert(searchRequest(), Map.of()).getShoppingResultList().getFirst();
 
-        OfferData data = offerDataConverter.decode(result.getData());
-        assertThat(data.offerId()).isEqualTo("1H2AIZ_0KZ5PZIOJZNJNY5NWKKZS0AOOEQG");
-        assertThat(data.owner()).isEqualTo("AI");
-        assertThat(data.offerItemIds()).hasSize(3).allMatch(id -> id.startsWith("1H2AIZ_0KZ5PZIOJZNJNY5NWKKZS0AOOEQG-1-"));
-        assertThat(data.segmentKeys()).containsExactly("AI-SEG9", "AI-SEG6", "AI-SEG18", "AI-SEG19");
+        assertThat(result.getData()).isEqualTo("1H2AIZ_0KZ5PZIOJZNJNY5NWKKZS0AOOEQG");
     }
 
     @Test

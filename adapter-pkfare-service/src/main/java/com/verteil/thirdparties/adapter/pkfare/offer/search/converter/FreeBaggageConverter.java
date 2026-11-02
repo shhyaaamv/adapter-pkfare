@@ -56,13 +56,15 @@ public class FreeBaggageConverter {
 
     public List<SearchFreeBaggage> convert(List<ItinerarySegment> itinerary, List<PassengerOfferPrice> passengerPrices,
                                            SearchMappingContext context) {
-        return passengerPrices.stream().flatMap(passengerPrice -> {
-            Map<String, FlightSegmentReference> references = segmentReferences(passengerPrice);
-            return itinerary.stream().map(segment -> freeBaggage(passengerPrice, segment, references, context));
-        }).toList();
+        return passengerPrices.stream()
+                .flatMap(passengerPrice -> {
+                    Map<String, FlightSegmentReference> references = segmentReferences(passengerPrice);
+                    return itinerary.stream().map(segment -> freeBaggage(passengerPrice, segment, references, context));
+                })
+                .toList();
     }
 
-    private static SearchFreeBaggage freeBaggage(PassengerOfferPrice passengerPrice, ItinerarySegment segment,
+    private SearchFreeBaggage freeBaggage(PassengerOfferPrice passengerPrice, ItinerarySegment segment,
                                                  Map<String, FlightSegmentReference> references, SearchMappingContext context) {
         var bagAssociation = Optional.ofNullable(references.get(segment.segmentKey()))
                 .map(FlightSegmentReference::getBagDetailAssociation);
@@ -90,7 +92,7 @@ public class FreeBaggageConverter {
         return baggage;
     }
 
-    private static void applyChecked(SearchFreeBaggage baggage, Allowance checked) {
+    private void applyChecked(SearchFreeBaggage baggage, Allowance checked) {
         if (checked.pieces() <= 0 && checked.weightKg() <= 0) {
             baggage.setBaggagePiece(PK_NO_BAGGAGE_PIECE);
             baggage.setBaggageWeight(PK_NOT_APPLICABLE);
@@ -132,7 +134,9 @@ public class FreeBaggageConverter {
 
     /** [length, width, height] in cm, only when all three are present. */
     private static List<Integer> dimensions(BagAllowanceDimensionType dimensionAllowance) {
-        return Optional.ofNullable(dimensionAllowance).map(FreeBaggageConverter::dimensionsCm).orElse(List.of());
+        return Optional.ofNullable(dimensionAllowance)
+                .map(FreeBaggageConverter::dimensionsCm)
+                .orElse(List.of());
     }
 
     private static List<Integer> dimensionsCm(BagAllowanceDimensionType dimensionAllowance) {
@@ -145,10 +149,13 @@ public class FreeBaggageConverter {
                                 .setScale(0, RoundingMode.DOWN).intValue(),
                         (_, last) -> last));
         List<String> categories = List.of("LENGTH", "WIDTH", "HEIGHT");
-        return byCategory.keySet().containsAll(categories) ? categories.stream().map(byCategory::get).toList() : List.of();
+        return byCategory.keySet().containsAll(categories) ? categories.stream()
+                .map(byCategory::get)
+                .toList() : List
+                .of();
     }
 
-    private static Map<String, FlightSegmentReference> segmentReferences(PassengerOfferPrice passengerPrice) {
+    private Map<String, FlightSegmentReference> segmentReferences(PassengerOfferPrice passengerPrice) {
         return Optional.ofNullable(passengerPrice.offerPrice().getRequestedDate()).stream()
                 .flatMap(requestedDate -> requestedDate.getAssociations().stream())
                 .flatMap(association -> Optional.ofNullable(association.getApplicableFlight()).stream())

@@ -46,7 +46,9 @@ public final class RefUtil {
     private static Optional<String> keyFromGetter(Object ref, String getter) {
         try {
             Method method = ref.getClass().getMethod(getter);
-            return Optional.ofNullable(method.invoke(ref)).filter(String.class::isInstance).map(String.class::cast);
+            return Optional.ofNullable(method.invoke(ref))
+                    .filter(String.class::isInstance)
+                    .map(String.class::cast);
         } catch (ReflectiveOperationException _) {
             // not this kind of object; the caller tries the next key accessor
             return Optional.empty();

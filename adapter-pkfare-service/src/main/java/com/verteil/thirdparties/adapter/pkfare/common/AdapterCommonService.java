@@ -68,7 +68,10 @@ public class AdapterCommonService {
                             .addParams(CABIN_BRAND)
                             .carrier(CABIN_CARRIER)
                             .build());
-            return CabinMapping.of(Optional.ofNullable(cabinBrandConfigs).orElse(Map.of()).entrySet().stream()
+            return CabinMapping.of(Optional.ofNullable(cabinBrandConfigs)
+                    .orElse(Map.of())
+                    .entrySet()
+                    .stream()
                     .flatMap(entry -> Optional.ofNullable(entry.getValue())
                             .map(configuration -> configuration.getString(CABIN_BRAND, MAPPED_CABIN, null))
                             .map(vdcCabin -> Map.entry(entry.getKey(), vdcCabin))

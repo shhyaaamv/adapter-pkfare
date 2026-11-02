@@ -22,7 +22,6 @@ import com.verteil.schemas.ndc16_1.ShoppingResponseIDType;
 import com.verteil.thirdparties.adapter.pkfare.common.model.CabinMapping;
 import com.verteil.thirdparties.adapter.pkfare.common.utils.RefUtil;
 import com.verteil.thirdparties.adapter.pkfare.offer.search.model.ItinerarySegment;
-import com.verteil.thirdparties.adapter.pkfare.offer.search.model.OfferData;
 import com.verteil.thirdparties.adapter.pkfare.offer.search.model.PassengerOfferPrice;
 import com.verteil.thirdparties.adapter.pkfare.offer.search.model.SearchMappingContext;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +57,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  * flightRefList[]        offer-level Associations.ApplicableFlight.FlightSegmentReference[] in itinerary order
  *   cabinClass / rbd     ClassOfService.MarketingName.CabinDesignator via CABIN_BRAND.MAPPED_CABIN (W -> S) / ClassOfService.Code
  *   seatCount            ClassOfService.Code.SeatsLeft (max 9), else configured / passenger-count default
- * data                   Base64 {offerId, owner, shoppingResponseId, offerItemIds, segmentKeys}
+ * data                   AirlineOffer.OfferID value
  * ticket.validatingCarrier ValidatingCarrier, else OfferID.Owner, else AirlineOffers.Owner
  * ticket.productType     FareGroup Remarks PVT -> PRV, PUBL -> PUB, else configured default
  * ticket.fareBasis       per segment FareComponent -> FareGroup.FareBasisCode, ";"-joined, only if every segment has one
@@ -77,7 +76,6 @@ public class ShoppingResultConverter {
     private final TicketPriceConverter ticketPriceConverter;
     private final FreeBaggageConverter freeBaggageConverter;
     private final FareRuleConverter fareRuleConverter;
-    private final OfferDataConverter offerDataConverter;
 
     public Optional<SearchShoppingResult> convert(AirlineOffers airlineOffers, AirlineOffer offer, SearchMappingContext context) {
         if (isNull(offer.getPricedOffer())) {
@@ -105,10 +103,9 @@ public class ShoppingResultConverter {
         // Build everything that can fail before registering flight references, so a skipped offer never leaves
         // unreferenced flights behind in flightList.
         SearchTicket ticket = ticket(airlineOffers, offer, itinerary, passengerPrices.get(), tag, roundTrip, context);
-        String data = offerDataConverter.encode(offerData(airlineOffers, offer, itinerary, context));
         SearchShoppingResult result = new SearchShoppingResult();
         itinerary.forEach(segment -> result.getFlightRefList().add(flightReference(segment, context)));
-        result.setData(data);
+        result.setData(ItineraryConverter.offerId(offer));
         result.getTicketList().add(ticket);
         result.setTag(tag);
         result.setThreshold(THRESHOLD_NOT_SUPPORTED);
@@ -185,11 +182,15 @@ public class ShoppingResultConverter {
         return Optional.ofNullable(offer.getValidatingCarrier())
                 .filter(StringUtils::isNotBlank)
                 .or(() -> offerOwner(offer))
-                .orElseGet(() -> Optional.ofNullable(airlineOffers.getOwner()).map(AirlineIDType::getValue).orElse(null));
+                .orElseGet(() -> Optional.ofNullable(airlineOffers.getOwner())
+                        .map(AirlineIDType::getValue)
+                        .orElse(null));
     }
 
     private static Optional<String> offerOwner(AirlineOffer offer) {
-        return Optional.ofNullable(offer.getOfferID()).map(ItemIDType::getOwner).filter(StringUtils::isNotBlank);
+        return Optional.ofNullable(offer.getOfferID())
+                .map(ItemIDType::getOwner)
+                .filter(StringUtils::isNotBlank);
     }
 
     private static String productType(List<PassengerOfferPrice> passengerPrices, SearchMappingContext context) {
@@ -215,7 +216,9 @@ public class ShoppingResultConverter {
     /** One fare basis per segment in itinerary order, or nothing when any segment lacks one. */
     private static String fareBasis(List<ItinerarySegment> itinerary, PassengerOfferPrice passengerPrice, SearchMappingContext context) {
         return Optional.ofNullable(passengerPrice.offerPrice().getFareDetail())
-                .map(fareDetail -> itinerary.stream().map(segment -> fareBasis(segment, fareDetail.getFareComponent(), context)).toList())
+                .map(fareDetail -> itinerary.stream()
+                        .map(segment -> fareBasis(segment, fareDetail.getFareComponent(), context))
+                        .toList())
                 .filter(fareBases -> fareBases.stream()
                         .allMatch(Optional::isPresent))
                 .map(fareBases -> fareBases.stream()
@@ -275,7 +278,7 @@ public class ShoppingResultConverter {
                 .toList();
     }
 
-    private static boolean matchesTag(AirlineOffer offer, List<String> priceClassNames, SearchMappingContext context) {
+    private boolean matchesTag(AirlineOffer offer, List<String> priceClassNames, SearchMappingContext context) {
         String requested = context.requestedTag().trim();
         return priceClassNames.stream().anyMatch(requested::equalsIgnoreCase)
                 || priceClasses(offer, context).stream().anyMatch(priceClass -> requested.equalsIgnoreCase(priceClass.getCode()));
@@ -285,31 +288,19 @@ public class ShoppingResultConverter {
         List<String> details = priceClasses(offer, context).stream()
                 .flatMap(priceClass -> Optional.ofNullable(priceClass.getDescriptions()).stream())
                 .flatMap(descriptions -> descriptions.getDescription().stream())
-                .flatMap(description -> Optional.ofNullable(description.getText()).map(DescriptionType.Text::getValue).stream())
+                .flatMap(description -> Optional.ofNullable(description.getText())
+                        .map(DescriptionType.Text::getValue)
+                        .stream())
                 .filter(StringUtils::isNotBlank)
                 .distinct()
                 .toList();
-        return passengerPrices.stream().map(passengerPrice -> {
-            SearchOtherFareRule rule = new SearchOtherFareRule();
-            rule.setPassengerType(passengerPrice.passengerType());
-            rule.setDetail(new ArrayList<>(details));
-            return rule;
-        }).toList();
-    }
-
-    private static OfferData offerData(AirlineOffers airlineOffers, AirlineOffer offer, List<ItinerarySegment> itinerary, SearchMappingContext context) {
-        return new OfferData(
-                ItineraryConverter.offerId(offer),
-                validatingCarrierOrOwner(airlineOffers, offer),
-                Optional.ofNullable(context.response().getShoppingResponseID())
-                        .map(ShoppingResponseIDType::getResponseID)
-                        .map(ShoppingResponseIDType.ResponseID::getValue)
-                        .orElse(null),
-                offer.getPricedOffer().getOfferPrice().stream().map(PricedFlightOfferType.OfferPrice::getOfferItemID).filter(Objects::nonNull).toList(),
-                itinerary.stream().map(ItinerarySegment::segmentKey).toList());
-    }
-
-    private static String validatingCarrierOrOwner(AirlineOffers airlineOffers, AirlineOffer offer) {
-        return offerOwner(offer).orElseGet(() -> validatingCarrier(airlineOffers, offer));
+        return passengerPrices.stream()
+                .map(passengerPrice -> {
+                    SearchOtherFareRule rule = new SearchOtherFareRule();
+                    rule.setPassengerType(passengerPrice.passengerType());
+                    rule.setDetail(new ArrayList<>(details));
+                    return rule;
+                })
+                .toList();
     }
 }

@@ -18,7 +18,7 @@ class ErrorResponseConverterTest {
             "VALIDATION_FAILURE, 4",
             "AUTHENTICATION_FAILURE, 3",
             "SERVICE_DISABLED, 3",
-            "ENTRY_GATE_ERROR, 3",
+            "VERTEIL_ERROR, 3",
             "INTERNAL_ERROR, 5"
     })
     void mapsErrorTypesToPkfareStatus(String errorCode, int status) {
@@ -33,7 +33,7 @@ class ErrorResponseConverterTest {
     @Test
     void keepsMessageUnder64Characters() {
         SearchResponse response = (SearchResponse) converter.createErrorResponse(
-                new PkfareAdapterException("ENTRY_GATE_ERROR", "x".repeat(200)), SERVICE_SEARCH);
+                new PkfareAdapterException("VERTEIL_ERROR", "x".repeat(200)), SERVICE_SEARCH);
 
         assertThat(response.getMsg()).hasSizeLessThan(64);
     }

@@ -20,7 +20,7 @@ import java.util.List;
 
 import static com.google.common.net.HttpHeaders.ACCEPT;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
-import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.ENTRY_GATE_ERROR;
+import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.VERTEIL_ERROR;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.AUTH_PATH;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.AUTH_SCOPE;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.BASIC_AUTH_HEADER;
@@ -58,7 +58,7 @@ public class EntryGateAuthClient {
         String username = configuration.getString(USERNAME);
         String password = configuration.getString(PASSWORD);
         if (isBlank(username) || isBlank(password)) {
-            throw new PkfareAdapterException(ENTRY_GATE_ERROR.getCode(), "Entry-Gate credentials are not configured", UNAUTHORIZED_REASON_CODE);
+            throw new PkfareAdapterException(VERTEIL_ERROR.getCode(), "Verteil credentials are not configured", UNAUTHORIZED_REASON_CODE);
         }
         HttpPost post = buildTokenRequest(configuration, username, password);
         return readTokenResponse(callAuthServer(post, configuration));
@@ -89,7 +89,7 @@ public class EntryGateAuthClient {
                 throw e;
             }
             log.error("Entry-Gate auth server rejected the client credentials of user [{}]", configuration.getString(USERNAME));
-            throw new PkfareAdapterException(ENTRY_GATE_ERROR.getCode(), ERROR_MSG_AUTH_REJECTED, e, UNAVAILABLE_REASON_CODE);
+            throw new PkfareAdapterException(VERTEIL_ERROR.getCode(), ERROR_MSG_AUTH_REJECTED, e, UNAVAILABLE_REASON_CODE);
         }
     }
 
@@ -97,11 +97,11 @@ public class EntryGateAuthClient {
         try {
             AccessTokenResponse response = pkfareObjectMapper.readValue(httpCallResult.body(), AccessTokenResponse.class);
             if (response == null || isBlank(response.accessToken())) {
-                throw new PkfareAdapterException(ENTRY_GATE_ERROR.getCode(), "Entry-Gate token response has no access_token", UNAUTHORIZED_REASON_CODE);
+                throw new PkfareAdapterException(VERTEIL_ERROR.getCode(), "Verteil token response has no access_token", UNAUTHORIZED_REASON_CODE);
             }
             return response;
         } catch (JsonProcessingException e) {
-            throw new PkfareAdapterException(ENTRY_GATE_ERROR.getCode(), "Unreadable Entry-Gate token response", e, UNAUTHORIZED_REASON_CODE);
+            throw new PkfareAdapterException(VERTEIL_ERROR.getCode(), "Unreadable Verteil token response", e, UNAUTHORIZED_REASON_CODE);
         }
     }
 }

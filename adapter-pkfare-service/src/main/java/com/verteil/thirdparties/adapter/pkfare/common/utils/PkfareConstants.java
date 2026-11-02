@@ -138,11 +138,11 @@ public final class PkfareConstants {
     public static final String ERROR_MSG_SERVICE_NOT_IMPLEMENTED = " service is not enabled";
     public static final String ERROR_MSG_INVALID_VENDOR = "Invalid vendorCode";
     public static final String ERROR_MSG_IP_NOT_WHITELISTED = "Request IP is not whitelisted";
-    public static final String ERROR_MSG_AUTH_REJECTED = "Entry-Gate rejected the client credentials";
-    public static final String ERROR_MSG_EMPTY_RESPONSE = "Empty response from Entry-Gate";
+    public static final String ERROR_MSG_AUTH_REJECTED = "Verteil rejected the client credentials";
+    public static final String ERROR_MSG_EMPTY_RESPONSE = "Empty response from Verteil";
     public static final String ERROR_MSG_CABIN_MAPPING_MISSING = "CABIN_BRAND.MAPPED_CABIN is not configured for carrier PKF";
-    public static final String CONNECTION_ERROR_MSG = "Unable to connect to Entry-Gate. Please try again after sometime";
-    public static final String TOKEN_WAIT_TIMEOUT_MSG = "Timed out waiting for Entry-Gate token to be published by another instance";
+    public static final String CONNECTION_ERROR_MSG = "Unable to connect to Verteil. Please try again after sometime";
+    public static final String TOKEN_WAIT_TIMEOUT_MSG = "Timed out waiting for Verteil token to be published by another instance";
     // PKFARE msg must stay under 64 characters, so the internal-error text is short enough to keep the txn id.
     public static final String PK_INTERNAL_ERROR_MSG = "Internal error, txn: ";
     public static final String STANDARD_ERROR_MESSAGE =

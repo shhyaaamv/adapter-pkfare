@@ -62,11 +62,11 @@ class EntryGateAuthClientTest {
     @Test
     void rejectedCredentialsAreNotReportedAsAnExpiredToken() {
         when(connector.callSupplier(any(), any(), any(), any()))
-                .thenThrow(new PkfareAdapterException("3", "HTTP 401 from Entry-Gate", "UNAUTHORIZED"));
+                .thenThrow(new PkfareAdapterException("3", "HTTP 401 from Verteil", "UNAUTHORIZED"));
 
         assertThatThrownBy(() -> client.login(configuration(Map.of())))
                 .isInstanceOf(PkfareAdapterException.class)
-                .hasMessage("Entry-Gate rejected the client credentials")
+                .hasMessage("Verteil rejected the client credentials")
                 .extracting("reason").isEqualTo("UNAVAILABLE");
     }
 
@@ -76,7 +76,7 @@ class EntryGateAuthClientTest {
         values.remove("PASSWORD");
 
         assertThatThrownBy(() -> client.login(new MapConfiguration(values)))
-                .hasMessage("Entry-Gate credentials are not configured");
+                .hasMessage("Verteil credentials are not configured");
         verify(connector, never()).callSupplier(any(), any(), any(), any());
     }
 
@@ -85,7 +85,7 @@ class EntryGateAuthClientTest {
         when(connector.callSupplier(any(), any(), any(), any())).thenReturn(new HttpCallResult(200, "{\"token_type\":\"Bearer\"}", 10));
 
         assertThatThrownBy(() -> client.login(configuration(Map.of())))
-                .hasMessage("Entry-Gate token response has no access_token");
+                .hasMessage("Verteil token response has no access_token");
     }
 
     private HttpPost capturedRequest() {

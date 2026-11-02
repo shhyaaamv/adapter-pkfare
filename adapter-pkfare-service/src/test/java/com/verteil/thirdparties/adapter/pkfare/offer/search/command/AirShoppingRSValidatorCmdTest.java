@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.ENTRY_GATE_ERROR;
+import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.VERTEIL_ERROR;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SERVICE_AIRSHOPPING;
 import static com.verteil.thirdparties.adapter.pkfare.utils.TestUtils.airShoppingRS;
 import static com.verteil.thirdparties.adapter.pkfare.utils.TestUtils.buildContext;
@@ -51,14 +51,14 @@ class AirShoppingRSValidatorCmdTest {
         assertThatThrownBy(() -> cmd.execute(context))
                 .isInstanceOf(PkfareAdapterException.class)
                 .hasMessage("Airline unavailable")
-                .extracting("errorCode").isEqualTo(ENTRY_GATE_ERROR.getCode());
+                .extracting("errorCode").isEqualTo(VERTEIL_ERROR.getCode());
     }
 
     @Test
     void failsWhenEntryGateReturnedNothing() {
         assertThatThrownBy(() -> cmd.execute(context(null, Map.of())))
                 .isInstanceOf(PkfareAdapterException.class)
-                .extracting("errorCode").isEqualTo(ENTRY_GATE_ERROR.getCode());
+                .extracting("errorCode").isEqualTo(VERTEIL_ERROR.getCode());
     }
 
     private static void assertEmptySuccess(PkfareAdapterContext context) {

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 import java.util.List;
 
-import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.ENTRY_GATE_ERROR;
+import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.VERTEIL_ERROR;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.ERROR_MSG_EMPTY_RESPONSE;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.NO_RESULT_ERROR_CODES;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.PKFARE_API;
@@ -43,9 +43,11 @@ public class AirShoppingRSValidatorCmd implements Command<PkfareAdapterContext> 
     public boolean execute(PkfareAdapterContext context) {
         var response = (AirShoppingRS) context.getProviderApiResponse(SERVICE_AIRSHOPPING);
         if (isNull(response)) {
-            throw new PkfareAdapterException(ENTRY_GATE_ERROR.getCode(), ERROR_MSG_EMPTY_RESPONSE, UNAVAILABLE_REASON_CODE);
+            throw new PkfareAdapterException(VERTEIL_ERROR.getCode(), ERROR_MSG_EMPTY_RESPONSE, UNAVAILABLE_REASON_CODE);
         }
-        List<ErrorType> errors = Optional.ofNullable(response.getErrors()).map(responseErrors -> responseErrors.getError()).orElse(List.of());
+        List<ErrorType> errors = Optional.ofNullable(response.getErrors())
+                .map(responseErrors -> responseErrors.getError())
+                .orElse(List.of());
         if (hasOffers(response)) {
             if (!errors.isEmpty()) {
                 log.warn("AirShoppingRS has offers and {} error(s), first: {}", errors.size(), describe(errors.getFirst()));
@@ -59,17 +61,17 @@ public class AirShoppingRSValidatorCmd implements Command<PkfareAdapterContext> 
         }
         ErrorType error = errors.getFirst();
         log.warn("AirShoppingRS returned errors without offers: {}", describe(error));
-        throw new PkfareAdapterException(ENTRY_GATE_ERROR.getCode(), defaultIfBlank(error.getShortText(), error.getValue()),
+        throw new PkfareAdapterException(VERTEIL_ERROR.getCode(), defaultIfBlank(error.getShortText(), error.getValue()),
                 defaultIfBlank(error.getCode(), error.getReason()));
     }
 
-    private static boolean hasOffers(AirShoppingRS response) {
+    private boolean hasOffers(AirShoppingRS response) {
         return Optional.ofNullable(response.getOffersGroup())
                 .map(offersGroup -> offersGroup.getAirlineOffers().stream().anyMatch(airlineOffers -> !airlineOffers.getAirlineOffer().isEmpty()))
                 .orElse(false);
     }
 
-    private static boolean isNoResult(ErrorType error, PkfareAdapterContext context) {
+    private boolean isNoResult(ErrorType error, PkfareAdapterContext context) {
         List<String> noResultCodes = Optional.ofNullable(context.getConfigurations().get(context.getService()))
                 .map(configuration -> configuration.getListFromCsv(PKFARE_API, NO_RESULT_ERROR_CODES, List.of()))
                 .orElse(List.of());

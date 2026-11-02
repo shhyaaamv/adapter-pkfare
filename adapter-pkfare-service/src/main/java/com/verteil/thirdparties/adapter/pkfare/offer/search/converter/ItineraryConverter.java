@@ -80,7 +80,9 @@ public class ItineraryConverter {
     private static List<ItinerarySegment> itinerary(Collection<List<Leg>> journeys) {
         Comparator<Leg> byDeparture = Comparator.comparing(Leg::departure, Comparator.nullsLast(Comparator.naturalOrder()));
         List<List<Leg>> ordered = journeys.stream()
-                .map(legs -> legs.stream().sorted(byDeparture).toList())
+                .map(legs -> legs.stream()
+                        .sorted(byDeparture)
+                        .toList())
                 .sorted(Comparator.comparing(legs -> legs.getFirst().departure(), Comparator.nullsLast(Comparator.naturalOrder())))
                 .toList();
         return IntStream.range(0, ordered.size()).boxed()
@@ -90,7 +92,7 @@ public class ItineraryConverter {
     }
 
     /** The association's single OD reference, else the OD the segment belongs to, else one journey per association. */
-    private static String journeyKey(SegmentRef segmentRef, SearchMappingContext context) {
+    private String journeyKey(SegmentRef segmentRef, SearchMappingContext context) {
         return segmentRef.odKeys().size() == 1 ? segmentRef.odKeys().getFirst()
                 : context.index().originDestinationOfSegment(segmentRef.segmentKey()).orElse("ASSOCIATION-" + segmentRef.association());
     }
@@ -108,7 +110,7 @@ public class ItineraryConverter {
     }
 
     /** Offer-level associations carry this offer's class of service per segment; fall back to the first OfferPrice. */
-    private static List<PricedFlightOfferAssocType> offerAssociations(AirlineOffer offer) {
+    private List<PricedFlightOfferAssocType> offerAssociations(AirlineOffer offer) {
         return Optional.ofNullable(offer.getPricedOffer())
                 .map(pricedOffer -> !pricedOffer.getAssociations().isEmpty() ? pricedOffer.getAssociations()
                         : pricedOffer.getOfferPrice().stream()
@@ -120,6 +122,8 @@ public class ItineraryConverter {
     }
 
     static String offerId(AirlineOffer offer) {
-        return Optional.ofNullable(offer.getOfferID()).map(ItemIDType::getValue).orElse(null);
+        return Optional.ofNullable(offer.getOfferID())
+                .map(ItemIDType::getValue)
+                .orElse(null);
     }
 }

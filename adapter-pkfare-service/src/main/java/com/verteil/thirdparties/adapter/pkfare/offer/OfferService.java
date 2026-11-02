@@ -54,7 +54,10 @@ public class OfferService {
     private final LoggerHelper loggerHelper;
 
     public SearchResponse search(SearchRequest request, String clientIp) {
-        return (SearchResponse) process(SERVICE_SEARCH, request, Optional.ofNullable(request).map(SearchRequest::getVendorCode).orElse(null), clientIp);
+        String vendorCode = Optional.ofNullable(request)
+                .map(SearchRequest::getVendorCode)
+                .orElse(null);
+        return (SearchResponse) process(SERVICE_SEARCH, request, vendorCode, clientIp);
     }
 
     private Object process(String service, Object request, String vendorCode, String clientIp) {
@@ -97,7 +100,7 @@ public class OfferService {
         }
     }
 
-    private static PkfareAdapterContext createContext(String service, Object request, String vendorCode, String clientIp) {
+    private PkfareAdapterContext createContext(String service, Object request, String vendorCode, String clientIp) {
         String transactionId = defaultIfBlank(MDC.get(XTID), UUID.randomUUID().toString());
 
         UserDetailsDto userDetails = new UserDetailsDto();

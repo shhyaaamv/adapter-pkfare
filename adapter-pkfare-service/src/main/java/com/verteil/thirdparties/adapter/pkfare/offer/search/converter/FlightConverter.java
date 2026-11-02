@@ -28,14 +28,22 @@ public class FlightConverter {
         flight.setFlightNumber(marketing.map(carrier -> NdcUtil.toFlightNumber(flightNumber(carrier.getFlightNumber()))).orElse(null));
 
         Optional.ofNullable(segment.getDeparture()).ifPresent(departure -> {
-            flight.setDepAirport(Optional.ofNullable(departure.getAirportCode()).map(code -> code.getValue()).orElse(null));
+            flight.setDepAirport(Optional.ofNullable(departure.getAirportCode())
+                    .map(code -> code.getValue())
+                    .orElse(null));
             flight.setDepTime(NdcUtil.toPkDateTime(NdcUtil.toLocalDateTime(departure.getDate(), departure.getTime())));
-            flight.setDepTerminal(Optional.ofNullable(departure.getTerminal()).map(terminal -> terminal.getName()).orElse(null));
+            flight.setDepTerminal(Optional.ofNullable(departure.getTerminal())
+                    .map(terminal -> terminal.getName())
+                    .orElse(null));
         });
         Optional.ofNullable(segment.getArrival()).ifPresent(arrival -> {
-            flight.setArrAirport(Optional.ofNullable(arrival.getAirportCode()).map(code -> code.getValue()).orElse(null));
+            flight.setArrAirport(Optional.ofNullable(arrival.getAirportCode())
+                    .map(code -> code.getValue())
+                    .orElse(null));
             flight.setArrTime(NdcUtil.toPkDateTime(NdcUtil.toLocalDateTime(arrival.getDate(), arrival.getTime())));
-            flight.setArrTerminal(Optional.ofNullable(arrival.getTerminal()).map(terminal -> terminal.getName()).orElse(null));
+            flight.setArrTerminal(Optional.ofNullable(arrival.getTerminal())
+                    .map(terminal -> terminal.getName())
+                    .orElse(null));
         });
 
         var operating = Optional.ofNullable(segment.getOperatingCarrier());
@@ -60,7 +68,9 @@ public class FlightConverter {
                     .map(stops -> stops.getStopLocations())
                     .stream()
                     .flatMap(locations -> locations.getStopLocation().stream())
-                    .flatMap(location -> Optional.ofNullable(location.getAirportCode()).map(code -> code.getValue()).stream())
+                    .flatMap(location -> Optional.ofNullable(location.getAirportCode())
+                            .map(code -> code.getValue())
+                            .stream())
                     .forEach(airport -> {
                         SearchStop stop = new SearchStop();
                         stop.setStopAirport(airport);
@@ -71,10 +81,14 @@ public class FlightConverter {
     }
 
     private static String airline(AirlineIDType airlineId) {
-        return Optional.ofNullable(airlineId).map(AirlineIDType::getValue).orElse(null);
+        return Optional.ofNullable(airlineId)
+                .map(AirlineIDType::getValue)
+                .orElse(null);
     }
 
     private static String flightNumber(FlightNumber flightNumber) {
-        return Optional.ofNullable(flightNumber).map(FlightNumber::getValue).orElse(null);
+        return Optional.ofNullable(flightNumber)
+                .map(FlightNumber::getValue)
+                .orElse(null);
     }
 }

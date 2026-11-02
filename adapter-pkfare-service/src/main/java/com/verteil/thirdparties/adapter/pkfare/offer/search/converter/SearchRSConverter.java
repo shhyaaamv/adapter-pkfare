@@ -102,8 +102,10 @@ public class SearchRSConverter {
                 .toList();
     }
 
-    private static int offerCount(List<AirlineOffers> airlineOffers) {
-        return airlineOffers.stream().mapToInt(offers -> offers.getAirlineOffer().size()).sum();
+    private int offerCount(List<AirlineOffers> airlineOffers) {
+        return airlineOffers.stream()
+                .mapToInt(offers -> offers.getAirlineOffer().size())
+                .sum();
     }
 
     private static List<AirlineOffers> airlineOffers(AirShoppingRS airShoppingRS) {
