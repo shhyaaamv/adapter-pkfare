@@ -55,7 +55,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  * One AirlineOffer -> one {@code shoppingResultList[]} entry (single ticket, ticketSeq 1).
  * <pre>
  * flightRefList[]        offer-level Associations.ApplicableFlight.FlightSegmentReference[] in itinerary order
- *   cabinClass / rbd     ClassOfService.MarketingName.CabinDesignator via CABIN_BRAND.MAPPED_CABIN (W -> S) / ClassOfService.Code
+ *   cabinClass / rbd     ClassOfService.MarketingName.CabinDesignator via CabinMapping.PKFARE (W -> S) / ClassOfService.Code
  *   seatCount            ClassOfService.Code.SeatsLeft (max 9), else configured / passenger-count default
  * data                   AirlineOffer.OfferID value
  * ticket.validatingCarrier ValidatingCarrier, else OfferID.Owner, else AirlineOffers.Owner

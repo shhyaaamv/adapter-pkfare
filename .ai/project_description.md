@@ -17,7 +17,7 @@ The general API flow looks like the following :
               participant EG as Entry-Gate
 
               PK->>C: PKFARE Request (with VendorCode)
-              Note over C: Validate using vendor code and IP whitelist
+              Note over C: Validate using vendor code
 
               C->>EG: Authentication request
               EG-->>C: Authentication response
@@ -50,7 +50,7 @@ Initially only `SEARCH` API is to be done for an MVP.
 
 - Setup this connector/adapter (rename this repo to be `adapter` instead of `connector` wherever possible)
   - To receive API request in PKFARE request format
-  - Authenticate the request (Ip whitelist and vendor code validation)
+  - Authenticate the request (vendor code validation; IP whitelisting was dropped)
   - Authenticate with entry-gate (Verteil microservice)
   - Convert PKFARE request to VDC Request and hit entry-gate
   - Recieve VDC Request, validate for errors
@@ -80,30 +80,38 @@ Initially only `SEARCH` API is to be done for an MVP.
 
 ### Database Setup
 
-Sample looks like 
+All adapter configuration lives in one table, `agency_adapter_tbls.pkfare_configs`. No other schema or table is
+used. See `db-change.md`.
 
 ```sql
--- To provide auth url of entry-gate (value will change, this is just a sample)
-INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
-            VALUES('PKFARE_API', 'AUTH_PATH', NULL, NULL, NULL, NULL, '/oauth') ON CONFLICT DO NOTHING;
--- To give entry-gate host url
-INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
-            VALUES('PKFARE_API', 'HOST', NULL, NULL, NULL, NULL, '<entry-gate-url>') ON CONFLICT DO NOTHING;
--- To give endpoints of entry-gate for each service
-INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
-            VALUES('PKFARE_API', 'PATH', NULL, NULL, 'AirShopping', NULL, '/shopping') ON CONFLICT DO NOTHING;
--- To enable/disable the service provided by the connector
-INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
-            VALUES('PKFARE_API', 'ENABLE_SERVICE', NULL, NULL, NULL, NULL, 'true') ON CONFLICT DO NOTHING;
--- To enable/disable individual services
-INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
-            VALUES('PKFARE_API', 'ENABLE_SERVICE', NULL, NULL, 'AirShopping', NULL, 'true') ON CONFLICT DO NOTHING;
--- To provide timeout configs
-INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", service, value)
-            VALUES('VJ_API', 'TIMEOUT_MILLIS', 'AirShopping', '30000') ON CONFLICT DO NOTHING;
+CREATE TABLE agency_adapter_tbls.pkfare_configs (
+    id            BIGSERIAL PRIMARY KEY,
+    config_group  VARCHAR(100) NOT NULL,
+    name          VARCHAR(150) NOT NULL,
+    service       VARCHAR(100),
+    value         TEXT,
+    CONSTRAINT uq_pkfare_configs UNIQUE (config_group, name, service)
+);
 ```
 
-These are just samples, the actual db structure will be informed later. Analyze vj-connector to know more (if not in blueprint).
+Sample rows (Liquibase property `${agency_adapter_tbls}`):
+
+```sql
+-- Entry-Gate token endpoint (sample value)
+INSERT INTO ${agency_adapter_tbls}.pkfare_configs(config_group, "name", service, value)
+            VALUES('PKFARE_API', 'AUTH_PATH', NULL, '/oauth2/token') ON CONFLICT DO NOTHING;
+-- Entry-Gate host
+INSERT INTO ${agency_adapter_tbls}.pkfare_configs(config_group, "name", service, value)
+            VALUES('PKFARE_API', 'HOST', NULL, '<entry-gate-url>') ON CONFLICT DO NOTHING;
+-- Enable/disable the adapter's services (default, then per PKFARE service)
+INSERT INTO ${agency_adapter_tbls}.pkfare_configs(config_group, "name", service, value)
+            VALUES('PKFARE_API', 'ENABLE_SERVICE', NULL, 'false') ON CONFLICT DO NOTHING;
+INSERT INTO ${agency_adapter_tbls}.pkfare_configs(config_group, "name", service, value)
+            VALUES('PKFARE_API', 'ENABLE_SERVICE', 'Search', 'true') ON CONFLICT DO NOTHING;
+-- Timeout for an Entry-Gate service
+INSERT INTO ${agency_adapter_tbls}.pkfare_configs(config_group, "name", service, value)
+            VALUES('PKFARE_API', 'TIMEOUT_MILLIS', 'AirShopping', '30000') ON CONFLICT DO NOTHING;
+```
 Prepare liquibase scripts regarding each db change grouped together according to relevance or similarity.
 
 

@@ -14,6 +14,15 @@ def adapterPort = 9122
 def wiremockDir = layout.buildDirectory.dir("wiremock")
 def acceptanceDir = layout.buildDirectory.dir("acceptance")
 
+// The adapter reads its settings from agency_adapter_tbls.pkfare_configs. By default that is the local database as
+// the restricted pkfare_user; point ACCEPTANCE_DB_* elsewhere to use another one.
+def acceptanceDb = [
+        url     : System.getenv('ACCEPTANCE_DB_URL') ?:
+                'jdbc:postgresql://localhost:5432/vdc_db?currentSchema=agency_adapter_tbls&ApplicationName=adapter-pkfare-acceptance',
+        user    : System.getenv('ACCEPTANCE_DB_USER') ?: 'pkfare_user',
+        password: System.getenv('ACCEPTANCE_DB_PASSWORD') ?: 'pkfare123',
+]
+
 def assertPortAvailable = { int port, String serviceName ->
     try (def socket = new ServerSocket()) {
         socket.reuseAddress = true
@@ -71,9 +80,27 @@ tasks.register('copyWireMock', Copy) {
     into(wiremockDir)
 }
 
+['seed', 'restore'].each { action ->
+    tasks.register("${action}AcceptanceDb", JavaExec) {
+        group = 'acceptance'
+        description = action == 'seed'
+                ? 'Replaces pkfare_configs with the acceptance rows, saving the current rows to a backup file.'
+                : 'Puts back the pkfare_configs rows saved by seedAcceptanceDb (no-op without a backup).'
+        dependsOn tasks.named('testClasses')
+        classpath = sourceSets.test.runtimeClasspath
+        mainClass = 'com.verteil.thirdparties.adapter.pkfare.acceptance.db.AcceptanceDatabase'
+        args action
+        systemProperty 'acceptance.db.url', acceptanceDb.url
+        systemProperty 'acceptance.db.user', acceptanceDb.user
+        systemProperty 'acceptance.db.password', acceptanceDb.password
+        systemProperty 'acceptance.db.backupFile',
+                acceptanceDir.get().file('db/pkfare_configs_backup.json').asFile.absolutePath
+    }
+}
+
 tasks.register('startWireMock') {
     group = 'acceptance'
-    description = 'Starts WireMock (vdc-configurator + Entry-Gate) with the acceptance mappings.'
+    description = 'Starts WireMock (Entry-Gate) with the acceptance mappings.'
     dependsOn tasks.named('copyWireMock')
     doLast {
         assertPortAvailable(wireMockPort, 'WireMock')
@@ -98,7 +125,8 @@ tasks.register('startWireMock') {
 tasks.register('startAdapterPkfareServer') {
     group = 'acceptance'
     description = 'Starts adapter-pkfare with the acceptance profile.'
-    dependsOn serverProject.tasks.named('bootJar'), tasks.named('startWireMock')
+    dependsOn serverProject.tasks.named('bootJar'), tasks.named('startWireMock'), tasks.named('seedAcceptanceDb')
+    finalizedBy tasks.named('restoreAcceptanceDb')
     doLast {
         try {
             assertPortAvailable(adapterPort, 'adapter-pkfare')
@@ -111,7 +139,9 @@ tasks.register('startAdapterPkfareServer') {
         logFile.parentFile.mkdirs()
         def process = new ProcessBuilder('java', '-Dspring.profiles.active=acceptance',
                 "-DACCEPTANCE_SERVER_PORT=${adapterPort}",
-                "-DACCEPTANCE_WIREMOCK_PORT=${wireMockPort}", '-jar', serverJar.absolutePath)
+                "-DACCEPTANCE_WIREMOCK_PORT=${wireMockPort}", "-DACCEPTANCE_DB_URL=${acceptanceDb.url}",
+                "-DACCEPTANCE_DB_USER=${acceptanceDb.user}", "-DACCEPTANCE_DB_PASSWORD=${acceptanceDb.password}",
+                '-jar', serverJar.absolutePath)
                 .redirectErrorStream(true)
                 .redirectOutput(logFile)
                 .start()
@@ -169,9 +199,14 @@ tasks.named('runTests') {
     finalizedBy tasks.named('stopMockServers')
 }
 
+// The adapter loaded the table at startup; put the developer's rows back once the run is over (or failed).
+tasks.named('restoreAcceptanceDb') {
+    mustRunAfter tasks.named('runTests'), tasks.named('stopMockServers')
+}
+
 tasks.register('runAcceptanceTests') {
     group = 'acceptance'
-    description = 'Starts adapter-pkfare and WireMock, runs the Cucumber acceptance tests, then stops both.'
+    description = 'Seeds pkfare_configs, starts adapter-pkfare and WireMock, runs the Cucumber tests, then stops both and restores the table.'
     dependsOn tasks.named('runTests')
     finalizedBy tasks.named('stopMockServers')
 }
