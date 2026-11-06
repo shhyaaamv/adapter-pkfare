@@ -98,8 +98,6 @@ public final class PkfareConstants {
      * CONFIGURATOR NAMES (config group PKFARE_API)
      * --------------------------------------------------------------------- */
     public static final String VENDOR_CODES = "VENDOR_CODES";
-    public static final String IP_WHITELIST = "IP_WHITELIST";
-    public static final String IP_WHITELIST_ENABLED = "IP_WHITELIST_ENABLED";
     public static final String OFFICE_ID = "OFFICE_ID";
     public static final String FARE_PREFERENCES = "FARE_PREFERENCES";
     public static final String SHOP_RESULT_PREFERENCE = "SHOP_RESULT_PREFERENCE";
@@ -112,11 +110,6 @@ public final class PkfareConstants {
     public static final String DEFAULT_PRODUCT_TYPE = "DEFAULT_PRODUCT_TYPE";
     public static final String SEARCH_CACHE_TTL_SECONDS = "SEARCH_CACHE_TTL_SECONDS";
     public static final String TOKEN_TTL_SECONDS = "TOKEN_TTL_SECONDS";
-    // cabin_brand_configs (config group CABIN_BRAND, carrier PKF, cabin_brand_code = PKFARE cabin).
-    // The carrier column is varchar(3), so PKFARE does not fit.
-    public static final String CABIN_CARRIER = "PKF";
-    public static final String CABIN_BRAND = "CABIN_BRAND";
-    public static final String MAPPED_CABIN = "MAPPED_CABIN";
 
     public static final List<String> DEFAULT_FARE_PREFERENCES = List.of(VDC_PUBLIC_FARE_REMARK, VDC_PRIVATE_FARE_REMARK);
     public static final List<String> DEFAULT_SORT_ORDER = List.of("PRICE", "STOP", "DEPARTURE_TIME");
@@ -137,10 +130,8 @@ public final class PkfareConstants {
     public static final String NO_RESULT_REASON_CODE = "NO_RESULT";
     public static final String ERROR_MSG_SERVICE_NOT_IMPLEMENTED = " service is not enabled";
     public static final String ERROR_MSG_INVALID_VENDOR = "Invalid vendorCode";
-    public static final String ERROR_MSG_IP_NOT_WHITELISTED = "Request IP is not whitelisted";
     public static final String ERROR_MSG_AUTH_REJECTED = "Verteil rejected the client credentials";
     public static final String ERROR_MSG_EMPTY_RESPONSE = "Empty response from Verteil";
-    public static final String ERROR_MSG_CABIN_MAPPING_MISSING = "CABIN_BRAND.MAPPED_CABIN is not configured for carrier PKF";
     public static final String CONNECTION_ERROR_MSG = "Unable to connect to Verteil. Please try again after sometime";
     public static final String TOKEN_WAIT_TIMEOUT_MSG = "Timed out waiting for Verteil token to be published by another instance";
     // PKFARE msg must stay under 64 characters, so the internal-error text is short enough to keep the txn id.
@@ -161,7 +152,6 @@ public final class PkfareConstants {
     public static final long TOKEN_EXPIRY_BUFFER_SECONDS = 30L;
     public static final long DEFAULT_TOKEN_TTL_SECONDS = 30 * 60L;
     public static final long SERVICE_STATUS_CACHE_TTL_MINUTES = 5L;
-    public static final long CABIN_MAPPING_CACHE_TTL_MINUTES = 5L;
     public static final long SEARCH_CACHE_MAX_ENTRIES = 2000L;
 
     public static final String LOCK_POLL_MILLIS = "LOCK_POLL_MILLIS";

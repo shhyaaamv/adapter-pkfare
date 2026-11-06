@@ -68,7 +68,7 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
  * adultNumber/childNumber/infantNumber  -> Travelers.Traveler[].AnonymousTraveler.PTC (one traveler per passenger)
  * depCity/arrCity/fromDate              -> CoreQuery.OriginDestinations.OriginDestination OD1
  * tripType=2 + retDate                  -> OD2 (arrCity -> depCity on retDate)
- * cabinClass (default Y)                -> Preference.CabinPreferences.CabinType.Code via CABIN_BRAND.MAPPED_CABIN (S -> W)
+ * cabinClass (default Y)                -> Preference.CabinPreferences.CabinType.Code via CabinMapping.PKFARE (S -> W)
  * returnTagPrice                        -> ResponseParameters.ShopResultPreference (Y: tagged, N: plain)
  * (config)                              -> Preference.FarePreferences, ResponseParameters.SortOrder
  * </pre>
@@ -93,7 +93,7 @@ public class SearchRQConverter {
 
     public AirShoppingRQ convert(PkfareAdapterContext context) {
         SearchRequest request = (SearchRequest) context.getRequest();
-        CabinMapping cabinMapping = context.getCabinMapping();
+        CabinMapping cabinMapping = CabinMapping.PKFARE;
         validate(request, cabinMapping);
         VdcConfiguration configuration = context.getConfigurations().get(SERVICE_SEARCH);
         AirShoppingRQ airShoppingRQ = new AirShoppingRQ();

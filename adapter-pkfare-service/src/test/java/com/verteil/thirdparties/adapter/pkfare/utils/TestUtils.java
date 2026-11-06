@@ -7,7 +7,6 @@ import com.verteil.schema.pkfare.SearchRequest;
 import com.verteil.schemas.ndc16_1.AirShoppingRS;
 import com.verteil.thirdparties.adapter.pkfare.common.PkfareAdapterContext;
 import com.verteil.thirdparties.adapter.pkfare.common.json.JsonMappers;
-import com.verteil.thirdparties.adapter.pkfare.common.model.CabinMapping;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -26,12 +25,9 @@ import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstan
 public final class TestUtils {
 
     public static final String VENDOR_CODE = "SHA-TEST";
-    public static final String CLIENT_IP = "203.0.113.10";
 
     public static final ObjectMapper NDC_MAPPER = JsonMappers.ndc();
     public static final ObjectMapper PKFARE_MAPPER = JsonMappers.pkfare();
-    /** The seeded {@code CABIN_BRAND.MAPPED_CABIN} rows for carrier PKFARE. */
-    public static final CabinMapping CABIN_MAPPING = CabinMapping.of(Map.of("F", "F", "C", "C", "S", "W", "Y", "Y"));
 
     /** Configuration as the configurator returns it: flat {@code "PKFARE_API.<NAME>" -> value}. */
     public static VdcConfiguration createVdcConfiguration(Map<String, String> pkfareApiValues) {
@@ -50,8 +46,6 @@ public final class TestUtils {
         context.setUserDetails(userDetails);
         context.setRequest(request);
         context.setVendorCode(request == null ? VENDOR_CODE : request.getVendorCode());
-        context.setClientIp(CLIENT_IP);
-        context.setCabinMapping(CABIN_MAPPING);
         VdcConfiguration configuration = createVdcConfiguration(pkfareApiValues);
         context.addConfiguration(SERVICE_SEARCH, configuration);
         context.addConfiguration(SERVICE_AIRSHOPPING, configuration);

@@ -25,19 +25,6 @@
           "Content-Type": "application/json"
         }
       }
-    },
-    {
-      "request": {
-        "url": "/vdc-configurator/evaluator/masterdataconfig/CABIN_BRAND",
-        "method": "POST"
-      },
-      "response": {
-        "status": 200,
-        "bodyFileName": "configurator/cabin-brand-configs.json",
-        "headers": {
-          "Content-Type": "application/json"
-        }
-      }
     }
   ]
 }

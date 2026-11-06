@@ -51,7 +51,7 @@ The samples come from `~/Documents/POD/PKFare/Services/SEARCH/` and are copied v
 `request/PKFARE_SearchRQ.json` is the PKFARE request that corresponds to the sample VDC RQ:
 - COK→DXB round trip, 20 Oct to 28 Oct 2026
 - 2 ADT + 1 CHD + 1 INF
-- cabin `S` (VDC `W`)
+- cabin `S` (VDC `W`, via the static `CabinMapping.PKFARE`)
 - `returnTagPrice=N`, which gives `ShopResultPreference` `OPTIMIZED`
 
 How the assertions compare against the samples:
@@ -60,7 +60,6 @@ How the assertions compare against the samples:
 
 Configurator values live in `wiremock/__files/configurator/`:
 - `search_airshopping_combined.json` holds the `PKFARE_API.*` rows. The same rows are returned for the `Search` and `AirShopping` contexts. `SEARCH_CACHE_TTL_SECONDS` is 0, so every scenario reaches Entry-Gate.
-- `cabin-brand-configs.json` holds `CABIN_BRAND.MAPPED_CABIN`.
 - `pkfare_configs.json` holds the `ENABLE_SERVICE` gate.
 
 ### Debug from the IDE

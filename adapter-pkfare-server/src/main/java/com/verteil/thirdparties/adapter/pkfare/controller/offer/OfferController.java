@@ -15,8 +15,8 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 /**
  * PKFARE "Supplier Content Aggregation Direct Connection API v2.1" endpoints hosted by Verteil.
- * The caller IP is {@code request.getRemoteAddr()}: Tomcat's RemoteIpValve (server.forward-headers-strategy=native)
- * resolves it from X-Forwarded-For only when the hop is a trusted internal proxy, so it cannot be spoofed.
+ * The caller IP ({@code request.getRemoteAddr()}, resolved by Tomcat's RemoteIpValve from trusted proxies only) is
+ * passed on for logging; it is not used for authentication.
  */
 @RestController
 @RequiredArgsConstructor

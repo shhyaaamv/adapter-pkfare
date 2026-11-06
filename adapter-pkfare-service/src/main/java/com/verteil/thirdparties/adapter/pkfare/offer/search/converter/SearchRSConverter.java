@@ -9,6 +9,7 @@ import com.verteil.schemas.ndc16_1.AirShoppingRS;
 import com.verteil.schemas.ndc16_1.AirShoppingRS.OffersGroup.AirlineOffers;
 import com.verteil.schemas.ndc16_1.AirShoppingRS.OffersGroup.AirlineOffers.AirlineOffer;
 import com.verteil.thirdparties.adapter.pkfare.common.PkfareAdapterContext;
+import com.verteil.thirdparties.adapter.pkfare.common.model.CabinMapping;
 import com.verteil.thirdparties.adapter.pkfare.offer.search.model.SearchMappingContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,7 +73,7 @@ public class SearchRSConverter {
                         .orElse(DEFAULT_TICKET_ISSUE_TIME),
                 configuration.map(vdcConfiguration -> vdcConfiguration.getString(PKFARE_API, DEFAULT_PRODUCT_TYPE, PK_PUBLIC_FARE))
                         .orElse(PK_PUBLIC_FARE),
-                context.getCabinMapping());
+                CabinMapping.PKFARE);
     }
 
     /** Sequential on purpose, see {@link #convert}. */

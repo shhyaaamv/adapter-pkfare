@@ -11,12 +11,15 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 /**
- * PKFARE cabin code <-> VDC (NDC) cabin code, from configurator {@code CABIN_BRAND.MAPPED_CABIN}
- * (carrier {@code PKFARE}, {@code cabin_brand_code} = PKFARE cabin, value = VDC cabin), e.g. premium economy S -> W.
+ * PKFARE cabin code <-> VDC (NDC) cabin code, e.g. premium economy S -> W. The adapter's mapping is the static
+ * {@link #PKFARE} (kept in code, not in the database).
  * The VDC -> PKFARE direction is derived; when several PKFARE cabins share a VDC cabin, the identical code wins,
  * else the alphabetically first.
  */
 public record CabinMapping(Map<String, String> pkToVdc, Map<String, String> vdcToPk) {
+
+    /** PKFARE cabin -> VDC cabin: F first, C business, S premium economy (VDC W), Y economy. */
+    public static final CabinMapping PKFARE = of(Map.of("F", "F", "C", "C", "S", "W", "Y", "Y"));
 
     public static CabinMapping of(Map<String, String> pkToVdc) {
         Map<String, String> forward = new TreeMap<>();

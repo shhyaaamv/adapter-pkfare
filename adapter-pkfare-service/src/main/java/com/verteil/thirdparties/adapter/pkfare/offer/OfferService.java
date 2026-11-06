@@ -129,7 +129,6 @@ public class OfferService {
         context.setUserDetails(userDetails);
         context.setCarrier(PKFARE);
         context.setVendorCode(vendorCode);
-        context.setClientIp(clientIp);
         return context;
     }
 }

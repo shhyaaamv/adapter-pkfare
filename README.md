@@ -27,7 +27,7 @@ PKFARE ──POST /search──▶ adapter-pkfare ──POST {HOST}/oauth2/token
 ### SEARCH chain (`offer/search/SearchConfiguration`)
 
 ```
-AddProviderApiParams(Search, AirShopping) → FetchConfigurations → AuthenticateRequest (vendorCode + IP whitelist)
+AddProviderApiParams(Search, AirShopping) → FetchConfigurations → AuthenticateRequest (vendorCode)
   → SearchCacheLookup [hit: done] → SearchRQ → InvokeEntryGate → AirShoppingRSValidator [no offers: status 0, empty]
   → SearchRS → SearchCacheStore
 ```
@@ -35,8 +35,8 @@ AddProviderApiParams(Search, AirShopping) → FetchConfigurations → Authentica
 * **Response statuses**: 0 success (also "no content": empty lists), 3 auth failure / disabled service / Entry-Gate
   error, 4 invalid request, 5 internal error. `msg` is kept under 64 characters.
 * **Caller IP** is `request.getRemoteAddr()` with `server.forward-headers-strategy: native`, so `X-Forwarded-For` is
-  honoured only from trusted internal proxies (Tomcat RemoteIpValve defaults: private ranges). Set
-  `server.tomcat.remoteip.internal-proxies` if the ingress is outside those ranges.
+  honoured only from trusted internal proxies (Tomcat RemoteIpValve defaults: private ranges). It is only logged; there
+  is no IP whitelist.
 
 ## Caching
 
@@ -64,8 +64,6 @@ All settings are resolved with the PKFARE **vendorCode as `office_code`**, so an
 | `PATH` | – | `/entrygate/rest/request` | Entry-Gate endpoint shared by all services (service picked by the `Service` header) |
 | `OFFICE_ID` | – | no (optional) | sent as `officeId` header |
 | `VENDOR_CODES` | – | per env (dev/QA: `PKFARETESTCODE`) | accepted PKFARE vendor codes (CSV) |
-| `IP_WHITELIST_ENABLED` | – | `true` (dev/QA: `false`) | check the caller IP against `IP_WHITELIST`; `true` when unset |
-| `IP_WHITELIST` | – | **no, per env** | PKFARE source IPs / CIDRs (CSV); empty rejects all (when enabled) |
 | `TIMEOUT_MILLIS` | `AirShopping` | `30000` | Entry-Gate timeout, capped by `cutOffTime − CUTOFF_BUFFER_MILLIS` |
 | `CUTOFF_BUFFER_MILLIS` | `AirShopping` | `500` | safety margin under PKFARE's cutoff |
 | `FARE_PREFERENCES` | `Search` | `PUBL,PVT` | `Preference.FarePreferences` |
@@ -83,12 +81,11 @@ All settings are resolved with the PKFARE **vendorCode as `office_code`**, so an
 ### Rows to add per environment (QA is seeded by `pkfare_adapter/entry_gate_auth_configs`; other environments by hand)
 
 ```sql
-INSERT INTO ${configurator_tbls}.provider_api_configs(config_group, "name", carrier, iata, service, "version", value)
-VALUES ('PKFARE_API', 'HOST',          NULL, NULL, NULL, NULL, '<entry-gate base url, e.g. https://qaapi.sandbox.verteil.com>'),
-       ('PKFARE_API', 'USERNAME',      NULL, NULL, NULL, NULL, '<entry-gate client id (agent id)>'),
-       ('PKFARE_API', 'PASSWORD',      NULL, NULL, NULL, NULL, '<entry-gate client secret>'),
-       ('PKFARE_API', 'VENDOR_CODES',  NULL, NULL, NULL, NULL, '<PKFARE vendorCode(s), CSV>'),
-       ('PKFARE_API', 'IP_WHITELIST',  NULL, NULL, NULL, NULL, '<PKFARE egress IPs / CIDRs, CSV>')
+INSERT INTO ${agency_adapter_tbls}.pkfare_configs(config_group, "name", service, value)
+VALUES ('PKFARE_API', 'HOST', NULL, '<entry-gate base url, e.g. https://qaapi.sandbox.verteil.com>'),
+       ('PKFARE_API', 'USERNAME', NULL, '<entry-gate client id (agent id)>'),
+       ('PKFARE_API', 'PASSWORD', NULL, '<entry-gate client secret>'),
+       ('PKFARE_API', 'VENDOR_CODES', NULL, '<PKFARE vendorCode(s), CSV>')
 ON CONFLICT DO NOTHING;
 ```
 

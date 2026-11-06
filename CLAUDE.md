@@ -52,21 +52,21 @@ Three modules:
 PKFARE always gets **HTTP 200**, with `status` 0 success (also "no results": empty lists), 3 auth/disabled/Entry-Gate error, 4 bad request, 5 internal. `msg` must stay < 64 chars.
 
 **Search chain** (`offer/search/SearchConfiguration`, verteil-chain `ImmutableChain`):
-`AddProviderApiParamsInConfigContextCmd(PKFARE_API, "Search", "AirShopping")` → `FetchConfigurationsCmd` → `AuthenticateRequestCmd` → `SearchCacheLookupCmd` → `FetchCabinMappingCmd` → `SearchRQCmd` → `InvokeEntryGateCmd` → `AirShoppingRSValidatorCmd` → `SearchRSCmd` → `SearchCacheStoreCmd`.
+`AddProviderApiParamsInConfigContextCmd(PKFARE_API, "Search", "AirShopping")` → `FetchConfigurationsCmd` → `AuthenticateRequestCmd` → `SearchCacheLookupCmd` → `SearchRQCmd` → `InvokeEntryGateCmd` → `AirShoppingRSValidatorCmd` → `SearchRSCmd` → `SearchCacheStoreCmd`.
 
 Commands return `CONTINUE_PROCESSING` or `PROCESSING_COMPLETE`. A cache hit and a "no offers" result both stop early. Commands are stateless; data moves through typed context accessors. Provider requests and responses are keyed by the Entry-Gate service name (`"AirShopping"`), never by the PKFARE service.
 
 **Configuration model** (non-obvious, important):
-- Everything is a configurator row in `config_group = 'PKFARE_API'` (names in `PkfareConstants`).
-- Contexts are resolved with **PKFARE `vendorCode` as `officeCode`**, so any setting can be overridden per vendor. `officeIataCode` is pinned to `PKFARE` and carrier is `PKFARE`.
+- Everything is a row in `agency_adapter_tbls.pkfare_configs` (columns `config_group`, `name`, `service`, `value`; unique on `(config_group, name, service)`) with `config_group = 'PKFARE_API'` (names in `PkfareConstants`), served through vdc-configurator. See `.ai/db-change.md`.
+- Contexts are resolved with **PKFARE `vendorCode` as `officeCode`**. `pkfare_configs` has no office/carrier column, so rows are global: per-vendor overrides are not possible in the table today. `officeIataCode` is pinned to `PKFARE` and carrier is `PKFARE`.
 - The configurator's context builder **rejects null values**, so `OfferService.createContext` must always fill username, officeCode and officeIataCode.
 - `ConnectorContext.putAll(wrapper)` reads `getThirdPartyIds().get(0)`, so the wrapper must carry `thirdPartyIds = [PKFARE]`.
 - Which service a setting is read under:
-  - `"Search"` (inbound PKFARE service): credentials/`HOST`/`AUTH_PATH`/`AUTH_SCOPE`/`VENDOR_CODES`/`IP_WHITELIST`/`IP_WHITELIST_ENABLED`/logging (read by `EntryGateClient`, `AuthenticateRequestCmd`)
+  - `"Search"` (inbound PKFARE service): credentials/`HOST`/`AUTH_PATH`/`AUTH_SCOPE`/`VENDOR_CODES`/logging (read by `EntryGateClient`, `AuthenticateRequestCmd`)
   - `"AirShopping"` (Entry-Gate service): `TIMEOUT_MILLIS` (and `CUTOFF_BUFFER_MILLIS`)
   - Rows with a NULL service apply to both.
-- Cabin codes (PKFARE `S` ↔ VDC `W`, etc.) are **not** in `PKFARE_API`. They are `cabin_brand_configs` rows `CABIN_BRAND.MAPPED_CABIN` with carrier `PKF` (`PkfareConstants.CABIN_CARRIER`; the column is `varchar(3)`, so `PKFARE` doesn't fit), `cabin_brand_code` = PKFARE cabin and value = VDC cabin. `AdapterCommonService.cabinMapping()` reads them with `fetchMasterDataConfigs` (keyed by `cabin_brand_code`, cached 5 min, not per vendor) and derives the reverse direction. `FetchCabinMappingCmd` puts the result on the context.
-- Environment-specific or secret rows (`HOST`, `USERNAME`, `PASSWORD`, `VENDOR_CODES`, `IP_WHITELIST`) are not in the shared Liquibase changesets. QA's `HOST`/`USERNAME`/`PASSWORD` are seeded by the `qa`-context changeset `pkfare_adapter/entry_gate_auth_configs`, and dev/QA get the sample vendor `PKFARETESTCODE` with `IP_WHITELIST_ENABLED=false` from `pkfare_adapter/test_vendor_configs`; for other environments the SQL is in the README. Don't seed placeholders: `ON CONFLICT DO NOTHING` would block the real value later.
+- Cabin codes (PKFARE `S` ↔ VDC `W`, etc.) are **not** in the database. They are a static map in code, `CabinMapping.PKFARE` (`F→F, C→C, S→W, Y→Y`); `CabinMapping.of` derives the reverse direction. Converters use it directly (no chain command, no context key).
+- Environment-specific or secret rows (`HOST`, `USERNAME`, `PASSWORD`, `VENDOR_CODES`) are not in the shared Liquibase changesets. QA's `HOST`/`USERNAME`/`PASSWORD` are seeded by the `qa`-context changeset `pkfare_adapter/entry_gate_auth_configs`, and dev/QA get the sample vendor `PKFARETESTCODE` from `pkfare_adapter/test_vendor_configs`; for other environments the SQL is in the README. Don't seed placeholders: `ON CONFLICT DO NOTHING` would block the real value later.
 
 **Entry-Gate client** (`client/`):
 - `EntryGateClient` calls `POST {HOST}{PATH}`. `PATH` (`/entrygate/rest/request`, service NULL) is the same for every Entry-Gate service; the `Service` header (e.g. `AirShopping`) picks the operation. Headers: `Authorization: Bearer`, `Service`, optional `officeId`, and `VDC_TransactionId`. No `ThirdpartyId` header is sent: it would restrict the airlines Entry-Gate shops, and PKFARE gets all airlines.
@@ -92,7 +92,7 @@ Commands return `CONTINUE_PROCESSING` or `PROCESSING_COMPLETE`. A cache hit and 
 - VDC `OfferPrice` amounts are **per passenger** (verified against the sample).
 - `data` = `AirlineOffer.OfferID` value, which the QTE flow will use to price the offer.
 
-**Caller IP**: `request.getRemoteAddr()` with `server.forward-headers-strategy: native`, so X-Forwarded-For is trusted only from internal proxies. `IpWhitelist` accepts IPs/CIDRs and fails closed when empty. The check runs unless `IP_WHITELIST_ENABLED` is `false` (default `true`).
+**Caller authentication** is vendor code only (`AuthenticateRequestCmd` against `VENDOR_CODES`); there is no IP whitelist. The caller IP (`request.getRemoteAddr()`, with `server.forward-headers-strategy: native` so X-Forwarded-For is trusted only from internal proxies) is just logged and set as the wrapper's `remoteAddr`.
 
 ## Conventions
 
@@ -102,7 +102,7 @@ Commands return `CONTINUE_PROCESSING` or `PROCESSING_COMPLETE`. A cache hit and 
   - add `command/` + `converter/` packages under `offer/` or `order/`
   - add a case in `ErrorResponseConverter`
   - add an `ENABLE_SERVICE` row in Liquibase (no `PATH` row: every Entry-Gate service shares the NULL-service `PATH`)
-- Liquibase: `src/main/database/vdc-change-log.xml` includes the `dml/*.xml` files, grouped by topic. Each changeset uses `runOnChange="true"`, context `dev, qa, stage, prod.in, prod.eu, prod.openconnect`, `${configurator_tbls}` and `ON CONFLICT DO NOTHING`.
+- Liquibase: `src/main/database/vdc-change-log.xml` includes the `dml/*.xml` files, grouped by topic. Each changeset uses `runOnChange="true"`, context `dev, qa, stage, prod.in, prod.eu, prod.openconnect`, `INSERT INTO ${agency_adapter_tbls}.pkfare_configs(config_group, "name", service, value) VALUES(...) ON CONFLICT DO NOTHING`. Note: the unique key `(config_group, name, service)` treats NULL `service` as distinct, so `ON CONFLICT` only dedupes rows with a non-NULL service (see `.ai/db-change.md`).
 - Tests: plain JUnit 5 + AssertJ (+ JSONAssert). Converters are built by hand with `new`. Fixtures are in `adapter-pkfare-service/src/test/resources/search/`: a real Entry-Gate RS trimmed to 3 offers, plus the PKFARE RQ. `utils/TestUtils.buildContext(request, Map<name,value>)` fakes configurator values as `PKFARE_API.<NAME>`.
 - Style: use streams instead of `for` loops, and `Optional.ofNullable(...).map(...)` chains instead of `isNull`/`nonNull` ternaries for nullable mappings (including `isNull(configuration) ? default : configuration.getX(...)`). Plain guard clauses that throw or return early stay as they are. Keep methods short: move multi-argument builds and long stream pipelines into named private methods.
 - Logging of messages runs on virtual threads with a copied MDC (`LoggerHelper`); never log payloads on the request thread.

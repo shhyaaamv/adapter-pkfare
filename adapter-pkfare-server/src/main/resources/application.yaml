@@ -1,8 +1,8 @@
 server:
       shutdown: graceful
       port: 9022
-      # Resolve the caller IP from X-Forwarded-For only when the hop is a trusted internal proxy (Tomcat RemoteIpValve);
-      # the PKFARE IP whitelist relies on this. Override server.tomcat.remoteip.internal-proxies if the ingress range differs.
+      # Resolve the caller IP (logged per request) from X-Forwarded-For only when the hop is a trusted internal proxy
+      # (Tomcat RemoteIpValve). Override server.tomcat.remoteip.internal-proxies if the ingress range differs.
       forward-headers-strategy: native
       tomcat:
         accesslog:
