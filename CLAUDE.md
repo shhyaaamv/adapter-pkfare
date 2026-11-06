@@ -28,19 +28,19 @@ Dependencies come from AWS CodeArtifact; `CODEARTIFACT_AUTH_TOKEN` must be set. 
 ./gradlew :adapter-pkfare-service:test --tests '*SearchRSConverterTest'
 ./gradlew :adapter-pkfare-service:test --tests '*SearchRSConverterTest.mapsFlightDetails'
 ./gradlew codeCoverageReport                            # jacoco (CI runs this + sonarqube)
-./gradlew :adapter-pkfare-acceptance:runAcceptanceTests --continue   # bootJar + WireMock end to end; see that module's README
+./gradlew :adapter-pkfare-acceptance:runAcceptanceTests --continue   # bootJar + WireMock + Postgres end to end; see that module's README
 ./gradlew :adapter-pkfare-server:bootJar
-java -jar adapter-pkfare-server/build/libs/adapter-pkfare-server-*.jar --client.address.vdcConfigurator=http://localhost:8090/vdc-configurator
+java -jar adapter-pkfare-server/build/libs/adapter-pkfare-server-*.jar   # local Postgres vdc_db as pkfare_user (application.yaml)
 ```
 
-Ports: API 9022, actuator 7045. The only external dependency at runtime is vdc-configurator, plus Redis optionally. Every Entry-Gate setting (host, credentials, paths) comes from the configurator.
+Ports: API 9022, actuator 7045. At runtime the adapter needs Postgres (the `agency_adapter_tbls.pkfare_configs` table), plus Redis and Kafka optionally (Kafka only for cluster-wide config reloads). Every Entry-Gate setting (host, credentials, paths) comes from that table.
 
 ## Architecture
 
 Three modules:
 - `adapter-pkfare-server`: Spring Boot app, controller, `PkfareExceptionHandler`, MDC filter, the primary (PKFARE) `ObjectMapper`.
 - `adapter-pkfare-service`: all logic plus the Liquibase changelog in `src/main/database`.
-- `adapter-pkfare-acceptance`: Cucumber end-to-end tests. They run the bootJar (`acceptance` profile) against WireMock, which stands in for the configurator and Entry-Gate and serves the real 5 MB sample AirShoppingRS. Each scenario writes the PKFARE RQ, the converted VDC RQ and the PKFARE RS to `build/acceptance/output/<scenario>/`.
+- `adapter-pkfare-acceptance`: Cucumber end-to-end tests. They run the bootJar (`acceptance` profile) against WireMock, which stands in for Entry-Gate and serves the real 5 MB sample AirShoppingRS. `seedAcceptanceDb` first replaces the rows of `pkfare_configs` (local Postgres by default) with the acceptance values, and `restoreAcceptanceDb` puts the previous rows back afterwards. Each scenario writes the PKFARE RQ, the converted VDC RQ and the PKFARE RS to `build/acceptance/output/<scenario>/`.
 
 **Request path**:
 1. `OfferController.search` calls `OfferService.search`.
@@ -57,8 +57,19 @@ PKFARE always gets **HTTP 200**, with `status` 0 success (also "no results": emp
 Commands return `CONTINUE_PROCESSING` or `PROCESSING_COMPLETE`. A cache hit and a "no offers" result both stop early. Commands are stateless; data moves through typed context accessors. Provider requests and responses are keyed by the Entry-Gate service name (`"AirShopping"`), never by the PKFARE service.
 
 **Configuration model** (non-obvious, important):
-- Everything is a row in `agency_adapter_tbls.pkfare_configs` (columns `config_group`, `name`, `service`, `value`; unique on `(config_group, name, service)`) with `config_group = 'PKFARE_API'` (names in `PkfareConstants`), served through vdc-configurator. See `.ai/db-change.md`.
-- Contexts are resolved with **PKFARE `vendorCode` as `officeCode`**. `pkfare_configs` has no office/carrier column, so rows are global: per-vendor overrides are not possible in the table today. `officeIataCode` is pinned to `PKFARE` and carrier is `PKFARE`.
+- Everything is a row in `agency_adapter_tbls.pkfare_configs` (columns `config_group`, `name`, `service`, `value`; unique on `(config_group, name, service)`) with `config_group = 'PKFARE_API'` (names in `PkfareConstants`). See `.ai/db-change.md`.
+- The configurator runs **in process** (`config/`), not over HTTP:
+  - `DataSourceConfigs`: a single non-pooled `DriverManagerDataSource` bound to `agency-adapter.datasource.*`.
+  - `ConfiguratorConfigs`: configurator-core's `SqlConfigurationDataStream` (`select id, config_group, name, service as api_service, value from agency_adapter_tbls.pkfare_configs`), one prototype `ImmutableConfigurationTree` with `ARG_API_SERVICE` as its only dimension, and a `ConfigurationEvaluator`.
+  - `EmbeddedVdcConfiguratorService` implements `VdcConfiguratorService` (from `vdc-configurator-common`) over the evaluator. connector-common's `FetchConfigurationsCmd` and `AdapterCommonService` use it. `vdc-configurator-lib`'s `VdcConfiguratorServiceImpl` can't be used: it bundles its own incompatible copies of `VdcConfiguratorService`/`VdcConfiguration`. `vdc-configurator-client` is excluded from the classpath.
+  - Extra SELECT columns are tree dimensions **by position** (matched to `setArguments`), not by name.
+  - Rows load at startup (the app fails to start if the table can't be read). After that they are served from memory and re-read only on a reload. Failed trees keep their last loaded values.
+  - `POST /reload` (`ConfigurationController` → `config/sync/ClusterConfigurationReloader`) reloads the pod it reaches (`ConfigurationReloader`, implemented by `EmbeddedVdcConfiguratorService`), then broadcasts over Kafka (`ReloadBroadcaster` = `KafkaReloadPublisher`). It answers 200, or 500 if a tree failed or the broadcast wasn't acknowledged; `broadcast` is `SENT`/`DISABLED`/`FAILED`. It is unauthenticated on the API port; the ingress must not route `/reload` (only PKFARE's paths).
+  - Cluster sync is connector-c6-v4's pattern on plain kafka-clients (vdc-configurator-lib can't be on the classpath): `KafkaReloadSubscriber` polls `kafka.configurator-internal.topic` under a per-pod consumer group (`<consumer-group>#<uuid>`, so it's a broadcast), skips its own node id, and reloads the named tree. It also reloads all trees on partition assignment, which closes the startup gap.
+  - The message is vdc-configurator-lib's envelope (`ReloadMessage`): `{"nodeId","event":"#<RELOAD_TREE><tree>"}`.
+  - `KafkaClusterSyncConfigs` is active only when `kafka.bootstrapAddress` (`${KAFKA_URL:}`) is non-blank. Without it, reloads are per pod (`broadcast: DISABLED`); acceptance runs that way.
+- **Database access is restricted to `agency_adapter_tbls`.** The DB user (`pkfare_user` locally) can only use that schema, and the app must issue no SQL except that SELECT. Boot's JDBC and Mongo auto-configurations are excluded in `AdapterPkfareApplication` (no SQL init, no DB health check, no `JdbcTemplate`). Don't add JPA, Liquibase or other DataSources to the app; Liquibase runs separately (`run-liquibase.sh`).
+- The tree's only dimension is `service`. The contexts still carry `officeCode` (= `vendorCode`), `officeIataCode` and carrier (`PKFARE`), but they select nothing: rows are global, and per-vendor overrides are not possible.
 - The configurator's context builder **rejects null values**, so `OfferService.createContext` must always fill username, officeCode and officeIataCode.
 - `ConnectorContext.putAll(wrapper)` reads `getThirdPartyIds().get(0)`, so the wrapper must carry `thirdPartyIds = [PKFARE]`.
 - Which service a setting is read under:

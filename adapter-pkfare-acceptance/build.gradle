@@ -17,5 +17,7 @@ dependencies {
     testImplementation "io.cucumber:cucumber-junit-platform-engine:${cucumberVersion}"
     testImplementation 'org.junit.platform:junit-platform-suite'
     testImplementation "org.skyscreamer:jsonassert:1.5.1"
+    // AcceptanceDatabase seeds pkfare_configs before the adapter starts
+    testRuntimeOnly 'org.postgresql:postgresql'
     mock "org.wiremock:wiremock-standalone:${wiremockVersion}"
 }

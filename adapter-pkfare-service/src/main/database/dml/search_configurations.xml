@@ -4,6 +4,25 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.2.xsd ">
 
+    <changeSet id="pkfare_adapter/search_enable_service_configs" author="shhyaaamv" context="dev, qa, stage, prod.in, prod.eu, prod.openconnect" runOnChange="true">
+        <comment>Enables the PKFARE SEARCH service (overrides the NULL-service ENABLE_SERVICE default).</comment>
+        <sql>
+            INSERT INTO ${agency_adapter_tbls}.pkfare_configs(config_group, "name", service, value)
+            VALUES('PKFARE_API', 'ENABLE_SERVICE', 'Search', 'true') ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
+    <changeSet id="pkfare_adapter/airshopping_timeout_configs" author="shhyaaamv" context="dev, qa, stage, prod.in, prod.eu, prod.openconnect" runOnChange="true">
+        <comment>Entry-Gate AirShopping timeout. It is further capped by PKFARE's cutOffTime minus CUTOFF_BUFFER_MILLIS.</comment>
+        <sql>
+            INSERT INTO ${agency_adapter_tbls}.pkfare_configs(config_group, "name", service, value)
+            VALUES('PKFARE_API', 'TIMEOUT_MILLIS', 'AirShopping', '30000') ON CONFLICT DO NOTHING;
+
+            INSERT INTO ${agency_adapter_tbls}.pkfare_configs(config_group, "name", service, value)
+            VALUES('PKFARE_API', 'CUTOFF_BUFFER_MILLIS', 'AirShopping', '500') ON CONFLICT DO NOTHING;
+        </sql>
+    </changeSet>
+
     <changeSet id="pkfare_adapter/search_request_configs" author="shhyaaamv" context="dev, qa, stage, prod.in, prod.eu, prod.openconnect" runOnChange="true">
         <comment>PKFARE SEARCH -> AirShoppingRQ preferences</comment>
         <sql>

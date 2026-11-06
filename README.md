@@ -13,7 +13,8 @@ PKFARE ──POST /search──▶ adapter-pkfare ──POST {HOST}/oauth2/token
 | Module                   | Content                                                                      |
 |--------------------------|------------------------------------------------------------------------------|
 | `adapter-pkfare-server`  | Spring Boot app: controller, PKFARE JSON mapper, MDC filter, error handler    |
-| `adapter-pkfare-service` | Chains, commands, converters, Entry-Gate client, caches, Liquibase changelog |
+| `adapter-pkfare-service` | Chains, commands, converters, Entry-Gate client, caches, in-process configurator, Liquibase changelog |
+| `adapter-pkfare-acceptance` | Cucumber end-to-end tests (bootJar + WireMock + Postgres); see its README |
 
 ## Services
 
@@ -43,16 +44,54 @@ AddProviderApiParams(Search, AirShopping) → FetchConfigurations → Authentica
 | Cache | Where | Key | Lifetime |
 |-------|-------|-----|----------|
 | Entry-Gate access token | Caffeine (per pod) + Redis (cluster, single-flight lock) | hash(HOST + USERNAME) | token `expires_in` − 30 s |
-| `ENABLE_SERVICE` gate | Caffeine | vendorCode + service | 5 min |
 | SEARCH responses (successful, non-empty) | Caffeine (per pod), weight-bounded (`adapter.search-cache.max-weight`) | vendorCode + all search criteria | `SEARCH_CACHE_TTL_SECONDS` (0 = off) |
 
 Redis is optional: without it the token cache works per pod.
 
-## Configuration (configurator, `config_group = 'PKFARE_API'`)
+## Configuration (`agency_adapter_tbls.pkfare_configs`, `config_group = 'PKFARE_API'`)
 
-All settings are resolved with the PKFARE **vendorCode as `office_code`**, so any value can be overridden per vendor
-(e.g. different Entry-Gate credentials or carriers per PKFARE channel). `service` is either the adapter service
-(`Search`) or the Entry-Gate service (`AirShopping`).
+The adapter reads this one table over JDBC with an in-process configurator (configurator-core); it doesn't call
+vdc-configurator. `service` is either the adapter service (`Search`) or the Entry-Gate service (`AirShopping`).
+A row for the requested service wins over the `service IS NULL` row. There is no per-vendor dimension.
+
+* **Database:** `agency-adapter.datasource.{url,username,password}`. It's a single non-pooled DataSource, and the
+  only SQL is `SELECT … FROM agency_adapter_tbls.pkfare_configs`. The DB user only needs `SELECT` on that table.
+  * Locally (`application.yaml`): `jdbc:postgresql://localhost:5432/vdc_db?currentSchema=agency_adapter_tbls`,
+    as `pkfare_user`.
+  * In the environment profiles (`application-eks-*`, `application-dr-*`): `${DB_URL}`, `${DB_USER}` and
+    `${DB_ENCRYPTED_PASSWORD}`, decrypted by jasypt with `${JASYPT_ENCRYPTOR_PASSWORD}`.
+* **When changes apply:** rows are loaded at startup, and the app won't start if the table can't be read. After that they
+  are served from memory; requests never query the database. To apply changed rows, call `POST /reload` (port 9022)
+  **once**, e.g. through the Kubernetes service. The pod it reaches re-reads the table, then publishes the reload to
+  Kafka, and every other pod re-reads too (see *Cluster-wide reload* below).
+
+  ```sh
+  curl -X POST http://localhost:9022/reload
+  # 200 {"reloaded":["pkfareConfigTree"],"failed":[],"broadcast":"SENT","success":true}
+  ```
+
+  | `broadcast` | Meaning | Status |
+  |---|---|---|
+  | `SENT` | Kafka acknowledged the reload; every pod re-reads the table | 200 (500 if a tree failed on this pod) |
+  | `DISABLED` | no `KAFKA_URL`: only this pod reloaded. Call it on each pod, or restart them | 200 (500 if a tree failed) |
+  | `FAILED` | Kafka didn't acknowledge it within 10 s: only this pod reloaded. Retry | 500 |
+
+  `/reload` has no authentication. The ingress must route only PKFARE's paths (`/search`, …) and **not** `/reload`;
+  call it from inside the cluster.
+
+  A tree that fails to load (`failed`) keeps its last loaded values. How the other pods fared is in their own logs
+  (`Reloading configuration tree … as published by …`).
+* **Cluster-wide reload** (`config/sync`, the way connector-c6-v4 syncs its configurator trees):
+  * `kafka.bootstrapAddress` = `${KAFKA_URL:}`. Blank turns it off.
+  * Topic `kafka.configurator-internal.topic` = `${KAFKA_TOPIC_ADAPTER_PKFARE_CONFIGURATOR_INTERNAL:adapter-pkfare-configurator-internal}`.
+    It must exist (or the brokers auto-create topics). One partition is enough.
+  * Each pod consumes it under a consumer group of its own, `adapter-pkfare-configurator-cg#<uuid>`, so every pod
+    gets every message. It starts at the latest offset (old reloads are covered by the startup load).
+  * Message: vdc-configurator-lib's envelope, `{"nodeId":"<pod>#<uuid>","event":"#<RELOAD_TREE>pkfareConfigTree"}`,
+    keyed by the tree name. A pod skips its own messages, and other events are ignored.
+  * Publishing that message yourself (e.g. with `kafka-console-producer`) reloads every pod without calling the API.
+  * A pod re-reads the table once its partitions are assigned, so a reload published while it was starting isn't lost.
+  * Without Kafka the app still starts and serves. Only the broadcast fails (`FAILED`), and the consumer keeps retrying.
 
 | Name | Service | Seeded | Meaning |
 |------|---------|--------|---------|
@@ -94,7 +133,7 @@ ON CONFLICT DO NOTHING;
 ```sh
 export CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain vdc-repository --domain-owner 683455398069 --query authorizationToken --output text)
 ./gradlew clean build
-java -jar adapter-pkfare-server/build/libs/adapter-pkfare-server-*.jar --client.address.vdcConfigurator=http://localhost:8090/vdc-configurator
+java -jar adapter-pkfare-server/build/libs/adapter-pkfare-server-*.jar   # needs local Postgres: vdc_db, pkfare_user
 curl -s -H 'Content-Type: application/json' --data @adapter-pkfare-service/src/test/resources/search/PKFARE_SearchRQ.json localhost:9022/search
 ```
 

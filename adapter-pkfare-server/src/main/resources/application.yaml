@@ -16,10 +16,6 @@ server:
           rotate: true
           rename-on-rotate: true
 
-logging:
-  level:
-    com.verteil.configurator.vdc.client: WARN
-
 spring:
   application:
     name: adapter-pkfare
@@ -45,9 +41,22 @@ adapter:
     # upper bound on cached shopping results + flights across all cached SEARCH responses (per pod)
     max-weight: 50000
 
-client:
-  address:
-    vdcConfigurator: http://localhost:8090/vdc-configurator
+# The only database access: the in-process configurator reads agency_adapter_tbls.pkfare_configs (SELECT only)
+# once at startup, and again only on a reload (POST /reload, or a reload broadcast from another pod: see kafka).
+agency-adapter:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/vdc_db?currentSchema=agency_adapter_tbls&ApplicationName=adapter-pkfare
+    username: pkfare_user
+    password: pkfare123
+
+# Cluster-wide reload: POST /reload re-reads pkfare_configs on the pod it reaches, then publishes the reload to this
+# topic; every pod consumes it under a consumer group of its own (<consumer-group>#<uuid>) and re-reads too. A blank
+# bootstrapAddress (KAFKA_URL unset) turns the broadcast off: POST /reload then reloads one pod only.
+kafka:
+  bootstrapAddress: ${KAFKA_URL:}
+  configurator-internal:
+    topic: ${KAFKA_TOPIC_ADAPTER_PKFARE_CONFIGURATOR_INTERNAL:adapter-pkfare-configurator-internal}
+    consumer-group: adapter-pkfare-configurator-cg
 
 # Shared Redis (token cache shared across pods); property names are those read by connector-common's ConnectorRedisConfig
 ordermanagement:

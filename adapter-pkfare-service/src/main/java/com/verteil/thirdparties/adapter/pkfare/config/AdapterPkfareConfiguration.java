@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.verteil.chain.Catalog;
 import com.verteil.chain.Chain;
 import com.verteil.chain.impl.ImmutableCatalog;
-import com.verteil.configurator.vdc.client.VdcConfiguratorServiceClient;
+import com.verteil.configurator.vdc.VdcConfiguratorService;
 import com.verteil.thirdparties.adapter.pkfare.client.ScheduledConnectionPoolMonitor;
 import com.verteil.thirdparties.adapter.pkfare.common.PkfareAdapterContext;
 import com.verteil.thirdparties.adapter.pkfare.common.json.JsonMappers;
@@ -39,14 +39,8 @@ public class AdapterPkfareConfiguration {
     }
 
     @Bean
-    @Primary
-    public VdcConfiguratorServiceClient vdcConfiguratorServiceClient(@Value("${client.address.vdcConfigurator}") String vdcConfiguratorAddress) {
-        return new VdcConfiguratorServiceClient(vdcConfiguratorAddress);
-    }
-
-    @Bean
-    public FetchConfigurationsCmd<PkfareAdapterContext> fetchConfigurationsCmd(VdcConfiguratorServiceClient vdcConfiguratorServiceClient) {
-        return new FetchConfigurationsCmd<>(vdcConfiguratorServiceClient);
+    public FetchConfigurationsCmd<PkfareAdapterContext> fetchConfigurationsCmd(VdcConfiguratorService vdcConfiguratorService) {
+        return new FetchConfigurationsCmd<>(vdcConfiguratorService);
     }
 
     @Bean(name = "pkfareAsyncThreadPoolTaskExecutor")

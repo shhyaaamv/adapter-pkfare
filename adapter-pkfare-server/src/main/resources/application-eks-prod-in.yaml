@@ -1,3 +1,11 @@
-client:
-  address:
-    vdcConfigurator: http://vdc-configurator:8090/vdc-configurator
+agency-adapter:
+  datasource:
+    url: ${DB_URL}?currentSchema=agency_adapter_tbls&ApplicationName=adapter-pkfare
+    username: ${DB_USER}
+    password: ${DB_ENCRYPTED_PASSWORD}
+
+jasypt:
+  encryptor:
+    algorithm: PBEWithMD5AndDES
+    password: ${JASYPT_ENCRYPTOR_PASSWORD}
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator

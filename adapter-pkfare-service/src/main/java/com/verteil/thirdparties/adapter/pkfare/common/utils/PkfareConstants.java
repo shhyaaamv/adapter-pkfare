@@ -151,7 +151,6 @@ public final class PkfareConstants {
 
     public static final long TOKEN_EXPIRY_BUFFER_SECONDS = 30L;
     public static final long DEFAULT_TOKEN_TTL_SECONDS = 30 * 60L;
-    public static final long SERVICE_STATUS_CACHE_TTL_MINUTES = 5L;
     public static final long SEARCH_CACHE_MAX_ENTRIES = 2000L;
 
     public static final String LOCK_POLL_MILLIS = "LOCK_POLL_MILLIS";

@@ -5,14 +5,11 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.2.xsd ">
 
     <changeSet id="pkfare_adapter/enable_service_configs" author="shhyaaamv" context="dev, qa, stage, prod.in, prod.eu, prod.openconnect" runOnChange="true">
-        <comment>Services the PKFARE adapter exposes to PKFARE. Resolved with the PKFARE vendorCode as office_code, so a
-            service can also be switched per vendor with an office_code row.</comment>
+        <comment>Default for services the PKFARE adapter exposes to PKFARE: disabled unless a service enables itself (e.g.
+            Search in search_configurations.xml).</comment>
         <sql>
             INSERT INTO ${agency_adapter_tbls}.pkfare_configs(config_group, "name", service, value)
             VALUES('PKFARE_API', 'ENABLE_SERVICE', NULL, 'false') ON CONFLICT DO NOTHING;
-
-            INSERT INTO ${agency_adapter_tbls}.pkfare_configs(config_group, "name", service, value)
-            VALUES('PKFARE_API', 'ENABLE_SERVICE', 'Search', 'true') ON CONFLICT DO NOTHING;
         </sql>
     </changeSet>
 

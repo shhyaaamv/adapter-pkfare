@@ -25,16 +25,11 @@
     </changeSet>
 
     <changeSet id="pkfare_adapter/entry_gate_timeout_configs" author="shhyaaamv" context="dev, qa, stage, prod.in, prod.eu, prod.openconnect" runOnChange="true">
-        <comment>Entry-Gate timeouts. The AirShopping timeout is further capped by PKFARE's cutOffTime minus CUTOFF_BUFFER_MILLIS.</comment>
+        <comment>Default Entry-Gate timeout for every Entry-Gate service. Service-specific overrides live with their service (e.g.
+            AirShopping in search_configurations.xml).</comment>
         <sql>
             INSERT INTO ${agency_adapter_tbls}.pkfare_configs(config_group, "name", service, value)
             VALUES('PKFARE_API', 'TIMEOUT_MILLIS', NULL, '30000') ON CONFLICT DO NOTHING;
-
-            INSERT INTO ${agency_adapter_tbls}.pkfare_configs(config_group, "name", service, value)
-            VALUES('PKFARE_API', 'TIMEOUT_MILLIS', 'AirShopping', '30000') ON CONFLICT DO NOTHING;
-
-            INSERT INTO ${agency_adapter_tbls}.pkfare_configs(config_group, "name", service, value)
-            VALUES('PKFARE_API', 'CUTOFF_BUFFER_MILLIS', 'AirShopping', '500') ON CONFLICT DO NOTHING;
         </sql>
     </changeSet>
 
