@@ -42,10 +42,6 @@ public record CabinMapping(Map<String, String> pkToVdc, Map<String, String> vdcT
         return Optional.ofNullable(vdcToPk.get(normalise(vdcCabin)));
     }
 
-    public boolean isEmpty() {
-        return pkToVdc.isEmpty();
-    }
-
     private static String normalise(String cabin) {
         return trimToEmpty(cabin).toUpperCase(Locale.ROOT);
     }

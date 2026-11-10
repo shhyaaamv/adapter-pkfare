@@ -127,7 +127,7 @@ public class KafkaReloadSubscriber implements DisposableBean {
     private final class ReloadOnAssignment implements ConsumerRebalanceListener {
         @Override
         public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-            // nothing to hand over: offsets are auto-committed and this group has one member
+            // nothing to hand over: no offsets are committed and this group has one member
         }
 
         @Override

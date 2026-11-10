@@ -93,13 +93,12 @@ public class SearchRQConverter {
 
     public AirShoppingRQ convert(PkfareAdapterContext context) {
         SearchRequest request = (SearchRequest) context.getRequest();
-        CabinMapping cabinMapping = CabinMapping.PKFARE;
-        validate(request, cabinMapping);
+        validate(request);
         VdcConfiguration configuration = context.getConfigurations().get(SERVICE_SEARCH);
         AirShoppingRQ airShoppingRQ = new AirShoppingRQ();
         airShoppingRQ.setTravelers(mapTravelers(request));
         airShoppingRQ.setCoreQuery(mapCoreQuery(request));
-        airShoppingRQ.setPreference(mapPreference(request, configuration, cabinMapping));
+        airShoppingRQ.setPreference(mapPreference(request, configuration));
         airShoppingRQ.setResponseParameters(mapResponseParameters(request, configuration));
         return airShoppingRQ;
     }
@@ -108,7 +107,7 @@ public class SearchRQConverter {
         return TRIP_TYPE_ROUND_TRIP.equals(trimToEmpty(request.getTripType()));
     }
 
-    private void validate(SearchRequest request, CabinMapping cabinMapping) {
+    private void validate(SearchRequest request) {
         if (isNull(request)) {
             throw validationError("Empty search request");
         }
@@ -138,8 +137,8 @@ public class SearchRQConverter {
                 throw validationError("retDate cannot be before fromDate");
             }
         }
-        if (!isBlank(request.getCabinClass()) && cabinMapping.toVdc(request.getCabinClass()).isEmpty()) {
-            throw validationError("cabinClass must be one of " + String.join(", ", cabinMapping.pkToVdc().keySet()));
+        if (!isBlank(request.getCabinClass()) && CabinMapping.PKFARE.toVdc(request.getCabinClass()).isEmpty()) {
+            throw validationError("cabinClass must be one of " + String.join(", ", CabinMapping.PKFARE.pkToVdc().keySet()));
         }
     }
 
@@ -199,7 +198,7 @@ public class SearchRQConverter {
         return originDestination;
     }
 
-    private AirShoppingRQ.Preference mapPreference(SearchRequest request, VdcConfiguration configuration, CabinMapping cabinMapping) {
+    private AirShoppingRQ.Preference mapPreference(SearchRequest request, VdcConfiguration configuration) {
         FarePreferencesType.Types types = new FarePreferencesType.Types();
         fareTypes(configuration).forEach(code -> {
             FarePreferencesType.Types.Type type = new FarePreferencesType.Types.Type();
@@ -211,9 +210,8 @@ public class SearchRQConverter {
 
         CabinType cabinType = new CabinType();
         String pkCabin = isBlank(request.getCabinClass()) ? DEFAULT_CABIN : request.getCabinClass();
-        // An unmapped requested cabin is rejected in validate(), so only an unmapped default cabin ends up here.
-        cabinType.setCode(cabinMapping.toVdc(pkCabin).orElseThrow(() -> new PkfareAdapterException(INTERNAL_ERROR.getCode(),
-                "No VDC cabin mapped for PKFARE cabin " + pkCabin, PROCESS_FAILURE_REASON_CODE)));
+        // Always mapped: validate() rejects an unmapped requested cabin, and DEFAULT_CABIN is in CabinMapping.PKFARE.
+        cabinType.setCode(CabinMapping.PKFARE.toVdc(pkCabin).orElseThrow());
         CabinPreferencesType cabinPreferences = new CabinPreferencesType();
         cabinPreferences.getCabinType().add(cabinType);
 

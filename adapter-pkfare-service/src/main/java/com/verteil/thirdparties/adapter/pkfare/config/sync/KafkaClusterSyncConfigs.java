@@ -31,9 +31,17 @@ import java.util.UUID;
 @ConditionalOnExpression("'${kafka.bootstrapAddress:}'.trim() != ''")
 public class KafkaClusterSyncConfigs {
 
-    /** Bounds a {@code POST /reload} call when Kafka is unreachable. */
+    /**
+     * Bounds a {@code POST /reload} call when Kafka is unreachable: how long {@code send()} may block on metadata
+     * ({@code max.block.ms}) and how long the broker may take to answer ({@code request.timeout.ms}).
+     */
     private static final Duration PUBLISH_TIMEOUT = Duration.ofSeconds(10);
-    private static final Duration ACKNOWLEDGEMENT_TIMEOUT = PUBLISH_TIMEOUT.plusSeconds(5);
+    /** Kafka requires {@code delivery.timeout.ms >= linger.ms + request.timeout.ms}; linger.ms is 0, this is headroom. */
+    private static final Duration DELIVERY_MARGIN = Duration.ofSeconds(1);
+    private static final Duration DELIVERY_TIMEOUT = PUBLISH_TIMEOUT.plus(DELIVERY_MARGIN);
+    /** The publisher waits a little past the delivery timeout, so a failed send is reported by the producer itself. */
+    private static final Duration ACKNOWLEDGEMENT_MARGIN = Duration.ofSeconds(5);
+    private static final Duration ACKNOWLEDGEMENT_TIMEOUT = DELIVERY_TIMEOUT.plus(ACKNOWLEDGEMENT_MARGIN);
 
     @Value("${kafka.bootstrapAddress}")
     private String bootstrapAddress;
@@ -57,19 +65,20 @@ public class KafkaClusterSyncConfigs {
     }
 
     private Map<String, Object> producerProperties() {
-        int publishTimeoutMillis = (int) PUBLISH_TIMEOUT.toMillis();
         return Map.of(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress,
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
                 ProducerConfig.ACKS_CONFIG, "1",
-                ProducerConfig.MAX_BLOCK_MS_CONFIG, publishTimeoutMillis,
-                ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, publishTimeoutMillis,
-                // must be >= linger.ms + request.timeout.ms
-                ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, publishTimeoutMillis + 1000);
+                ProducerConfig.MAX_BLOCK_MS_CONFIG, millis(PUBLISH_TIMEOUT),
+                ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, millis(PUBLISH_TIMEOUT),
+                ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, millis(DELIVERY_TIMEOUT));
     }
 
-    /** A group per pod (a broadcast), starting at the latest offset: past reloads are covered by the startup load. */
+    /**
+     * A group per pod (a broadcast), starting at the latest offset: past reloads are covered by the startup load. The
+     * group is new on every start, so committed offsets would never be read back; committing is off.
+     */
     private Map<String, Object> consumerProperties() {
         return Map.of(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress,
@@ -77,6 +86,11 @@ public class KafkaClusterSyncConfigs {
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest",
-                ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
+                ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+    }
+
+    /** Kafka's INT-typed settings (request/delivery timeouts) reject a {@code Long}. */
+    private static int millis(Duration duration) {
+        return Math.toIntExact(duration.toMillis());
     }
 }

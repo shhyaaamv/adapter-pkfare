@@ -34,6 +34,5 @@ class CabinMappingTest {
         rows.put(" ", "Y");
 
         assertThat(CabinMapping.of(rows).pkToVdc()).containsOnlyKeys("C");
-        assertThat(CabinMapping.of(Map.of()).isEmpty()).isTrue();
     }
 }

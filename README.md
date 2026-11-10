@@ -52,7 +52,9 @@ Redis is optional: without it the token cache works per pod.
 
 The adapter reads this one table over JDBC with an in-process configurator (configurator-core); it doesn't call
 vdc-configurator. `service` is either the adapter service (`Search`) or the Entry-Gate service (`AirShopping`).
-A row for the requested service wins over the `service IS NULL` row. There is no per-vendor dimension.
+A row for the requested service wins over the `service IS NULL` row. There is no per-vendor dimension. To add one,
+add an office column to the table, append it to the SELECT in `ConfiguratorConfigs` and add `ARG_OFFICE_CODE` to the
+tree's `setArguments` in the same order: extra columns are matched to dimensions by position, not by name.
 
 * **Database:** `agency-adapter.datasource.{url,username,password}`. It's a single non-pooled DataSource, and the
   only SQL is `SELECT … FROM agency_adapter_tbls.pkfare_configs`. The DB user only needs `SELECT` on that table.
@@ -61,9 +63,10 @@ A row for the requested service wins over the `service IS NULL` row. There is no
   * In the environment profiles (`application-eks-*`, `application-dr-*`): `${DB_URL}`, `${DB_USER}` and
     `${DB_ENCRYPTED_PASSWORD}`, decrypted by jasypt with `${JASYPT_ENCRYPTOR_PASSWORD}`.
 * **When changes apply:** rows are loaded at startup, and the app won't start if the table can't be read. After that they
-  are served from memory; requests never query the database. To apply changed rows, call `POST /reload` (port 9022)
-  **once**, e.g. through the Kubernetes service. The pod it reaches re-reads the table, then publishes the reload to
-  Kafka, and every other pod re-reads too (see *Cluster-wide reload* below).
+  are served from memory; requests never query the database, and `/actuator/health` doesn't check it. To apply
+  changed rows, call `POST /reload` (port 9022) **once**, e.g. through the Kubernetes service. The pod it reaches
+  re-reads the table, then publishes the reload to Kafka, and every other pod re-reads too (see *Cluster-wide reload*
+  below).
 
   ```sh
   curl -X POST http://localhost:9022/reload
@@ -91,6 +94,7 @@ A row for the requested service wins over the `service IS NULL` row. There is no
     keyed by the tree name. A pod skips its own messages, and other events are ignored.
   * Publishing that message yourself (e.g. with `kafka-console-producer`) reloads every pod without calling the API.
   * A pod re-reads the table once its partitions are assigned, so a reload published while it was starting isn't lost.
+  * On a pod, reloads run one at a time, whether they come from `/reload` or from Kafka.
   * Without Kafka the app still starts and serves. Only the broadcast fails (`FAILED`), and the consumer keeps retrying.
 
 | Name | Service | Seeded | Meaning |
@@ -127,6 +131,18 @@ VALUES ('PKFARE_API', 'HOST', NULL, '<entry-gate base url, e.g. https://qaapi.sa
        ('PKFARE_API', 'VENDOR_CODES', NULL, '<PKFARE vendorCode(s), CSV>')
 ON CONFLICT DO NOTHING;
 ```
+
+Run it once. The unique key `(config_group, name, service)` treats NULL `service` values as distinct, so
+`ON CONFLICT DO NOTHING` doesn't stop a second copy of a NULL-service row. The same applies when Liquibase reruns an
+edited `runOnChange` changeset.
+
+### Liquibase
+
+The changelog (`adapter-pkfare-service/src/main/database/vdc-change-log.xml`) is applied by `run-liquibase.sh`, never
+by the app. It writes the rows and Liquibase's own `databasechangelog`/`databasechangeloglock` tables to
+`agency_adapter_tbls` (override with `agency_adapter_schema` and `LIQUIBASE_LIQUIBASE_SCHEMA_NAME`). The migration
+user needs `CREATE` on that schema for the first run. The app's runtime user (`pkfare_user` locally) only needs
+`SELECT` and isn't the migration user.
 
 ## Build & run
 

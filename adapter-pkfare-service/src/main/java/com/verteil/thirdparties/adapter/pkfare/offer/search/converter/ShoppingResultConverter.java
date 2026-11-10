@@ -139,10 +139,9 @@ public class ShoppingResultConverter {
                         .map(FlightCabinCoreType::getCabinDesignator)
                         .map(FlightCabinCoreType.CabinDesignator::getValue)
                         .orElse(null));
-        CabinMapping cabinMapping = context.cabinMapping();
-        return cabinMapping.toPk(vdcCabin)
-                .or(() -> Optional.of(context.request().getCabinClass())
-                        .filter(requested -> cabinMapping.toVdc(requested).isPresent())
+        return CabinMapping.PKFARE.toPk(vdcCabin)
+                .or(() -> Optional.ofNullable(context.request().getCabinClass())
+                        .filter(requested -> CabinMapping.PKFARE.toVdc(requested).isPresent())
                         .map(requested -> requested.trim().toUpperCase(Locale.ROOT)))
                 .orElse(DEFAULT_CABIN);
     }
