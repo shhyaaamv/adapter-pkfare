@@ -5,18 +5,17 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.verteil.thirdparties.adapter.pkfare.utils.TestUtils.CABIN_MAPPING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CabinMappingTest {
 
     @Test
     void mapsBothDirectionsIgnoringCaseAndWhitespace() {
-        assertThat(CABIN_MAPPING.toVdc(" s ")).contains("W");
-        assertThat(CABIN_MAPPING.toPk("w")).contains("S");
-        assertThat(CABIN_MAPPING.toVdc("Y")).contains("Y");
-        assertThat(CABIN_MAPPING.toVdc("P")).isEmpty();
-        assertThat(CABIN_MAPPING.toPk(null)).isEmpty();
+        assertThat(CabinMapping.PKFARE.toVdc(" s ")).contains("W");
+        assertThat(CabinMapping.PKFARE.toPk("w")).contains("S");
+        assertThat(CabinMapping.PKFARE.toVdc("Y")).contains("Y");
+        assertThat(CabinMapping.PKFARE.toVdc("P")).isEmpty();
+        assertThat(CabinMapping.PKFARE.toPk(null)).isEmpty();
     }
 
     @Test
@@ -35,6 +34,5 @@ class CabinMappingTest {
         rows.put(" ", "Y");
 
         assertThat(CabinMapping.of(rows).pkToVdc()).containsOnlyKeys("C");
-        assertThat(CabinMapping.of(Map.of()).isEmpty()).isTrue();
     }
 }

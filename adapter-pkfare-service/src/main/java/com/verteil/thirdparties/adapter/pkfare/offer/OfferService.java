@@ -38,10 +38,9 @@ import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 /**
- * Offer group of PKFARE services (SEARCH now, QTE next). Builds the chain context for an inbound PKFARE request —
- * the PKFARE vendor code doubles as configurator office code, so every PKFARE_API setting can be overridden per
- * vendor — gates on {@code PKFARE_API.ENABLE_SERVICE}, runs the chain named after the service and turns any failure
- * into a PKFARE status response. PKFARE always gets HTTP 200.
+ * Offer group of PKFARE services (SEARCH now, QTE next). Builds the chain context for an inbound PKFARE request,
+ * gates on {@code PKFARE_API.ENABLE_SERVICE}, runs the chain named after the service and turns any failure into a
+ * PKFARE status response. PKFARE always gets HTTP 200.
  */
 @Slf4j
 @Component
@@ -77,7 +76,7 @@ public class OfferService {
             if (context.getVendorCode() == null) {
                 throw new PkfareAdapterException(AUTHENTICATION_FAILURE.getCode(), ERROR_MSG_INVALID_VENDOR, UNAUTHORIZED_REASON_CODE);
             }
-            if (!adapterCommonService.isServiceEnabled(service, context.getVendorCode())) {
+            if (!adapterCommonService.isServiceEnabled(service)) {
                 throw new PkfareAdapterException(SERVICE_DISABLED.getCode(), service + ERROR_MSG_SERVICE_NOT_IMPLEMENTED, UNIMPLEMENTED_REASON_CODE);
             }
             pkfareAdapterContextCatalog.getCommand(service).execute(context);
@@ -104,8 +103,8 @@ public class OfferService {
         String transactionId = defaultIfBlank(MDC.get(XTID), UUID.randomUUID().toString());
 
         UserDetailsDto userDetails = new UserDetailsDto();
-        // The configurator context builder rejects nulls. The vendor code is the office code (per-vendor overrides);
-        // the IATA dimension is not used by the adapter and is pinned to PKFARE.
+        // The configurator context builder rejects nulls, so office code and IATA are always filled. pkfare_configs
+        // has no office or IATA dimension, so neither selects anything (no per-vendor overrides).
         userDetails.setUsername(defaultIfBlank(vendorCode, PKFARE));
         userDetails.setOfficeCode(defaultIfBlank(vendorCode, PKFARE));
         userDetails.setOfficeIataCode(PKFARE);
@@ -129,7 +128,6 @@ public class OfferService {
         context.setUserDetails(userDetails);
         context.setCarrier(PKFARE);
         context.setVendorCode(vendorCode);
-        context.setClientIp(clientIp);
         return context;
     }
 }

@@ -8,6 +8,13 @@ management:
   server:
     port: 0
 
-client:
-  address:
-    vdcConfigurator: http://localhost:${ACCEPTANCE_WIREMOCK_PORT:8091}/vdc-configurator
+# acceptance.gradle seeds this table before starting the adapter and restores it afterwards (see that module's README)
+agency-adapter:
+  datasource:
+    url: ${ACCEPTANCE_DB_URL:jdbc:postgresql://localhost:5432/vdc_db?currentSchema=agency_adapter_tbls&ApplicationName=adapter-pkfare-acceptance}
+    username: ${ACCEPTANCE_DB_USER:pkfare_user}
+    password: ${ACCEPTANCE_DB_PASSWORD:pkfare123}
+
+# No Kafka in the acceptance run (POST /reload reloads this one instance), even if KAFKA_URL is set in the shell
+kafka:
+  bootstrapAddress: ${ACCEPTANCE_KAFKA_URL:}

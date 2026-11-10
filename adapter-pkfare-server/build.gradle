@@ -8,6 +8,8 @@ dependencies {
     implementation project(':adapter-pkfare-service')
     implementation "com.verteil.schema:pkfare-api-schema:${pkfareApiSchemaVersion}"
     implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations")
+    implementation "com.github.ulisesbocchio:jasypt-spring-boot-starter:${jasyptVersion}"
+    runtimeOnly 'org.postgresql:postgresql'
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'

@@ -71,8 +71,7 @@ public class SearchRSConverter {
                 configuration.map(vdcConfiguration -> vdcConfiguration.getInt(PKFARE_API, TICKET_ISSUE_TIME, DEFAULT_TICKET_ISSUE_TIME))
                         .orElse(DEFAULT_TICKET_ISSUE_TIME),
                 configuration.map(vdcConfiguration -> vdcConfiguration.getString(PKFARE_API, DEFAULT_PRODUCT_TYPE, PK_PUBLIC_FARE))
-                        .orElse(PK_PUBLIC_FARE),
-                context.getCabinMapping());
+                        .orElse(PK_PUBLIC_FARE));
     }
 
     /** Sequential on purpose, see {@link #convert}. */

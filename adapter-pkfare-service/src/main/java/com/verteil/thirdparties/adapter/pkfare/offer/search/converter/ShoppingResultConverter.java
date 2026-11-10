@@ -55,7 +55,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  * One AirlineOffer -> one {@code shoppingResultList[]} entry (single ticket, ticketSeq 1).
  * <pre>
  * flightRefList[]        offer-level Associations.ApplicableFlight.FlightSegmentReference[] in itinerary order
- *   cabinClass / rbd     ClassOfService.MarketingName.CabinDesignator via CABIN_BRAND.MAPPED_CABIN (W -> S) / ClassOfService.Code
+ *   cabinClass / rbd     ClassOfService.MarketingName.CabinDesignator via CabinMapping.PKFARE (W -> S) / ClassOfService.Code
  *   seatCount            ClassOfService.Code.SeatsLeft (max 9), else configured / passenger-count default
  * data                   AirlineOffer.OfferID value
  * ticket.validatingCarrier ValidatingCarrier, else OfferID.Owner, else AirlineOffers.Owner
@@ -139,10 +139,9 @@ public class ShoppingResultConverter {
                         .map(FlightCabinCoreType::getCabinDesignator)
                         .map(FlightCabinCoreType.CabinDesignator::getValue)
                         .orElse(null));
-        CabinMapping cabinMapping = context.cabinMapping();
-        return cabinMapping.toPk(vdcCabin)
-                .or(() -> Optional.of(context.request().getCabinClass())
-                        .filter(requested -> cabinMapping.toVdc(requested).isPresent())
+        return CabinMapping.PKFARE.toPk(vdcCabin)
+                .or(() -> Optional.ofNullable(context.request().getCabinClass())
+                        .filter(requested -> CabinMapping.PKFARE.toVdc(requested).isPresent())
                         .map(requested -> requested.trim().toUpperCase(Locale.ROOT)))
                 .orElse(DEFAULT_CABIN);
     }

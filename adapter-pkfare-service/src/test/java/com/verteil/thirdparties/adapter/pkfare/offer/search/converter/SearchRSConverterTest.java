@@ -1,15 +1,19 @@
 package com.verteil.thirdparties.adapter.pkfare.offer.search.converter;
 
 import com.verteil.schema.pkfare.SearchFlight;
+import com.verteil.schema.pkfare.SearchFlightReference;
 import com.verteil.schema.pkfare.SearchFreeBaggage;
 import com.verteil.schema.pkfare.SearchRequest;
 import com.verteil.schema.pkfare.SearchResponse;
 import com.verteil.schema.pkfare.SearchShoppingResult;
 import com.verteil.schema.pkfare.SearchTicket;
 import com.verteil.schemas.ndc16_1.AirShoppingRS;
+import com.verteil.schemas.ndc16_1.FlightSegmentReference;
 import com.verteil.thirdparties.adapter.pkfare.common.PkfareAdapterContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -62,6 +66,25 @@ class SearchRSConverterTest {
                         tuple(4, 2, 2, 1, "C", "Z", 3));
         assertThat(result.getTag()).isEqualTo("Value");
         assertThat(result.getThreshold()).isZero();
+    }
+
+    /**
+     * Without a VDC cabin, the requested cabin is used if PKFARE knows it, else economy. A missing requested cabin used
+     * to throw here, which skipped every offer but left their first flights behind in flightList.
+     */
+    @ParameterizedTest
+    @CsvSource(nullValues = "null", value = {"c, C", "P, Y", "null, Y"})
+    void fallsBackToTheRequestedCabinThenEconomyWhenVdcHasNoCabin(String requestedCabin, String expectedCabin) {
+        SearchRequest request = searchRequest();
+        request.setCabinClass(requestedCabin);
+
+        SearchResponse response = convert(request, Map.of(), withoutVdcCabins(airShoppingRS()));
+
+        assertThat(response.getShoppingResultList()).hasSize(3)
+                .flatExtracting(SearchShoppingResult::getFlightRefList)
+                .extracting(SearchFlightReference::getCabinClass)
+                .containsOnly(expectedCabin);
+        assertThat(response.getFlightList()).extracting(SearchFlight::getFlightRefNum).containsExactly(1, 2, 3, 4, 5, 6);
     }
 
     @Test
@@ -200,9 +223,23 @@ class SearchRSConverterTest {
     }
 
     private SearchResponse convert(SearchRequest request, Map<String, String> config) {
-        AirShoppingRS airShoppingRS = airShoppingRS();
+        return convert(request, config, airShoppingRS());
+    }
+
+    private SearchResponse convert(SearchRequest request, Map<String, String> config, AirShoppingRS airShoppingRS) {
         PkfareAdapterContext context = buildContext(request, config);
         context.setProviderApiResponse(SERVICE_AIRSHOPPING, airShoppingRS);
         return converter.convert(context);
+    }
+
+    /** Drops every segment's VDC cabin designator, so the cabin can only come from the fallbacks. */
+    private static AirShoppingRS withoutVdcCabins(AirShoppingRS airShoppingRS) {
+        airShoppingRS.getOffersGroup().getAirlineOffers().stream()
+                .flatMap(offers -> offers.getAirlineOffer().stream())
+                .flatMap(offer -> offer.getPricedOffer().getAssociations().stream())
+                .flatMap(association -> association.getApplicableFlight().getFlightSegmentReference().stream())
+                .map(FlightSegmentReference::getClassOfService)
+                .forEach(classOfService -> classOfService.getMarketingName().setCabinDesignator(null));
+        return airShoppingRS;
     }
 }

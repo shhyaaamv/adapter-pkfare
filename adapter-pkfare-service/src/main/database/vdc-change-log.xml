@@ -5,5 +5,4 @@
     <include file="dml/pkfare_service_configurations.xml" relativeToChangelogFile="true"/>
     <include file="dml/entry_gate_configurations.xml" relativeToChangelogFile="true"/>
     <include file="dml/search_configurations.xml" relativeToChangelogFile="true"/>
-    <include file="dml/cabin_configurations.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -4,7 +4,6 @@ import com.verteil.chain.Chain;
 import com.verteil.chain.impl.ImmutableChain;
 import com.verteil.thirdparties.adapter.pkfare.common.PkfareAdapterContext;
 import com.verteil.thirdparties.adapter.pkfare.common.command.AuthenticateRequestCmd;
-import com.verteil.thirdparties.adapter.pkfare.common.command.FetchCabinMappingCmd;
 import com.verteil.thirdparties.adapter.pkfare.common.command.InvokeEntryGateCmd;
 import com.verteil.thirdparties.adapter.pkfare.offer.search.command.AirShoppingRSValidatorCmd;
 import com.verteil.thirdparties.adapter.pkfare.offer.search.command.SearchCacheLookupCmd;
@@ -24,7 +23,7 @@ import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstan
  * PKFARE SEARCH -> Entry-Gate AirShopping.
  * <pre>
  * AddParams(Search, AirShopping) -> FetchConfigurations -> AuthenticateRequest (vendor code + IP)
- *   -> SearchCacheLookup [hit: done] -> FetchCabinMapping -> SearchRQ -> InvokeEntryGate
+ *   -> SearchCacheLookup [hit: done] -> SearchRQ -> InvokeEntryGate
  *   -> AirShoppingRSValidator [no offers: done]
  *   -> SearchRS -> SearchCacheStore
  * </pre>
@@ -40,7 +39,6 @@ public class SearchConfiguration {
     public Chain<PkfareAdapterContext> search(FetchConfigurationsCmd<PkfareAdapterContext> fetchConfigurationsCmd,
                                               AuthenticateRequestCmd authenticateRequestCmd,
                                               SearchCacheLookupCmd searchCacheLookupCmd,
-                                              FetchCabinMappingCmd fetchCabinMappingCmd,
                                               SearchRQCmd searchRQCmd,
                                               InvokeEntryGateCmd invokeEntryGateCmd,
                                               AirShoppingRSValidatorCmd airShoppingRSValidatorCmd,
@@ -51,7 +49,6 @@ public class SearchConfiguration {
                 .add(fetchConfigurationsCmd)
                 .add(authenticateRequestCmd)
                 .add(searchCacheLookupCmd)
-                .add(fetchCabinMappingCmd)
                 .add(searchRQCmd)
                 .add(invokeEntryGateCmd)
                 .add(airShoppingRSValidatorCmd)
