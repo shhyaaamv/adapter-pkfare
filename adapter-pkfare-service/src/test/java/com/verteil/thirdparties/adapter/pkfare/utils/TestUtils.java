@@ -1,25 +1,28 @@
 package com.verteil.thirdparties.adapter.pkfare.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.verteil.commons.core.web.dto.UserDetailsDto;
-import com.verteil.configurator.vdc.data.VdcConfiguration;
+import com.verteil.schema.pkfare.QteRequest;
 import com.verteil.schema.pkfare.SearchRequest;
 import com.verteil.schemas.ndc16_1.AirShoppingRS;
+import com.verteil.schemas.ndc16_1.FlightPriceRS;
 import com.verteil.thirdparties.adapter.pkfare.common.PkfareAdapterContext;
 import com.verteil.thirdparties.adapter.pkfare.common.json.JsonMappers;
-import com.verteil.thirdparties.adapter.pkfare.common.model.CabinMapping;
+import com.verteil.thirdparties.adapter.pkfare.config.PkfareProperties;
+import com.verteil.thirdparties.adapter.pkfare.config.VerteilProperties;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.util.HashMap;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.PKFARE;
-import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.PKFARE_API;
-import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SERVICE_AIRSHOPPING;
+import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SERVICE_QTE;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SERVICE_SEARCH;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -30,31 +33,36 @@ public final class TestUtils {
 
     public static final ObjectMapper NDC_MAPPER = JsonMappers.ndc();
     public static final ObjectMapper PKFARE_MAPPER = JsonMappers.pkfare();
-    /** The seeded {@code CABIN_BRAND.MAPPED_CABIN} rows for carrier PKFARE. */
-    public static final CabinMapping CABIN_MAPPING = CabinMapping.of(Map.of("F", "F", "C", "C", "S", "W", "Y", "Y"));
-
-    /** Configuration as the configurator returns it: flat {@code "PKFARE_API.<NAME>" -> value}. */
-    public static VdcConfiguration createVdcConfiguration(Map<String, String> pkfareApiValues) {
-        Map<String, String> values = new HashMap<>();
-        pkfareApiValues.forEach((name, value) -> values.put(PKFARE_API + "." + name, value));
-        return new VdcConfiguration(values);
+    /** Code defaults plus the test vendor with SEARCH and QTE enabled. */
+    public static PkfareProperties pkfareProperties() {
+        PkfareProperties properties = new PkfareProperties();
+        properties.setEnabledServices(new LinkedHashMap<>(Map.of("search", true, "qte", true)));
+        properties.setVendorCodes(new ArrayList<>(List.of(VENDOR_CODE)));
+        return properties;
     }
 
-    public static PkfareAdapterContext buildContext(SearchRequest request, Map<String, String> pkfareApiValues) {
+    /** Code defaults plus an Entry-Gate host. */
+    public static VerteilProperties verteilProperties() {
+        VerteilProperties properties = new VerteilProperties();
+        properties.setHost("https://api.example.com");
+        return properties;
+    }
+
+    public static PkfareAdapterContext buildContext(SearchRequest request) {
+        return buildContext(request, request == null ? VENDOR_CODE : request.getVendorCode(), SERVICE_SEARCH);
+    }
+
+    public static PkfareAdapterContext buildQteContext(QteRequest request) {
+        return buildContext(request, request == null ? VENDOR_CODE : request.getVendorCode(), SERVICE_QTE);
+    }
+
+    private static PkfareAdapterContext buildContext(Object request, String vendorCode, String service) {
         PkfareAdapterContext context = new PkfareAdapterContext();
-        UserDetailsDto userDetails = new UserDetailsDto();
-        userDetails.setOfficeCode(VENDOR_CODE);
-        context.setService(SERVICE_SEARCH);
-        context.setCarrier(PKFARE);
+        context.setService(service);
         context.setTxnId("TXN-1");
-        context.setUserDetails(userDetails);
         context.setRequest(request);
-        context.setVendorCode(request == null ? VENDOR_CODE : request.getVendorCode());
+        context.setVendorCode(vendorCode);
         context.setClientIp(CLIENT_IP);
-        context.setCabinMapping(CABIN_MAPPING);
-        VdcConfiguration configuration = createVdcConfiguration(pkfareApiValues);
-        context.addConfiguration(SERVICE_SEARCH, configuration);
-        context.addConfiguration(SERVICE_AIRSHOPPING, configuration);
         return context;
     }
 
@@ -64,6 +72,22 @@ public final class TestUtils {
 
     public static AirShoppingRS airShoppingRS() {
         return readNdc("search/VDC_AirShoppingRS.json", AirShoppingRS.class);
+    }
+
+    /** {@code qte/PKFARE_QteRQ.json} with {@code routing.data} = standard Base64 of the UTF-8 {@code qte/offer_data.json}. */
+    public static QteRequest qteRequest() {
+        QteRequest request = readPkfare("qte/PKFARE_QteRQ.json", QteRequest.class);
+        request.getRouting().setData(encodedOfferData());
+        return request;
+    }
+
+    /** Standard Base64 of the UTF-8 bytes of {@code qte/offer_data.json}. */
+    public static String encodedOfferData() {
+        return Base64.getEncoder().encodeToString(readString("qte/offer_data.json").getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static FlightPriceRS flightPriceRS() {
+        return readNdc("qte/VDC_FlightPriceRS.json", FlightPriceRS.class);
     }
 
     public static <T> T readNdc(String resource, Class<T> type) {
@@ -76,7 +100,7 @@ public final class TestUtils {
 
     public static String readString(String resource) {
         try (InputStream in = TestUtils.class.getClassLoader().getResourceAsStream(resource)) {
-            return new String(in.readAllBytes());
+            return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -1,0 +1,12 @@
+{
+  "Errors": {
+    "Error": [
+      {
+        "value": "Requested offer is no longer available",
+        "ShortText": "Offer not available",
+        "Code": "911",
+        "Owner": "AI"
+      }
+    ]
+  }
+}

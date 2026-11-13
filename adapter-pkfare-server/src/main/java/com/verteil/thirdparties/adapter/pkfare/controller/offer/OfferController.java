@@ -1,5 +1,7 @@
 package com.verteil.thirdparties.adapter.pkfare.controller.offer;
 
+import com.verteil.schema.pkfare.QteRequest;
+import com.verteil.schema.pkfare.QteResponse;
 import com.verteil.schema.pkfare.SearchRequest;
 import com.verteil.schema.pkfare.SearchResponse;
 import com.verteil.thirdparties.adapter.pkfare.offer.OfferService;
@@ -31,5 +33,10 @@ public class OfferController {
     @PostMapping(path = "search", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public SearchResponse search(@RequestBody SearchRequest request, HttpServletRequest httpRequest) {
         return offerService.search(request, httpRequest.getRemoteAddr());
+    }
+
+    @PostMapping(path = "qte", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public QteResponse qte(@RequestBody QteRequest request, HttpServletRequest httpRequest) {
+        return offerService.qte(request, httpRequest.getRemoteAddr());
     }
 }

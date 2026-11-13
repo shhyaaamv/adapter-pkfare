@@ -1,0 +1,40 @@
+{
+  "shoppingResponseId": {
+    "owner": "AI",
+    "value": "LSbPSOlari--6t34oGYyTa7POI7WaD6ZKvWU2OOtC08-AI"
+  },
+  "offer": {
+    "id": "1H2AIZ_GEX1FB4YZK0ZTRJE4UER2X8P064Z",
+    "owner": "AI"
+  },
+  "passengers": [
+    {
+      "offerItemId": "1H2AIZ_GEX1FB4YZK0ZTRJE4UER2X8P064Z-1-1",
+      "ptc": "INF",
+      "travelerRefs": [
+        "AI-PAX11"
+      ]
+    },
+    {
+      "offerItemId": "1H2AIZ_GEX1FB4YZK0ZTRJE4UER2X8P064Z-1-2",
+      "ptc": "ADT",
+      "travelerRefs": [
+        "AI-PAX1",
+        "AI-PAX2"
+      ]
+    },
+    {
+      "offerItemId": "1H2AIZ_GEX1FB4YZK0ZTRJE4UER2X8P064Z-1-3",
+      "ptc": "CHD",
+      "travelerRefs": [
+        "AI-PAX3"
+      ]
+    }
+  ],
+  "segments": {
+    "COK|202611180750|BOM|202611181015|AI|9896": "AI-SEG15|GL2YXSI3",
+    "BOM|202611181630|DXB|202611181835|AI|911": "AI-SEG4|GL2YXSI3",
+    "DXB|202611292340|BOM|202611300430|AI|984": "AI-SEG18|GP2YXSI3",
+    "BOM|202611301000|COK|202611301205|AI|2855": "AI-SEG22|GP2YXSI3"
+  }
+}

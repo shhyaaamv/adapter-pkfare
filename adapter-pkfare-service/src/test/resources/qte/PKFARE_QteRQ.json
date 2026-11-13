@@ -1,0 +1,69 @@
+{
+    "adultNumber": 2,
+    "childNumber": 1,
+    "cutOffTime": 48000,
+    "infantNumber": 1,
+    "referenceId": "274446433125889918",
+    "routing": {
+        "data": "",
+        "fromSegments": [
+            {
+                "aircraftCode": "320",
+                "arrAirport": "BOM",
+                "arrTime": "202611181015",
+                "cabinClass": "Y",
+                "codeShare": "true",
+                "depAirport": "COK",
+                "depTime": "202611180750",
+                "flightNumber": 9896,
+                "marketingCarrier": "AI",
+                "operatingCarrier": "IX",
+                "rbd": "W"
+            },
+            {
+                "aircraftCode": "32N",
+                "arrAirport": "DXB",
+                "arrTime": "202611181835",
+                "cabinClass": "Y",
+                "codeShare": "false",
+                "depAirport": "BOM",
+                "depTime": "202611181630",
+                "flightNumber": 911,
+                "marketingCarrier": "AI",
+                "operatingCarrier": "AI",
+                "rbd": "G"
+            }
+        ],
+        "retSegments": [
+            {
+                "aircraftCode": "789",
+                "arrAirport": "BOM",
+                "arrTime": "202611300430",
+                "cabinClass": "Y",
+                "codeShare": "false",
+                "depAirport": "DXB",
+                "depTime": "202611292340",
+                "flightNumber": 984,
+                "marketingCarrier": "AI",
+                "operatingCarrier": "AI",
+                "rbd": "G"
+            },
+            {
+                "aircraftCode": "32N",
+                "arrAirport": "COK",
+                "arrTime": "202611301205",
+                "cabinClass": "Y",
+                "codeShare": "false",
+                "depAirport": "BOM",
+                "depTime": "202611301000",
+                "flightNumber": 2855,
+                "marketingCarrier": "AI",
+                "operatingCarrier": "AI",
+                "rbd": "G"
+            }
+        ],
+        "tag": "Value"
+    },
+    "tripType": "2",
+    "vendorCode": "SHA-TEST"
+}

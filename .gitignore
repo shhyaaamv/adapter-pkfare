@@ -36,3 +36,5 @@ vdc.logs.dir_IS_UNDEFINED
 .java-version
 justfile
 .DS_Store
+### Integration workspace (agents) ###
+.integration/

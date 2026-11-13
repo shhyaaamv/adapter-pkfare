@@ -1,0 +1,121 @@
+{
+    "status": 0,
+    "msg": "success",
+    "errorCode": null,
+    "errorMsg": null,
+    "sessionId": "6901e7b116e16ebd2bb0f744amejnz70",
+    "maxSeats": 1,
+    "routing": {
+        "data": "eyJzIjogIjY5MDFlN2IxMTZlMTZlYmQyYmIwZjc0NCIsICJtIjogIk5LTkRDIiwgInB0Ijoge30sICJjbCI6IHsiZmMiOiBbIlkiLCAiWSJdLCAicmMiOiBbXX0sICJwaXQiOiAiIn0=",
+        "fromSegments": [
+            {
+                "marketingCarrier": "NK",
+                "depAirport": "IAH",
+                "depTime": "202510311255",
+                "arrAirport": "FLL",
+                "arrTime": "202510311629",
+                "duration": 154,
+                "rbd": "Q",
+                "flightNumber": 2724,
+                "codeShare": "false",
+                "aircraftCode": "",
+                "cabinClass": "Y",
+                "operatingCarrier": "NK",
+                "operatingFlightNumber": 2724,
+                "travelDirection": 1
+            },
+            {
+                "marketingCarrier": "NK",
+                "depAirport": "FLL",
+                "depTime": "202510312028",
+                "arrAirport": "EWR",
+                "arrTime": "202510312329",
+                "duration": 181,
+                "rbd": "Q",
+                "flightNumber": 2116,
+                "codeShare": "false",
+                "aircraftCode": "",
+                "cabinClass": "Y",
+                "operatingCarrier": "NK",
+                "operatingFlightNumber": 2116,
+                "travelDirection": 1
+            }
+        ],
+        "retSegments": [],
+        "priceList": [
+            {
+                "passengerType": 0,
+                "fare": 143.12,
+                "tax": 81.0
+            }
+        ],
+        "eligibility": "",
+        "validatingCarrier": "NK",
+        "fareBasis": "QNR;QNR",
+        "freeBaggageList": [
+            {
+                "travelDirection": 1,
+                "flightSeq": 1,
+                "passengerType": 0,
+                "baggagePiece": 0,
+                "baggageWeight": -1,
+                "carryOnPiece": 0,
+                "carryOnWeight": 0
+            },
+            {
+                "travelDirection": 1,
+                "flightSeq": 2,
+                "passengerType": 0,
+                "baggagePiece": 0,
+                "baggageWeight": -1,
+                "carryOnPiece": 0,
+                "carryOnWeight": 0
+            }
+        ],
+        "refundInfoList": [
+            {
+                "passengerType": 0,
+                "refundType": 0,
+                "conditionList": [
+                    {
+                        "start": "-1",
+                        "end": "-1",
+                        "unit": "h",
+                        "refundable": false,
+                        "refundFee": 0,
+                        "currency": "USD"
+                    }
+                ]
+            }
+        ],
+        "changeInfoList": [
+            {
+                "passengerType": 0,
+                "changeType": 0,
+                "conditionList": [
+                    {
+                        "start": "-1",
+                        "end": "-1",
+                        "unit": "h",
+                        "changeable": false,
+                        "changeFee": 0,
+                        "currency": "USD"
+                    }
+                ]
+            }
+        ],
+        "currency": "USD",
+        "productType": "PRV",
+        "tag": "Value",
+        "otherFareRules": [
+            {
+                "passengerType": 0,
+                "detail": []
+            },
+            {
+                "passengerType": 1,
+                "detail": []
+            }
+        ]
+    }
+}

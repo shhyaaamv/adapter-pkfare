@@ -3386,5 +3386,148 @@
     }
    ]
   }
+ },
+ "Metadata": {
+  "Other": {
+   "OtherMetadata": [
+    {
+     "DescriptionMetadatas": {
+      "DescriptionMetadata": [
+       {
+        "MetadataKey": "SHOPPING_RESPONSE_IDS",
+        "AugmentationPoint": {
+         "AugPoint": [
+          {
+           "Key": "xswV4EMQYtEHDezo1zy6ruZVSqSOQf1ZoX-GhJ3IfBs-AI",
+           "Owner": "AI"
+          }
+         ]
+        }
+       }
+      ]
+     },
+     "PriceMetadatas": {
+      "PriceMetadata": [
+       {
+        "MetadataKey": "VDC-FR-Cancel-2-0-8000-AI",
+        "AugmentationPoint": {
+         "AugPoint": [
+          {
+           "any": {
+            "@type": "com.verteil.thirdparties.common.helper.staticdata.farerules.augmentation.dto.FareRuleAugPoint",
+            "value": "eyJwZW5hbHR5RGV0YWlscyI6eyJPYmplY3RLZXkiOiJDYW5jZWwtMi0wLTgwMDAiLCJEZXRhaWxzIjp7IkRldGFpbCI6W3siVHlwZSI6IkNhbmNlbCIsIkFwcGxpY2F0aW9uIjp7IkNvZGUiOiIyIn0sIkFtb3VudHMiOnsiQW1vdW50IjpbeyJDdXJyZW5jeUFtb3VudFZhbHVlIjp7InZhbHVlIjowLCJDb2RlIjoiSU5SIn0sIkFtb3VudEFwcGxpY2F0aW9uIjoiTUlOIiwiQXBwbGljYWJsZUZlZVJlbWFya3MiOnsiUmVtYXJrIjpbeyJ2YWx1ZSI6IklOUiA4MDAwIHRpbGwgNCBob3VycyBwcmlvciB0byBEZXBhcnR1cmUifV19fSx7IkN1cnJlbmN5QW1vdW50VmFsdWUiOnsidmFsdWUiOjgwMDAsIkNvZGUiOiJJTlIifSwiQW1vdW50QXBwbGljYXRpb24iOiJNQVgiLCJBcHBsaWNhYmxlRmVlUmVtYXJrcyI6eyJSZW1hcmsiOlt7InZhbHVlIjoiSU5SIDgwMDAgdGlsbCA0IGhvdXJzIHByaW9yIHRvIERlcGFydHVyZSJ9XX19XX19XX0sIkNhbmNlbEZlZUluZCI6dHJ1ZSwiUmVmdW5kYWJsZUluZCI6dHJ1ZX19"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "MetadataKey": "VDC-FR-Cancel-2-0-12000-AI",
+        "AugmentationPoint": {
+         "AugPoint": [
+          {
+           "any": {
+            "@type": "com.verteil.thirdparties.common.helper.staticdata.farerules.augmentation.dto.FareRuleAugPoint",
+            "value": "eyJwZW5hbHR5RGV0YWlscyI6eyJPYmplY3RLZXkiOiJDYW5jZWwtMi0wLTEyMDAwIiwiRGV0YWlscyI6eyJEZXRhaWwiOlt7IlR5cGUiOiJDYW5jZWwiLCJBcHBsaWNhdGlvbiI6eyJDb2RlIjoiMiJ9LCJBbW91bnRzIjp7IkFtb3VudCI6W3siQ3VycmVuY3lBbW91bnRWYWx1ZSI6eyJ2YWx1ZSI6MCwiQ29kZSI6IklOUiJ9LCJBbW91bnRBcHBsaWNhdGlvbiI6Ik1JTiIsIkFwcGxpY2FibGVGZWVSZW1hcmtzIjp7IlJlbWFyayI6W3sidmFsdWUiOiJJTlIgMTIwMDAgdGlsbCA0IGhvdXJzIHByaW9yIHRvIERlcGFydHVyZSJ9XX19LHsiQ3VycmVuY3lBbW91bnRWYWx1ZSI6eyJ2YWx1ZSI6MTIwMDAsIkNvZGUiOiJJTlIifSwiQW1vdW50QXBwbGljYXRpb24iOiJNQVgiLCJBcHBsaWNhYmxlRmVlUmVtYXJrcyI6eyJSZW1hcmsiOlt7InZhbHVlIjoiSU5SIDEyMDAwIHRpbGwgNCBob3VycyBwcmlvciB0byBEZXBhcnR1cmUifV19fV19fV19LCJDYW5jZWxGZWVJbmQiOnRydWUsIlJlZnVuZGFibGVJbmQiOnRydWV9fQ=="
+           }
+          }
+         ]
+        }
+       },
+       {
+        "MetadataKey": "VDC-FR-Change-2-0-4000-AI",
+        "AugmentationPoint": {
+         "AugPoint": [
+          {
+           "any": {
+            "@type": "com.verteil.thirdparties.common.helper.staticdata.farerules.augmentation.dto.FareRuleAugPoint",
+            "value": "eyJwZW5hbHR5RGV0YWlscyI6eyJPYmplY3RLZXkiOiJDaGFuZ2UtMi0wLTQwMDAiLCJEZXRhaWxzIjp7IkRldGFpbCI6W3siVHlwZSI6IkNoYW5nZSIsIkFwcGxpY2F0aW9uIjp7IkNvZGUiOiIyIn0sIkFtb3VudHMiOnsiQW1vdW50IjpbeyJDdXJyZW5jeUFtb3VudFZhbHVlIjp7InZhbHVlIjowLCJDb2RlIjoiSU5SIn0sIkFtb3VudEFwcGxpY2F0aW9uIjoiTUlOIiwiQXBwbGljYWJsZUZlZVJlbWFya3MiOnsiUmVtYXJrIjpbeyJ2YWx1ZSI6IklOUiA0MDAwIHRpbGwgNCBob3VycyBwcmlvciB0byBEZXBhcnR1cmUifV19fSx7IkN1cnJlbmN5QW1vdW50VmFsdWUiOnsidmFsdWUiOjQwMDAsIkNvZGUiOiJJTlIifSwiQW1vdW50QXBwbGljYXRpb24iOiJNQVgiLCJBcHBsaWNhYmxlRmVlUmVtYXJrcyI6eyJSZW1hcmsiOlt7InZhbHVlIjoiSU5SIDQwMDAgdGlsbCA0IGhvdXJzIHByaW9yIHRvIERlcGFydHVyZSJ9XX19XX19XX0sIkNoYW5nZUZlZUluZCI6dHJ1ZSwiQ2hhbmdlQWxsb3dlZEluZCI6dHJ1ZX19"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "MetadataKey": "VDC-FBC-BOM-COK-FG-48517864724143",
+        "AugmentationPoint": {
+         "AugPoint": [
+          {
+           "any": {
+            "@type": "java.util.HashMap",
+            "value": "eyJCT00tQ09LLUNIRCI6IlpQMkNXU0kzIn0="
+           }
+          }
+         ]
+        }
+       },
+       {
+        "MetadataKey": "VDC-FBC-COK-BOM-FG-48517865446852",
+        "AugmentationPoint": {
+         "AugPoint": [
+          {
+           "any": {
+            "@type": "java.util.HashMap",
+            "value": "eyJDT0stQk9NLUNIRCI6IkVMVlBXMkkzIn0="
+           }
+          }
+         ]
+        }
+       },
+       {
+        "MetadataKey": "VDC-FBC-DXB-BOM-FG-48517864724143",
+        "AugmentationPoint": {
+         "AugPoint": [
+          {
+           "any": {
+            "@type": "java.util.HashMap",
+            "value": "eyJEWEItQk9NLUNIRCI6IlpQMkNXU0kzIn0="
+           }
+          }
+         ]
+        }
+       },
+       {
+        "MetadataKey": "VDC-FBC-BOM-DXB-FG-48517865446852",
+        "AugmentationPoint": {
+         "AugPoint": [
+          {
+           "any": {
+            "@type": "java.util.HashMap",
+            "value": "eyJCT00tRFhCLUNIRCI6IkVMVlBXMkkzIn0="
+           }
+          }
+         ]
+        }
+       },
+       {
+        "MetadataKey": "VDC-AIRLINE-SRID",
+        "AugmentationPoint": {
+         "AugPoint": [
+          {
+           "any": {
+            "value": "eyJBSSI6IjBIUkROSldQM1RHUDBGMks0WUdJU1RHWiQxIn0=",
+            "type": "java.util.HashMap"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "MetadataKey": "VDC-AGY-DC-0fOF2axVCIxwbd3gVIww",
+        "AugmentationPoint": {
+         "AugPoint": [
+          {
+           "any": {
+            "value": "AI/AI32713"
+           }
+          }
+         ]
+        }
+       }
+      ]
+     }
+    }
+   ]
+  }
  }
 }

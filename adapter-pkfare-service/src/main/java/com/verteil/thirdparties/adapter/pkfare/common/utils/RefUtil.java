@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -19,6 +20,8 @@ import static java.util.Objects.isNull;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class RefUtil {
 
+    /** Offer {@code refs} arrive as {@code [{"Ref": "key"}]} objects, deserialised to a Map. */
+    private static final String REF = "Ref";
     private static final List<String> KEY_GETTERS = List.of(
             "getSegmentKey", "getListKey", "getObjectKey", "getFlightKey", "getOriginDestinationKey");
 
@@ -27,6 +30,9 @@ public final class RefUtil {
             return null;
         }
         if (ref instanceof String value) {
+            return value;
+        }
+        if (ref instanceof Map<?, ?> map && map.get(REF) instanceof String value) {
             return value;
         }
         return KEY_GETTERS.stream()

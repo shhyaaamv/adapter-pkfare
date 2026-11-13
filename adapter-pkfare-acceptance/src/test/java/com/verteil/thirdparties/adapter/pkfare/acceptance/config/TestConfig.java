@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.verteil.thirdparties.adapter.pkfare.acceptance.client.PkfareClient;
 import com.verteil.thirdparties.adapter.pkfare.acceptance.client.WireMockAdminClient;
 import com.verteil.thirdparties.adapter.pkfare.acceptance.common.AcceptanceOutput;
+import com.verteil.thirdparties.adapter.pkfare.acceptance.model.QteDataContainer;
 import com.verteil.thirdparties.adapter.pkfare.acceptance.model.SearchDataContainer;
 import io.cucumber.spring.ScenarioScope;
 import org.springframework.context.annotation.Bean;
@@ -49,5 +50,11 @@ public class TestConfig {
     @ScenarioScope
     public SearchDataContainer searchDataContainer() {
         return new SearchDataContainer();
+    }
+
+    @Bean
+    @ScenarioScope
+    public QteDataContainer qteDataContainer() {
+        return new QteDataContainer();
     }
 }

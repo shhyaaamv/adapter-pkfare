@@ -1,7 +1,10 @@
 package com.verteil.thirdparties.adapter.pkfare.common.utils;
 
 import com.verteil.schemas.ndc16_1.CurrencyAmountOptType;
+import com.verteil.schemas.ndc16_1.FlightSegmentReference;
 import com.verteil.schemas.ndc16_1.OfferPriceLeadDetailType;
+import com.verteil.schemas.ndc16_1.OfferPriceLeadType;
+import com.verteil.schemas.ndc16_1.PricedFlightOfferAssocType;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -15,8 +18,11 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
+import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -85,6 +91,29 @@ public final class NdcUtil {
                 .map(OfferPriceLeadDetailType.PriceDetail::getTotalAmount)
                 .flatMap(totalAmount -> Optional.<CurrencyAmountOptType>ofNullable(totalAmount.getSimpleCurrencyPrice())
                         .or(() -> Optional.ofNullable(totalAmount.getDetailCurrencyPrice()).map(detail -> detail.getTotal())));
+    }
+
+    /** The OfferPrice's RequestedDate associations; empty without a RequestedDate. */
+    public static List<PricedFlightOfferAssocType> associations(OfferPriceLeadType offerPrice) {
+        return Optional.ofNullable(offerPrice.getRequestedDate())
+                .map(OfferPriceLeadType.RequestedDate::getAssociations)
+                .orElse(List.of());
+    }
+
+    /** Associations of the first OfferPrice that has a RequestedDate; empty when none has. */
+    public static List<PricedFlightOfferAssocType> firstOfferPriceAssociations(List<? extends OfferPriceLeadType> offerPrices) {
+        return offerPrices.stream()
+                .filter(offerPrice -> nonNull(offerPrice.getRequestedDate()))
+                .findFirst()
+                .map(NdcUtil::associations)
+                .orElse(List.of());
+    }
+
+    /** Every segment reference of the OfferPrice's associations. */
+    public static Stream<FlightSegmentReference> segmentReferences(OfferPriceLeadType offerPrice) {
+        return associations(offerPrice).stream()
+                .flatMap(association -> Optional.ofNullable(association.getApplicableFlight()).stream())
+                .flatMap(applicableFlight -> applicableFlight.getFlightSegmentReference().stream());
     }
 
     private static Optional<LocalTime> parseTime(String time) {
