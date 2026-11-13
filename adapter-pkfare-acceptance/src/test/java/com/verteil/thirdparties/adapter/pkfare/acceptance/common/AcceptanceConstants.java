@@ -24,4 +24,20 @@ public final class AcceptanceConstants {
     public static final String VDC_AIRSHOPPING_RQ_HEADERS_FILE = "2_VDC_AirShoppingRQ_headers.json";
     public static final String PKFARE_SEARCH_RS_FILE = "3_PKFARE_SearchRS.json";
     public static final String SHAPE_REPORT_FILE = "3_PKFARE_SearchRS_vs_sample.txt";
+
+    public static final String QTE_PATH = "/qte";
+    public static final String SERVICE_HEADER = "Service";
+    public static final String FLIGHT_PRICE_SERVICE = "FlightPrice";
+    /** Classpath copy of the default FlightPrice stub body (the full 7.7 MB VDC sample). */
+    public static final String ENTRY_GATE_FLIGHTPRICE_RS = "wiremock/__files/entrygate/flightprice_rs.json";
+    /** The same file as WireMock's {@code bodyFileName}, relative to {@code __files}. */
+    public static final String ENTRY_GATE_FLIGHTPRICE_BODY_FILE = "entrygate/flightprice_rs.json";
+
+    public static final String PKFARE_QTE_RQ_FILE = "1_PKFARE_QteRQ.json";
+    public static final String PKFARE_QTE_RQ_DATA_FILE = "1_PKFARE_QteRQ_routing_data.json";
+    public static final String VDC_FLIGHTPRICE_RQ_FILE = "2_VDC_FlightPriceRQ.json";
+    public static final String VDC_FLIGHTPRICE_RQ_HEADERS_FILE = "2_VDC_FlightPriceRQ_headers.json";
+    public static final String PKFARE_QTE_RS_FILE = "3_PKFARE_QteRS.json";
+    public static final String PKFARE_QTE_RS_DATA_FILE = "3_PKFARE_QteRS_routing_data.json";
+    public static final String QTE_SHAPE_REPORT_FILE = "3_PKFARE_QteRS_vs_sample.txt";
 }

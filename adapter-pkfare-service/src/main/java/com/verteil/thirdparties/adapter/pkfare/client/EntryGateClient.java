@@ -2,6 +2,9 @@ package com.verteil.thirdparties.adapter.pkfare.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.verteil.schemas.ndc16_1.AirShoppingRS;
+import com.verteil.schemas.ndc16_1.FlightPriceRQ;
+import com.verteil.schemas.ndc16_1.FlightPriceRS;
+import com.verteil.schemas.ndc16_1.ItemIDType;
 import com.verteil.thirdparties.adapter.pkfare.client.cache.LocalTokenCache;
 import com.verteil.thirdparties.adapter.pkfare.client.interceptor.LoggerHelper;
 import com.verteil.thirdparties.adapter.pkfare.client.model.HttpCallResult;
@@ -29,11 +32,13 @@ import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstan
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.ERROR_RESPONSE;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SUCCESS_RESPONSE;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SUPPLIER_RESPONSE_TIME_LOGGER;
+import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.ENTRY_GATE_THIRDPARTY_ID_HEADER;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.ENTRY_GATE_TRANSACTION_ID_HEADER;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.ERROR_MSG_SERVICE_NOT_IMPLEMENTED;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.OAUTH_BEARER_HEADER;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.PKFARE;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SERVICE_AIRSHOPPING;
+import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SERVICE_FLIGHTPRICE;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.STANDARD_ERROR_MESSAGE;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.UNAUTHORIZED_REASON_CODE;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.UNIMPLEMENTED_REASON_CODE;
@@ -46,7 +51,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
  * Single entry point for every Entry-Gate (VDC) call. Entry-Gate exposes a single JSON endpoint for every NDC service,
  * {@code POST {host}{path}} (e.g. {@code https://qaapi.sandbox.verteil.com/entrygate/rest/request}); the service is
  * selected by the {@code Service} header (e.g. {@code AirShopping}) and authenticated with a bearer token.
- * No {@code ThirdpartyId} header is sent, so Entry-Gate shops all airlines.
+ * AirShopping sends no {@code thirdpartyid} header, so Entry-Gate shops all airlines; FlightPrice sends the offer
+ * owner (airline code) in it.
  */
 @Slf4j
 @Component
@@ -64,7 +70,8 @@ public class EntryGateClient {
     private record ServiceSpec(Class<?> responseType, String entryGateService) {}
 
     private static final Map<String, ServiceSpec> SERVICE_SPEC_MAP = Map.of(
-            SERVICE_AIRSHOPPING, new ServiceSpec(AirShoppingRS.class, SERVICE_AIRSHOPPING)
+            SERVICE_AIRSHOPPING, new ServiceSpec(AirShoppingRS.class, SERVICE_AIRSHOPPING),
+            SERVICE_FLIGHTPRICE, new ServiceSpec(FlightPriceRS.class, SERVICE_FLIGHTPRICE)
     );
 
     private final LoggerHelper loggerHelper;
@@ -97,7 +104,7 @@ public class EntryGateClient {
             }
             jsonRequest = ndcObjectMapper.writeValueAsString(request);
             int timeout = Optional.ofNullable(context.getTimeoutMillis()).orElse(verteilProperties.getTimeoutMillis());
-            httpResponse = invoke(url, jsonRequest, serviceSpec, timeout, context);
+            httpResponse = invoke(url, jsonRequest, serviceSpec, timeout, context, thirdPartyId(request));
             httpStatusCode = String.valueOf(httpResponse.statusCode());
             log.debug("Received response from Entry-Gate '{}', httpStatus={}", apiService, httpStatusCode);
             return ndcObjectMapper.readValue(httpResponse.body(), serviceSpec.responseType());
@@ -122,9 +129,10 @@ public class EntryGateClient {
     }
 
     /** Calls Entry-Gate; on HTTP 401 the cached token is dropped and the call retried once with a fresh one. */
-    private HttpCallResult invoke(String url, String jsonRequest, ServiceSpec serviceSpec, int timeout, PkfareAdapterContext context) {
+    private HttpCallResult invoke(String url, String jsonRequest, ServiceSpec serviceSpec, int timeout,
+                                  PkfareAdapterContext context, String thirdPartyId) {
         try {
-            return thirdPartyConnector.callSupplier(buildHttpRequest(url, jsonRequest, serviceSpec, timeout, context),
+            return thirdPartyConnector.callSupplier(buildHttpRequest(url, jsonRequest, serviceSpec, timeout, context, thirdPartyId),
                     PKFARE, serviceSpec.entryGateService());
         } catch (PkfareAdapterException e) {
             if (!UNAUTHORIZED_REASON_CODE.equals(e.getReason())) {
@@ -132,21 +140,38 @@ public class EntryGateClient {
             }
             log.warn("Entry-Gate rejected the cached token, retrying once with a new token");
             tokenCache.invalidate();
-            return thirdPartyConnector.callSupplier(buildHttpRequest(url, jsonRequest, serviceSpec, timeout, context),
+            return thirdPartyConnector.callSupplier(buildHttpRequest(url, jsonRequest, serviceSpec, timeout, context, thirdPartyId),
                     PKFARE, serviceSpec.entryGateService());
         }
     }
 
-    private HttpPost buildHttpRequest(String url, String jsonBody, ServiceSpec serviceSpec, int timeout, PkfareAdapterContext context) {
+    private HttpPost buildHttpRequest(String url, String jsonBody, ServiceSpec serviceSpec, int timeout,
+                                      PkfareAdapterContext context, String thirdPartyId) {
         HttpPost post = new HttpPost(url);
         post.setEntity(new ByteArrayEntity(jsonBody.getBytes(UTF_8), ENTRY_GATE_CONTENT_TYPE));
         post.setConfig(thirdPartyConnector.buildRequestConfig(timeout));
         post.addHeader(ACCEPT, APPLICATION_JSON_VALUE);
         post.addHeader(AUTHORIZATION, OAUTH_BEARER_HEADER + tokenCache.getAccessToken());
         post.addHeader(ENTRY_GATE_SERVICE_HEADER, serviceSpec.entryGateService());
+        if (isNotBlank(thirdPartyId)) {
+            post.addHeader(ENTRY_GATE_THIRDPARTY_ID_HEADER, thirdPartyId);
+        }
         if (isNotBlank(context.getTxnId())) {
             post.addHeader(ENTRY_GATE_TRANSACTION_ID_HEADER, context.getTxnId());
         }
         return post;
+    }
+
+    /** The FlightPriceRQ offer owner (airline code); {@code null} for other services, which go to all airlines. */
+    private static String thirdPartyId(Object request) {
+        return Optional.ofNullable(request)
+                .filter(FlightPriceRQ.class::isInstance)
+                .map(FlightPriceRQ.class::cast)
+                .map(FlightPriceRQ::getQuery)
+                .map(FlightPriceRQ.Query::getOffers)
+                .flatMap(offers -> offers.getOffer().stream().findFirst())
+                .map(FlightPriceRQ.Query.Offers.Offer::getOfferID)
+                .map(ItemIDType::getOwner)
+                .orElse(null);
     }
 }

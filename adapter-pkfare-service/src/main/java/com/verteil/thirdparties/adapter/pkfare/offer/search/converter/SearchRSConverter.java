@@ -9,6 +9,7 @@ import com.verteil.schemas.ndc16_1.AirShoppingRS.OffersGroup.AirlineOffers;
 import com.verteil.schemas.ndc16_1.AirShoppingRS.OffersGroup.AirlineOffers.AirlineOffer;
 import com.verteil.thirdparties.adapter.pkfare.common.PkfareAdapterContext;
 import com.verteil.thirdparties.adapter.pkfare.offer.search.model.SearchMappingContext;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -28,33 +29,29 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class SearchRSConverter {
 
     private final ShoppingResultConverter shoppingResultConverter;
     private final FlightConverter flightConverter;
 
-    public SearchRSConverter(ShoppingResultConverter shoppingResultConverter, FlightConverter flightConverter) {
-        this.shoppingResultConverter = shoppingResultConverter;
-        this.flightConverter = flightConverter;
-    }
-
     public SearchResponse convert(PkfareAdapterContext context) {
         AirShoppingRS airShoppingRS = (AirShoppingRS) context.getProviderApiResponse(SERVICE_AIRSHOPPING);
-        SearchMappingContext mappingContext = mappingContext(context, airShoppingRS);
-        List<AirlineOffers> airlineOffers = airlineOffers(airShoppingRS);
+        SearchMappingContext searchMappingContext = mapMappingContext(context, airShoppingRS);
+        List<AirlineOffers> airlineOffers = mapAirlineOffers(airShoppingRS);
 
         SearchResponse response = new SearchResponse();
         response.setStatus(PK_STATUS_SUCCESS);
         response.setMsg(PK_SUCCESS_MSG);
         // Results before flights: converting a result registers its flights' flightRefNums in first-use order.
-        response.getShoppingResultList().addAll(shoppingResults(airlineOffers, mappingContext));
-        response.getFlightList().addAll(flights(mappingContext));
+        response.getShoppingResultList().addAll(mapShoppingResults(airlineOffers, searchMappingContext));
+        response.getFlightList().addAll(mapFlights(searchMappingContext));
         log.info("Search mapped {} shopping results and {} flights, {} offers skipped", response.getShoppingResultList().size(),
                 response.getFlightList().size(), offerCount(airlineOffers) - response.getShoppingResultList().size());
         return response;
     }
 
-    private static SearchMappingContext mappingContext(PkfareAdapterContext context, AirShoppingRS airShoppingRS) {
+    private static SearchMappingContext mapMappingContext(PkfareAdapterContext context, AirShoppingRS airShoppingRS) {
         SearchRequest request = (SearchRequest) context.getRequest();
         return new SearchMappingContext(
                 request,
@@ -64,27 +61,28 @@ public class SearchRSConverter {
     }
 
     /** Sequential on purpose, see {@link #convert}. */
-    private List<SearchShoppingResult> shoppingResults(List<AirlineOffers> airlineOffers, SearchMappingContext mappingContext) {
+    private List<SearchShoppingResult> mapShoppingResults(List<AirlineOffers> airlineOffers, SearchMappingContext searchMappingContext) {
         return airlineOffers.stream()
                 .flatMap(offers -> offers.getAirlineOffer().stream()
-                        .flatMap(offer -> shoppingResult(offers, offer, mappingContext).stream()))
+                        .flatMap(offer -> mapShoppingResult(offers, offer, searchMappingContext).stream()))
                 .toList();
     }
 
     /** An offer PKFARE cannot represent, or that fails to map, is skipped rather than failing the search. */
-    private Optional<SearchShoppingResult> shoppingResult(AirlineOffers airlineOffers, AirlineOffer offer, SearchMappingContext mappingContext) {
+    private Optional<SearchShoppingResult> mapShoppingResult(AirlineOffers airlineOffers, AirlineOffer offer,
+                                                             SearchMappingContext searchMappingContext) {
         try {
-            return shoppingResultConverter.convert(airlineOffers, offer, mappingContext);
+            return shoppingResultConverter.convert(airlineOffers, offer, searchMappingContext);
         } catch (RuntimeException e) {
-            log.warn("Unable to map offer {}, offer skipped", ItineraryConverter.offerId(offer), e);
+            log.warn("Unable to map offer {}, offer skipped", ShoppingResultConverter.mapOfferId(offer), e);
             return Optional.empty();
         }
     }
 
     /** Exactly the segments the shopping results registered, in flightRefNum order. */
-    private List<SearchFlight> flights(SearchMappingContext mappingContext) {
-        return mappingContext.flightRefNums().entrySet().stream()
-                .flatMap(flightRef -> mappingContext.index().segment(flightRef.getKey())
+    private List<SearchFlight> mapFlights(SearchMappingContext searchMappingContext) {
+        return searchMappingContext.flightRefNums().entrySet().stream()
+                .flatMap(flightRef -> searchMappingContext.index().segment(flightRef.getKey())
                         .map(segment -> flightConverter.convert(segment, flightRef.getValue()))
                         .stream())
                 .toList();
@@ -96,7 +94,7 @@ public class SearchRSConverter {
                 .sum();
     }
 
-    private static List<AirlineOffers> airlineOffers(AirShoppingRS airShoppingRS) {
+    private static List<AirlineOffers> mapAirlineOffers(AirShoppingRS airShoppingRS) {
         return Optional.ofNullable(airShoppingRS)
                 .map(AirShoppingRS::getOffersGroup)
                 .map(AirShoppingRS.OffersGroup::getAirlineOffers)

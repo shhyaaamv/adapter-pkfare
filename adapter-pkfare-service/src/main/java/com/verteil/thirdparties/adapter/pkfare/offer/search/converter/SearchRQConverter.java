@@ -84,12 +84,11 @@ public class SearchRQConverter {
 
     public AirShoppingRQ convert(PkfareAdapterContext context) {
         SearchRequest request = (SearchRequest) context.getRequest();
-        CabinMapping cabinMapping = CabinMapping.DEFAULT;
-        validate(request, cabinMapping);
+        validate(request);
         AirShoppingRQ airShoppingRQ = new AirShoppingRQ();
         airShoppingRQ.setTravelers(mapTravelers(request));
         airShoppingRQ.setCoreQuery(mapCoreQuery(request));
-        airShoppingRQ.setPreference(mapPreference(request, cabinMapping));
+        airShoppingRQ.setPreference(mapPreference(request));
         airShoppingRQ.setResponseParameters(mapResponseParameters(request));
         return airShoppingRQ;
     }
@@ -98,10 +97,17 @@ public class SearchRQConverter {
         return TRIP_TYPE_ROUND_TRIP.equals(trimToEmpty(request.getTripType()));
     }
 
-    private void validate(SearchRequest request, CabinMapping cabinMapping) {
+    private void validate(SearchRequest request) {
         if (isNull(request)) {
             throw validationError("Empty search request");
         }
+        validatePassengerCounts(request);
+        validateCities(request);
+        validateTrip(request);
+        validateCabin(request);
+    }
+
+    private static void validatePassengerCounts(SearchRequest request) {
         int adults = requireNonNullElse(request.getAdultNumber(), 0);
         int children = requireNonNullElse(request.getChildNumber(), 0);
         int infants = requireNonNullElse(request.getInfantNumber(), 0);
@@ -114,9 +120,15 @@ public class SearchRQConverter {
         if (infants > adults) {
             throw validationError("infantNumber cannot exceed adultNumber");
         }
+    }
+
+    private static void validateCities(SearchRequest request) {
         if (!isIataCode(request.getDepCity()) || !isIataCode(request.getArrCity())) {
             throw validationError("depCity/arrCity must be 3-letter IATA codes");
         }
+    }
+
+    private static void validateTrip(SearchRequest request) {
         String tripType = trimToEmpty(request.getTripType());
         if (!TRIP_TYPE_ONE_WAY.equals(tripType) && !TRIP_TYPE_ROUND_TRIP.equals(tripType)) {
             throw validationError("tripType must be 1 (one-way) or 2 (round-trip)");
@@ -128,8 +140,11 @@ public class SearchRQConverter {
                 throw validationError("retDate cannot be before fromDate");
             }
         }
-        if (!isBlank(request.getCabinClass()) && cabinMapping.toVdc(request.getCabinClass()).isEmpty()) {
-            throw validationError("cabinClass must be one of " + String.join(", ", cabinMapping.pkToVdc().keySet()));
+    }
+
+    private static void validateCabin(SearchRequest request) {
+        if (!isBlank(request.getCabinClass()) && CabinMapping.DEFAULT.toVdc(request.getCabinClass()).isEmpty()) {
+            throw validationError("cabinClass must be one of " + String.join(", ", CabinMapping.DEFAULT.pkToVdc().keySet()));
         }
     }
 
@@ -143,11 +158,11 @@ public class SearchRQConverter {
 
     private static void addTravelers(Travelers travelers, String ptc, int count) {
         IntStream.range(0, count)
-                .mapToObj(_ -> traveler(ptc))
+                .mapToObj(_ -> mapTraveler(ptc))
                 .forEach(travelers.getTraveler()::add);
     }
 
-    private static Travelers.Traveler traveler(String ptc) {
+    private static Travelers.Traveler mapTraveler(String ptc) {
         TravelerCoreType.PTC travelerPtc = new TravelerCoreType.PTC();
         travelerPtc.setValue(ptc);
         AnonymousTravelerType anonymousTraveler = new AnonymousTravelerType();
@@ -189,47 +204,63 @@ public class SearchRQConverter {
         return originDestination;
     }
 
-    private AirShoppingRQ.Preference mapPreference(SearchRequest request, CabinMapping cabinMapping) {
+    private AirShoppingRQ.Preference mapPreference(SearchRequest request) {
+        AirShoppingRQ.Preference preference = new AirShoppingRQ.Preference();
+        preference.setFarePreferences(mapFarePreferences());
+        preference.setCabinPreferences(mapCabinPreferences(request));
+        return preference;
+    }
+
+    private static FarePreferencesType mapFarePreferences() {
         FarePreferencesType.Types types = new FarePreferencesType.Types();
-        FARE_PREFERENCES.forEach(code -> {
-            FarePreferencesType.Types.Type type = new FarePreferencesType.Types.Type();
-            type.setCode(code);
-            types.getType().add(type);
-        });
+        FARE_PREFERENCES.stream()
+                .map(SearchRQConverter::mapFareType)
+                .forEach(types.getType()::add);
         FarePreferencesType farePreferences = new FarePreferencesType();
         farePreferences.setTypes(types);
+        return farePreferences;
+    }
 
+    private static FarePreferencesType.Types.Type mapFareType(String code) {
+        FarePreferencesType.Types.Type type = new FarePreferencesType.Types.Type();
+        type.setCode(code);
+        return type;
+    }
+
+    private static CabinPreferencesType mapCabinPreferences(SearchRequest request) {
         CabinType cabinType = new CabinType();
         String pkCabin = isBlank(request.getCabinClass()) ? DEFAULT_CABIN : request.getCabinClass();
         // An unmapped requested cabin is rejected in validate(), so only an unmapped default cabin ends up here.
-        cabinType.setCode(cabinMapping.toVdc(pkCabin).orElseThrow(() -> new PkfareAdapterException(INTERNAL_ERROR.getCode(),
+        cabinType.setCode(CabinMapping.DEFAULT.toVdc(pkCabin).orElseThrow(() -> new PkfareAdapterException(INTERNAL_ERROR.getCode(),
                 "No VDC cabin mapped for PKFARE cabin " + pkCabin, PROCESS_FAILURE_REASON_CODE)));
         CabinPreferencesType cabinPreferences = new CabinPreferencesType();
         cabinPreferences.getCabinType().add(cabinType);
-
-        AirShoppingRQ.Preference preference = new AirShoppingRQ.Preference();
-        preference.setFarePreferences(farePreferences);
-        preference.setCabinPreferences(cabinPreferences);
-        return preference;
+        return cabinPreferences;
     }
 
     private AirShoppingRQ.ResponseParameters mapResponseParameters(SearchRequest request) {
         AirShoppingRQ.ResponseParameters responseParameters = new AirShoppingRQ.ResponseParameters();
-        // returnTagPrice=Y: PKFARE wants every branded-fare (tag) solution per flight; N: only the lowest one.
-        boolean tagged = YES.equalsIgnoreCase(trimToEmpty(request.getReturnTagPrice()));
-        String preference = tagged ? SHOP_RESULT_PREFERENCE_TAGGED : SHOP_RESULT_PREFERENCE;
-        responseParameters.setShopResultPreference(AirShoppingRQ.ShopResultPreference.valueOf(preference.trim().toUpperCase(Locale.ROOT)));
+        responseParameters.setShopResultPreference(mapShopResultPreference(request));
 
         // getSortOrder() is a plain getter on this class (no lazy list), so the list is set explicitly
         responseParameters.setSortOrder(SORT_ORDER.stream()
-                .map(parameter -> {
-                    AirShoppingRQ.Sort sort = new AirShoppingRQ.Sort();
-                    sort.setParameter(AirShoppingRQ.Sort.Parameter.valueOf(parameter.trim().toUpperCase(Locale.ROOT)));
-                    sort.setOrder(AirShoppingRQ.Sort.Order.ASCENDING);
-                    return sort;
-                })
+                .map(SearchRQConverter::mapSort)
                 .collect(Collectors.toCollection(ArrayList::new)));
         return responseParameters;
+    }
+
+    private static AirShoppingRQ.ShopResultPreference mapShopResultPreference(SearchRequest request) {
+        // returnTagPrice=Y: PKFARE wants every branded-fare (tag) solution per flight; N: only the lowest one.
+        boolean tagged = YES.equalsIgnoreCase(trimToEmpty(request.getReturnTagPrice()));
+        String preference = tagged ? SHOP_RESULT_PREFERENCE_TAGGED : SHOP_RESULT_PREFERENCE;
+        return AirShoppingRQ.ShopResultPreference.valueOf(preference.trim().toUpperCase(Locale.ROOT));
+    }
+
+    private static AirShoppingRQ.Sort mapSort(String parameter) {
+        AirShoppingRQ.Sort sort = new AirShoppingRQ.Sort();
+        sort.setParameter(AirShoppingRQ.Sort.Parameter.valueOf(parameter.trim().toUpperCase(Locale.ROOT)));
+        sort.setOrder(AirShoppingRQ.Sort.Order.ASCENDING);
+        return sort;
     }
 
     private XMLGregorianCalendar toXmlDate(LocalDate date) {

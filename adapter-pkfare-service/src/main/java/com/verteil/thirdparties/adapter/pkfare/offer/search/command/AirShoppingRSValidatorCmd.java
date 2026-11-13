@@ -55,7 +55,7 @@ public class AirShoppingRSValidatorCmd implements Command<PkfareAdapterContext> 
         }
         if (errors.isEmpty() || errors.stream().allMatch(AirShoppingRSValidatorCmd::isNoResult)) {
             log.info("AirShoppingRS has no offers{}", errors.isEmpty() ? "" : ": " + describe(errors.getFirst()));
-            context.setResponse(errorResponseConverter.emptySearchResponse());
+            context.setResponse(errorResponseConverter.mapEmptySearchResponse());
             return PROCESSING_COMPLETE;
         }
         ErrorType error = errors.getFirst();

@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static com.verteil.thirdparties.adapter.pkfare.acceptance.client.WireMockAdminClient.header;
 import static com.verteil.thirdparties.adapter.pkfare.acceptance.common.AcceptanceConstants.ENTRY_GATE_REQUEST_PATH;
 import static com.verteil.thirdparties.adapter.pkfare.acceptance.common.AcceptanceConstants.ENTRY_GATE_AIRSHOPPING_RS;
 import static com.verteil.thirdparties.adapter.pkfare.acceptance.common.AcceptanceConstants.PKFARE_SEARCH_RQ_FILE;
@@ -183,15 +184,6 @@ public class SearchDefinitions {
         } catch (JsonProcessingException e) {
             throw new AssertionError("Entry-Gate request body is not JSON", e);
         }
-    }
-
-    /** WireMock logs a header as a string, or as an array when it was sent more than once. */
-    private static String header(JsonNode headers, String name) {
-        return headers.propertyStream()
-                .filter(field -> field.getKey().equalsIgnoreCase(name))
-                .findFirst()
-                .map(field -> field.getValue().isArray() ? field.getValue().path(0).asText() : field.getValue().asText())
-                .orElse(null);
     }
 
     private static List<String> sortParameters(JsonNode airShoppingRQ) {

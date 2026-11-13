@@ -1,6 +1,7 @@
 package com.verteil.thirdparties.adapter.pkfare.common;
 
 import com.verteil.chain.Context;
+import com.verteil.thirdparties.adapter.pkfare.offer.common.data.OfferData;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +23,7 @@ public class PkfareAdapterContext extends HashMap<String, Object> implements Con
     private static final String KEY_TIMEOUT_MILLIS = "$.timeoutMillis";
     private static final String KEY_CACHE_KEY = "$.cacheKey";
     private static final String KEY_CACHE_HIT = "$.cacheHit";
+    private static final String KEY_OFFER_DATA = "$.offerData";
 
     /** PKFARE service, e.g. {@code Search}. */
     public String getService() {
@@ -114,6 +116,15 @@ public class PkfareAdapterContext extends HashMap<String, Object> implements Con
 
     public void setCacheKey(String cacheKey) {
         put(KEY_CACHE_KEY, cacheKey);
+    }
+
+    /** The decoded {@code routing.data} of the inbound request. */
+    public OfferData getOfferData() {
+        return (OfferData) get(KEY_OFFER_DATA);
+    }
+
+    public void setOfferData(OfferData offerData) {
+        put(KEY_OFFER_DATA, offerData);
     }
 
     public boolean isCacheHit() {

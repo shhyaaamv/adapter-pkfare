@@ -57,6 +57,30 @@
           "Content-Type": "application/json"
         }
       }
+    },
+    {
+      "request": {
+        "urlPath": "/entrygate/rest/request",
+        "method": "POST",
+        "headers": {
+          "Authorization": {
+            "equalTo": "Bearer acceptance-token"
+          },
+          "Service": {
+            "equalTo": "FlightPrice"
+          },
+          "Content-Type": {
+            "equalTo": "application/json"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "entrygate/flightprice_rs.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
     }
   ]
 }

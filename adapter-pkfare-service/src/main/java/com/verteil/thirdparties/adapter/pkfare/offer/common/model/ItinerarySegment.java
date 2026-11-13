@@ -1,4 +1,4 @@
-package com.verteil.thirdparties.adapter.pkfare.offer.search.model;
+package com.verteil.thirdparties.adapter.pkfare.offer.common.model;
 
 import com.verteil.schemas.ndc16_1.FlightSegmentReference;
 import com.verteil.schemas.ndc16_1.ListOfFlightSegmentType;

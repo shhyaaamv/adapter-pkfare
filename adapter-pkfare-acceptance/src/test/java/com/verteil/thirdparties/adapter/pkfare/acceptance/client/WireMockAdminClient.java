@@ -31,6 +31,26 @@ public class WireMockAdminClient {
         send(HttpRequest.newBuilder().uri(URI.create(wiremockUrl + "/__admin/requests")).DELETE().build());
     }
 
+    /** Drops stubs added by {@link #addStub} and restores the ones under {@code wiremock/mappings}. */
+    public void resetStubs() {
+        send(HttpRequest.newBuilder().uri(URI.create(wiremockUrl + "/__admin/mappings/reset"))
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build());
+    }
+
+    /** Adds a stub mapping (WireMock JSON format) until the next {@link #resetStubs}. */
+    public void addStub(JsonNode mapping) {
+        try {
+            send(HttpRequest.newBuilder()
+                    .uri(URI.create(wiremockUrl + "/__admin/mappings"))
+                    .header(CONTENT_TYPE, APPLICATION_JSON)
+                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(mapping)))
+                    .build());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     /** Requests received for {@code method urlPath}, oldest first; each has {@code headers} and the raw {@code body}. */
     public List<JsonNode> findRequests(String method, String urlPath) {
         try {
@@ -44,6 +64,22 @@ public class WireMockAdminClient {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    /** Requests for {@code method urlPath} whose {@code headerName} header is {@code headerValue}, oldest first. */
+    public List<JsonNode> findRequests(String method, String urlPath, String headerName, String headerValue) {
+        return findRequests(method, urlPath).stream()
+                .filter(request -> headerValue.equals(header(request.path("headers"), headerName)))
+                .toList();
+    }
+
+    /** WireMock logs a header as a string, or as an array when it was sent more than once. */
+    public static String header(JsonNode headers, String name) {
+        return headers.propertyStream()
+                .filter(field -> field.getKey().equalsIgnoreCase(name))
+                .findFirst()
+                .map(field -> field.getValue().isArray() ? field.getValue().path(0).asText() : field.getValue().asText())
+                .orElse(null);
     }
 
     private HttpResponse<String> send(HttpRequest request) {

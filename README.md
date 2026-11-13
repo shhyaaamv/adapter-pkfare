@@ -6,9 +6,13 @@ Entry-Gate and the answer converted back to PKFARE's format.
 
 ```
 PKFARE ──POST /search──▶ adapter-pkfare ──POST {HOST}/oauth2/token (client credentials, cached)──▶ Entry-Gate auth
-                              │          ──POST {HOST}/entrygate/rest/request (Service: AirShopping)─▶ Entry-Gate
-                              ◀── SearchResponse (always HTTP 200, business status 0/3/4/5)
+       ──POST /qte─────▶      │          ──POST {HOST}/entrygate/rest/request (Service: AirShopping | FlightPrice)─▶ Entry-Gate
+                              ◀── SearchResponse / QteResponse (always HTTP 200, business status in the body)
 ```
+
+**Prerequisite:** the QTE models exist only in `com.verteil.schema:pkfare-api-schema:1.3.0-SNAPSHOT` (built from
+`QTE_SCHEMA.yaml` in `../pkfare-api-schema`). Publish that version to CodeArtifact before CI builds this branch.
+Locally, `mvn install` in that repo is enough, because `mavenLocal()` is a repository here.
 
 | Module                   | Content                                                                      |
 |--------------------------|------------------------------------------------------------------------------|
@@ -20,7 +24,7 @@ PKFARE ──POST /search──▶ adapter-pkfare ──POST {HOST}/oauth2/token
 | Group | PKFARE API          | Hosted by | Status                              |
 |-------|---------------------|-----------|-------------------------------------|
 | Offer | SEARCH → AirShopping | Verteil   | **implemented** (`POST /search`)     |
-| Offer | QTE                 | Verteil   | to do                               |
+| Offer | QTE → FlightPrice   | Verteil   | **implemented** (`POST /qte`)        |
 | Order | Order, Order Status Push | Verteil | to do                            |
 | Order | Get Pending Ticketing Orders, Ticket Issuance | PKFARE (adapter calls them) | to do |
 
@@ -33,8 +37,39 @@ AuthenticateRequest (vendorCode + IP whitelist) → SearchCacheLookup [hit: done
 
 * **Response statuses**: 0 success (also "no content": empty lists), 3 auth failure / disabled service / Entry-Gate
   error, 4 invalid request, 5 internal error. `msg` is kept under 64 characters.
-* **Caller IP** is `request.getRemoteAddr()` with `server.forward-headers-strategy: native`, so `X-Forwarded-For` is
-  honoured only from trusted internal proxies (Tomcat RemoteIpValve defaults: private ranges). Set
+* **`data`** of each shopping result is Base64 JSON *offer data* (`OfferData`). It holds what QTE needs to price the offer
+  statelessly and that PKFARE's QTE request doesn't echo: ShoppingResponseID, OfferID, OfferItemIDs with their
+  traveler refs, and per segment (match key → `segmentKey|fareBasis`, in itinerary order). It is about 1 KB per
+  offer. Offers without a ShoppingResponseID are skipped.
+
+### QTE chain (`offer/qte/QteConfiguration`)
+
+```
+AuthenticateRequest (vendorCode + IP whitelist)
+  → QteRQ (decode routing.data, validate) → InvokeEntryGate → FlightPriceRSValidator → QteRS
+```
+
+* No cache: the price is always live.
+* `routing.data` must be a SEARCH `data` value. Each requested segment is matched to the offer data by airports, times,
+  marketing carrier and flight number. The response's `routing.data` is new offer data for the *priced* offer, for Order.
+* **Response statuses**:
+
+  | status | when |
+  |---|---|
+  | 0 | success |
+  | 1 / 2 | fewer `SeatsLeft` than adults + children / sold out; the body has `sessionId` and `maxSeats` but no `routing` |
+  | 3 | auth failure, disabled service, or an Entry-Gate error (`errorCode`/`errorMsg` carry the VDC error) |
+  | 4 | invalid request, undecodable `routing.data`, or segments/passengers not matching it |
+  | 5 | internal error |
+  | 7 | Entry-Gate read timeout |
+  | 111 | duplicate segments or segments out of order |
+  | 201 | Entry-Gate returned no priced offer and no error |
+  | 202 | the priced offer is unusable (other passenger types, missing or zero amounts, another itinerary) |
+
+  Status 6 (currency mismatch) is never sent, because the QTE request has no currency.
+
+* **Caller IP** (both services) is `request.getRemoteAddr()` with `server.forward-headers-strategy: native`, so
+  `X-Forwarded-For` is honoured only from trusted internal proxies (Tomcat RemoteIpValve defaults: private ranges). Set
   `server.tomcat.remoteip.internal-proxies` if the ingress is outside those ranges.
 
 ## Caching
@@ -44,7 +79,7 @@ AuthenticateRequest (vendorCode + IP whitelist) → SearchCacheLookup [hit: done
 | Entry-Gate access token | Caffeine (per pod) + Redis (cluster, single-flight lock) | hash(host + username) | token `expires_in` − 30 s |
 | SEARCH responses (successful, non-empty); **off by default** (`SEARCH_CACHE_ENABLED`) | Caffeine (per pod), weight-bounded (`SEARCH_CACHE_MAX_WEIGHT`) | vendorCode + all search criteria | `SEARCH_CACHE_TTL_SECONDS` (120 s) |
 
-Redis is optional: without it the token cache works per pod.
+QTE responses are never cached. Redis is optional: without it the token cache works per pod.
 
 ## Configuration
 
@@ -54,6 +89,8 @@ behaves is fixed in code:
   fare preferences `PUBL,PVT`, `ShopResultPreference` `BEST` / `OPTIMIZED` for `returnTagPrice` N / Y, sort order
   `PRICE,STOP,DEPARTURE_TIME`, no-result error codes, `ticketIssueTime` 120, default product type `PUB`, SEARCH cache
   off by default (`SEARCH_CACHE_ENABLED`; 120 s / 50000 weight when on)).
+- `FlightPriceConstants`: QTE → FlightPrice behaviour (timeout 30 s capped by PKFARE's `cutOffTime` − 500 ms, default
+  product type `PUB`).
 - `PkfareConstants.CABIN_MAPPING`: PKFARE cabin → VDC cabin (`F:F, C:C, S:W, Y:Y`); the reverse is derived.
 
 `application.yaml` holds the properties shared by all environments; `application-<profile>.yaml` holds what differs.
@@ -135,6 +172,11 @@ export CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --doma
 # QA settings; needs AWS credentials that can read the qa secret (e.g. AWS_PROFILE). The sample request's vendor is SHA-TEST.
 java -jar adapter-pkfare-server/build/libs/adapter-pkfare-server-*.jar --spring.profiles.active=eks-qa --pkfare.vendor-codes=SHA-TEST
 curl -s -H 'Content-Type: application/json' --data @adapter-pkfare-service/src/test/resources/search/PKFARE_SearchRQ.json localhost:9022/search
+# QTE: routing.data must be the data of a SEARCH result, sent back with that result's segments.
+# The unit-test fixture below only shows the shape: its vendorCode (SHA-TEST) and its sample offer are not live.
+jq --arg data "$(base64 -w0 adapter-pkfare-service/src/test/resources/qte/offer_data.json)" '.routing.data = $data' \
+   adapter-pkfare-service/src/test/resources/qte/PKFARE_QteRQ.json \
+ | curl -s -H 'Content-Type: application/json' --data @- localhost:9022/qte
 ```
 
 Ports: 9022 (API), 7045 (actuator: health, prometheus, metrics).

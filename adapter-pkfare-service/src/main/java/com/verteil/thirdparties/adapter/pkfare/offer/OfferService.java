@@ -1,6 +1,8 @@
 package com.verteil.thirdparties.adapter.pkfare.offer;
 
 import com.verteil.chain.Catalog;
+import com.verteil.schema.pkfare.QteRequest;
+import com.verteil.schema.pkfare.QteResponse;
 import com.verteil.schema.pkfare.SearchRequest;
 import com.verteil.schema.pkfare.SearchResponse;
 import com.verteil.thirdparties.adapter.pkfare.client.interceptor.LoggerHelper;
@@ -23,6 +25,7 @@ import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.ERROR_MSG_INVALID_VENDOR;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.ERROR_MSG_SERVICE_NOT_IMPLEMENTED;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.PK_INTERNAL_ERROR_MSG;
+import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SERVICE_QTE;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SERVICE_SEARCH;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.UNAUTHORIZED_REASON_CODE;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.UNIMPLEMENTED_REASON_CODE;
@@ -33,9 +36,9 @@ import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 /**
- * Offer group of PKFARE services (SEARCH now, QTE next). Builds the chain context for an inbound PKFARE request,
- * gates on {@code pkfare.enabled-services}, runs the chain named after the service and turns any failure into a
- * PKFARE status response. PKFARE always gets HTTP 200.
+ * Offer group of PKFARE services (SEARCH, QTE). Builds the chain context for an inbound PKFARE request, gates on
+ * {@code pkfare.enabled-services}, runs the chain named after the service and turns any failure into a PKFARE status
+ * response. PKFARE always gets HTTP 200.
  */
 @Slf4j
 @Component
@@ -52,6 +55,13 @@ public class OfferService {
                 .map(SearchRequest::getVendorCode)
                 .orElse(null);
         return (SearchResponse) process(SERVICE_SEARCH, request, vendorCode, clientIp);
+    }
+
+    public QteResponse qte(QteRequest request, String clientIp) {
+        String vendorCode = Optional.ofNullable(request)
+                .map(QteRequest::getVendorCode)
+                .orElse(null);
+        return (QteResponse) process(SERVICE_QTE, request, vendorCode, clientIp);
     }
 
     private Object process(String service, Object request, String vendorCode, String clientIp) {

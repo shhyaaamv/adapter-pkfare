@@ -28,11 +28,19 @@ public final class PkfareConstants {
     public static final String PK_DATE_TIME_FORMAT = "yyyyMMddHHmm";
 
     public static final int PK_STATUS_SUCCESS = 0;
+    public static final int PK_STATUS_INSUFFICIENT_SEATS = 1;
+    public static final int PK_STATUS_SOLD_OUT = 2;
     public static final int PK_STATUS_OTHER_FAILURE = 3;
     public static final int PK_STATUS_REQUEST_PARAMETER_ERROR = 4;
     public static final int PK_STATUS_PROGRAM_EXCEPTION = 5;
+    public static final int PK_STATUS_UPSTREAM_TIMEOUT = 7;
+    public static final int PK_STATUS_INVALID_DATE_RANGE = 111;
+    public static final int PK_STATUS_NO_FARE = 201;
+    public static final int PK_STATUS_INVALID_FARE = 202;
     public static final int PK_MSG_MAX_LENGTH = 63;
+    public static final int PK_ERROR_MSG_MAX_LENGTH = 299;
     public static final String PK_SUCCESS_MSG = "success";
+    public static final String PK_ELIGIBILITY_NONE = "";
 
     public static final int PK_PASSENGER_ADULT = 0;
     public static final int PK_PASSENGER_CHILD = 1;
@@ -63,14 +71,22 @@ public final class PkfareConstants {
     public static final String VDC_PENALTY_CHANGE = "Change";
     public static final String VDC_AMOUNT_APPLICATION_MAX = "MAX";
     public static final String OD_KEY_PREFIX = "OD";
+    // Adapter-made FareList.FareGroup keys in FlightPriceRQ (FG0, FG1, ...)
+    public static final String FARE_GROUP_KEY_PREFIX = "FG";
+    // OfferID Channel the adapter sends to Entry-Gate in every service (never the AirShoppingRS one)
+    public static final String VDC_CHANNEL = "DIRECT_CONNECT";
+    // Metadata.Other.OtherMetadata DescriptionMetadata key carrying the per-owner ShoppingResponseIDs
+    public static final String SHOPPING_RESPONSE_IDS = "SHOPPING_RESPONSE_IDS";
 
     /* ------------------------------------------------------------------------
      * API SERVICE NAMES
      * --------------------------------------------------------------------- */
     // Services exposed to PKFARE (chain bean names)
     public static final String SERVICE_SEARCH = "Search";
+    public static final String SERVICE_QTE = "Qte";
     // Entry-Gate (VDC) services the adapter calls
     public static final String SERVICE_AIRSHOPPING = "AirShopping";
+    public static final String SERVICE_FLIGHTPRICE = "FlightPrice";
     public static final String SERVICE_AUTH = "Auth";
 
     /* ------------------------------------------------------------------------
@@ -88,6 +104,7 @@ public final class PkfareConstants {
     public static final String SUPPLIER_DURATION_METRIC = "supplier_transaction_duration";
     public static final String SUCCESS_RESPONSE = "SUCCESS";
     public static final String ERROR_RESPONSE = "ERROR";
+    public static final String ENTRY_GATE_THIRDPARTY_ID_HEADER = "thirdpartyid";
 
     /* ------------------------------------------------------------------------
      * ERROR AND WARNING MESSAGES
@@ -100,7 +117,18 @@ public final class PkfareConstants {
     public static final String PROCESS_FAILURE_REASON_CODE = "PROCESS_FAILURE";
     public static final String VALIDATION_FAILURE_REASON_CODE = "VALIDATION_FAILURE";
     public static final String NO_RESULT_REASON_CODE = "NO_RESULT";
+    public static final String INVALID_DATE_RANGE_REASON_CODE = "INVALID_DATE_RANGE";
+    public static final String NO_FARE_REASON_CODE = "NO_FARE";
+    public static final String INVALID_FARE_REASON_CODE = "INVALID_FARE";
     public static final String ERROR_MSG_SERVICE_NOT_IMPLEMENTED = " service is not enabled";
+    public static final String ERROR_MSG_INVALID_ROUTING_DATA = "Invalid routing.data";
+    public static final String MSG_INSUFFICIENT_SEATS = "Insufficient remaining seats";
+    public static final String MSG_SOLD_OUT = "All seats have been sold";
+    public static final String MSG_INVALID_DATE_RANGE = "Invalid date range";
+    public static final String MSG_NO_FARE = "No fare returned";
+    public static final String MSG_INVALID_FARE = "Invalid fare returned";
+    public static final String MSG_UPSTREAM_TIMEOUT = "Upstream timeout";
+    public static final String MSG_REQUEST_PARAMETERS_ERROR = "Request Parameters error";
     public static final String ERROR_MSG_INVALID_VENDOR = "Invalid vendorCode";
     public static final String ERROR_MSG_IP_NOT_WHITELISTED = "Request IP is not whitelisted";
     public static final String ERROR_MSG_AUTH_REJECTED = "Verteil rejected the client credentials";

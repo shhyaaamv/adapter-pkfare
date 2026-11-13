@@ -17,7 +17,6 @@ public final class AirShoppingConstants {
     /** AirShopping timeout, capped by PKFARE's {@code cutOffTime} minus {@link #CUTOFF_BUFFER_MILLIS}. */
     public static final long TIMEOUT_MILLIS = 30000L;
     public static final long CUTOFF_BUFFER_MILLIS = 500L;
-    public static final long MIN_TIMEOUT_MILLIS = 1000L;
     /** Entry-Gate error codes that mean "no availability": PKFARE gets status 0 with empty lists. */
     public static final List<String> NO_RESULT_ERROR_CODES = List.of();
 
