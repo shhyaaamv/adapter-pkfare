@@ -1,8 +1,6 @@
 server:
       shutdown: graceful
       port: 9022
-      # Resolve the caller IP from X-Forwarded-For only when the hop is a trusted internal proxy (Tomcat RemoteIpValve);
-      # the PKFARE IP whitelist relies on this. Override server.tomcat.remoteip.internal-proxies if the ingress range differs.
       forward-headers-strategy: native
       tomcat:
         accesslog:
@@ -16,10 +14,6 @@ server:
           rotate: true
           rename-on-rotate: true
 
-logging:
-  level:
-    com.verteil.configurator.vdc.client: WARN
-
 spring:
   application:
     name: adapter-pkfare
@@ -29,7 +23,7 @@ spring:
     virtual:
       enabled: true
 
-connector:
+adapter:
   http:
     poolMax: 300
     poolTimeoutMillis: 500
@@ -40,16 +34,46 @@ connector:
     task:
       interval: 30000
 
-adapter:
-  search-cache:
-    # upper bound on cached shopping results + flights across all cached SEARCH responses (per pod)
-    max-weight: 50000
+pkfare:
+  enabled-services:
+    search: true
+    qte: true
+  vendor-codes: []
+  ip-whitelist:
+    enabled: true
+    addresses: []
+  message-log:
+    enabled: true
+    prod-error-monitoring: true
+    mask-elements: []
+    mask-attributes: []
 
-client:
-  address:
-    vdcConfigurator: http://localhost:8090/vdc-configurator
+verteil:
+  host:
+  path: /entrygate/rest/request
+  auth-path: /oauth2/token
+  auth-scope: api
+  timeout-millis: 30000
+  token:
+    ttl-seconds: 1800
+    lock-lease-millis: 10000
+    lock-wait-millis: 6000
+    lock-poll-millis: 50
+  circuit-breaker:
+    failure-rate-threshold: 50
+    slow-call-rate-threshold: 100
+    slow-call-duration-millis: 30000
+    sliding-window-size: 50
+    minimum-number-of-calls: 20
+    wait-duration-in-open-state-millis: 30000
+    permitted-number-of-calls-in-half-open-state: 5
 
-# Shared Redis (token cache shared across pods); property names are those read by connector-common's ConnectorRedisConfig
+aws:
+  secretManager:
+    name:
+    region: ap-south-1
+    url:
+
 ordermanagement:
   redis:
     host: ${REDIS_HOST:localhost}

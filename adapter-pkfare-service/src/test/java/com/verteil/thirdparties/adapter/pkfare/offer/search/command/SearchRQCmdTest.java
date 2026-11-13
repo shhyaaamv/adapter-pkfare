@@ -6,10 +6,6 @@ import com.verteil.thirdparties.adapter.pkfare.offer.search.converter.SearchRQCo
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SERVICE_AIRSHOPPING;
 import static com.verteil.thirdparties.adapter.pkfare.utils.TestUtils.buildContext;
 import static com.verteil.thirdparties.adapter.pkfare.utils.TestUtils.searchRequest;
@@ -19,23 +15,18 @@ class SearchRQCmdTest {
 
     private final SearchRQCmd cmd = new SearchRQCmd(new SearchRQConverter());
 
-    @ParameterizedTest(name = "timeout {0}, cutOffTime {1}, buffer {2} -> {3}")
+    @ParameterizedTest(name = "cutOffTime {0} -> {1}")
     @CsvSource(nullValues = "null", value = {
-            "30000, 28000, null, 27500",   // capped by PKFARE cutoff minus default 500 ms buffer
-            "20000, 28000, null, 20000",   // configured timeout already shorter
-            "30000, 28000, 3000, 25000",
-            "30000, 0,     null, 30000",   // no cutoff sent
-            "30000, null,  null, 30000",
-            "30000, 800,   null, 1000",    // never below 1 s
-            "null,  null,  null, 30000"    // default timeout
+            "28000, 27500",   // capped by PKFARE cutoff minus the 500 ms buffer
+            "40000, 30000",   // the 30 s timeout is already shorter
+            "0,     30000",   // no cutoff sent
+            "null,  30000",
+            "800,   1000"     // never below 1 s
     })
-    void storesRequestAndCapsTimeoutByCutoff(String timeout, Integer cutOffTime, String buffer, int expected) {
+    void storesRequestAndCapsTimeoutByCutoff(Integer cutOffTime, int expected) {
         var request = searchRequest();
         request.setCutOffTime(cutOffTime);
-        Map<String, String> config = new HashMap<>();
-        Optional.ofNullable(timeout).ifPresent(value -> config.put("TIMEOUT_MILLIS", value));
-        Optional.ofNullable(buffer).ifPresent(value -> config.put("CUTOFF_BUFFER_MILLIS", value));
-        PkfareAdapterContext context = buildContext(request, config);
+        PkfareAdapterContext context = buildContext(request);
 
         assertThat(cmd.execute(context)).isFalse();
         assertThat(context.getProviderApiService()).isEqualTo(SERVICE_AIRSHOPPING);

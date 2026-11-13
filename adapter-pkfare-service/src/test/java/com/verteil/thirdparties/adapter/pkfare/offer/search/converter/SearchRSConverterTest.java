@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.Map;
 
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SERVICE_AIRSHOPPING;
 import static com.verteil.thirdparties.adapter.pkfare.utils.TestUtils.PKFARE_MAPPER;
@@ -39,7 +38,7 @@ class SearchRSConverterTest {
 
     @Test
     void mapsEveryOfferAndOnlyReferencedFlights() {
-        SearchResponse response = convert(searchRequest(), Map.of());
+        SearchResponse response = convert(searchRequest());
 
         assertThat(response.getStatus()).isZero();
         assertThat(response.getMsg()).isEqualTo("success");
@@ -51,7 +50,7 @@ class SearchRSConverterTest {
 
     @Test
     void ordersSegmentsByDirectionAndSequenceWithCabinAndRbd() {
-        SearchShoppingResult result = convert(searchRequest(), Map.of()).getShoppingResultList().getFirst();
+        SearchShoppingResult result = convert(searchRequest()).getShoppingResultList().getFirst();
 
         assertThat(result.getFlightRefList())
                 .extracting("flightRefNum", "travelDirection", "flightSeq", "ticketSeq", "cabinClass", "rbd", "seatCount")
@@ -66,7 +65,7 @@ class SearchRSConverterTest {
 
     @Test
     void mapsPerPassengerPricesAndTicketAttributes() {
-        SearchTicket ticket = convert(searchRequest(), Map.of()).getShoppingResultList().getFirst().getTicketList().getFirst();
+        SearchTicket ticket = convert(searchRequest()).getShoppingResultList().getFirst().getTicketList().getFirst();
 
         assertThat(ticket.getPriceList())
                 .extracting("passengerType", "fare", "maxFare", "tax")
@@ -87,7 +86,7 @@ class SearchRSConverterTest {
 
     @Test
     void mapsBaggagePerPassengerTypeAndSegment() {
-        SearchTicket ticket = convert(searchRequest(), Map.of()).getShoppingResultList().getFirst().getTicketList().getFirst();
+        SearchTicket ticket = convert(searchRequest()).getShoppingResultList().getFirst().getTicketList().getFirst();
 
         assertThat(ticket.getFreeBaggageList()).hasSize(12);   // 3 passenger types x 4 segments
         assertThat(ticket.getFreeBaggageList())
@@ -108,7 +107,7 @@ class SearchRSConverterTest {
 
     @Test
     void mapsRefundAndChangeRulesForRoundTrip() {
-        SearchTicket ticket = convert(searchRequest(), Map.of()).getShoppingResultList().getFirst().getTicketList().getFirst();
+        SearchTicket ticket = convert(searchRequest()).getShoppingResultList().getFirst().getTicketList().getFirst();
 
         // entirely unused: outbound 8000 + return 12000; partially used: return 12000
         assertThat(ticket.getRefundInfoList())
@@ -128,7 +127,7 @@ class SearchRSConverterTest {
 
     @Test
     void mapsFlightDetails() {
-        SearchFlight flight = convert(searchRequest(), Map.of()).getFlightList().getFirst();
+        SearchFlight flight = convert(searchRequest()).getFlightList().getFirst();
 
         assertThat(flight.getMarketingCarrier()).isEqualTo("AI");
         assertThat(flight.getFlightNumber()).isEqualTo(2744);
@@ -147,23 +146,23 @@ class SearchRSConverterTest {
 
     @Test
     void mapsOfferIdAsData() {
-        SearchShoppingResult result = convert(searchRequest(), Map.of()).getShoppingResultList().getFirst();
+        SearchShoppingResult result = convert(searchRequest()).getShoppingResultList().getFirst();
 
         assertThat(result.getData()).isEqualTo("1H2AIZ_0KZ5PZIOJZNJNY5NWKKZS0AOOEQG");
     }
 
     @Test
-    void omitsTagsWhenNotRequestedAndHonoursConfiguredDefaults() {
+    void omitsTagsWhenNotRequestedAndFillsDefaults() {
         SearchRequest request = searchRequest();
         request.setReturnTagPrice("N");
 
-        SearchResponse response = convert(request, Map.of("DEFAULT_SEAT_COUNT", "12", "TICKET_ISSUE_TIME", "30"));
+        SearchResponse response = convert(request);
 
         SearchShoppingResult result = response.getShoppingResultList().getFirst();
         assertThat(result.getTag()).isEmpty();
         assertThat(result.getTicketList().getFirst().getTag()).isEmpty();
-        assertThat(result.getTicketList().getFirst().getTicketIssueTime()).isEqualTo(30);
-        assertThat(result.getFlightRefList()).extracting("seatCount").containsOnly(9);   // capped at 9
+        assertThat(result.getTicketList().getFirst().getTicketIssueTime()).isEqualTo(120);
+        assertThat(result.getFlightRefList()).extracting("seatCount").containsOnly(3);   // no SeatsLeft: adults + children
     }
 
     @Test
@@ -171,10 +170,10 @@ class SearchRSConverterTest {
         SearchRequest request = searchRequest();
         request.setTag("FLEX");
 
-        assertThat(convert(request, Map.of()).getShoppingResultList()).isEmpty();
+        assertThat(convert(request).getShoppingResultList()).isEmpty();
 
         request.setTag("value");
-        assertThat(convert(request, Map.of()).getShoppingResultList()).hasSize(3);
+        assertThat(convert(request).getShoppingResultList()).hasSize(3);
     }
 
     @Test
@@ -182,7 +181,7 @@ class SearchRSConverterTest {
         SearchRequest request = searchRequest();
         request.setInfantNumber(0);   // response prices an infant that was not asked for
 
-        SearchResponse response = convert(request, Map.of());
+        SearchResponse response = convert(request);
 
         assertThat(response.getStatus()).isZero();
         assertThat(response.getShoppingResultList()).isEmpty();
@@ -194,14 +193,14 @@ class SearchRSConverterTest {
         SearchRequest request = searchRequest();
         request.setTag("FLEX");
 
-        String json = PKFARE_MAPPER.writeValueAsString(convert(request, Map.of()));
+        String json = PKFARE_MAPPER.writeValueAsString(convert(request));
 
         assertThat(json).isEqualTo("{\"status\":0,\"msg\":\"success\",\"shoppingResultList\":[],\"flightList\":[]}");
     }
 
-    private SearchResponse convert(SearchRequest request, Map<String, String> config) {
+    private SearchResponse convert(SearchRequest request) {
         AirShoppingRS airShoppingRS = airShoppingRS();
-        PkfareAdapterContext context = buildContext(request, config);
+        PkfareAdapterContext context = buildContext(request);
         context.setProviderApiResponse(SERVICE_AIRSHOPPING, airShoppingRS);
         return converter.convert(context);
     }

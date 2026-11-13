@@ -110,19 +110,29 @@ public class SearchDefinitions {
     }
 
     /**
-     * PKFARE sends no child ages, so the sample's {@code Age} is not expected. Travelers may come in any order, but
-     * the SortOrder sequence is a priority, so it is checked in order on its own.
+     * PKFARE sends no child ages, so the sample's {@code Age} is not expected. {@code ResponseParameters} are the
+     * adapter's own choice (AirShoppingConstants), checked by the next step. Travelers may come in any order.
      */
-    @Then("the AirShoppingRQ matches the sample {string} apart from child ages")
+    @Then("the AirShoppingRQ matches the sample {string} apart from child ages and response parameters")
     public void assertAirShoppingRequest(String resource) throws JSONException {
-        JsonNode sample = readResource(resource);
+        ObjectNode sample = (ObjectNode) readResource(resource);
         sample.path("Travelers").path("Traveler").valueStream()
                 .flatMap(traveler -> traveler.path("AnonymousTraveler").valueStream())
                 .forEach(anonymous -> ((ObjectNode) anonymous).remove("Age"));
-        JsonNode actual = body(lastAirShoppingRequest().orElseThrow(() -> new AssertionError("Entry-Gate received no AirShoppingRQ")));
+        sample.remove("ResponseParameters");
+        ObjectNode actual = (ObjectNode) lastAirShoppingBody();
+        actual.remove("ResponseParameters");
 
         JSONAssert.assertEquals(sample.toString(), actual.toString(), JSONCompareMode.NON_EXTENSIBLE);
-        assertThat(sortParameters(actual)).as("ResponseParameters.SortOrder priority").isEqualTo(sortParameters(sample));
+    }
+
+    /** SortOrder is a priority, so it is checked in order. */
+    @Then("the AirShoppingRQ asks for ShopResultPreference {string} sorted by {string}")
+    public void assertResponseParameters(String shopResultPreference, String sortOrder) {
+        JsonNode actual = lastAirShoppingBody();
+        assertThat(actual.path("ResponseParameters").path("ShopResultPreference").asText()).isEqualTo(shopResultPreference);
+        assertThat(sortParameters(actual)).as("ResponseParameters.SortOrder priority")
+                .isEqualTo(List.of(sortOrder.split("\\s*,\\s*")));
     }
 
     @Then("PKFARE receives a shopping result for each of the VDC offers")
@@ -156,6 +166,10 @@ public class SearchDefinitions {
         JsonShape.Diff diff = JsonShape.compare(readResource(resource), searchDataContainer.getSearchResponse());
         acceptanceOutput.writeText(searchDataContainer.getOutputDir(), SHAPE_REPORT_FILE, diff.report());
         assertThat(diff.matches()).as(diff.report()).isTrue();
+    }
+
+    private JsonNode lastAirShoppingBody() {
+        return body(lastAirShoppingRequest().orElseThrow(() -> new AssertionError("Entry-Gate received no AirShoppingRQ")));
     }
 
     private Optional<JsonNode> lastAirShoppingRequest() {

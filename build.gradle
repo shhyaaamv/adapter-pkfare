@@ -12,15 +12,13 @@ allprojects {
     ext {
         springBootVersion = '3.5.7'
         verteilndcSchemaVersion = '1.52.0'
-        verteilThirdPartiesCommonVersion = '3.48.0'
         verteilCommonsCoreVersion = '4.24.0'
-        vdcConfiguratorClientVersion = '3.11.0'
         lombokVersion='1.18.38'
-        verteilPrometheusMetricVersion = '2.65.0'
         resilience4jVersion = '2.2.0'
+        guavaVersion = '33.3.1-jre'
         pkfareApiSchemaVersion = '1.2.0-SNAPSHOT'
         httpclientVersion='5.5'
-        verteilVersion='1.0'
+        awsSdkVersion = '2.29.50'
         junitJupiterVersion = '5.11.4'
         wiremockVersion = '3.13.1'
         cucumberVersion = '7.18.0'
@@ -69,8 +67,6 @@ subprojects {
     }
 
     dependencies {
-        implementation 'org.springframework.security:spring-security-core:6.4.2'
-        implementation 'org.apache.commons:commons-collections4:4.4'
         implementation ("com.verteil:verteil-commons-logmask:4.4.0"){
             transitive = false
         }
@@ -78,14 +74,9 @@ subprojects {
         implementation ("com.verteil:vdc-thirdparties-common-schema-ndc:${verteilndcSchemaVersion}"){
             transitive = false
         }
-        implementation ("com.verteil:vdc-thirdparties-common-schema-vdc:${verteilndcSchemaVersion}"){
-            transitive = false
-        }
         implementation("com.verteil:verteil-commons-core:${verteilCommonsCoreVersion}") {
             transitive = false
         }
-        implementation "javax.ws.rs:javax.ws.rs-api:2.1.1"
-
         implementation("io.micrometer:micrometer-registry-prometheus:1.14.4")
 
         implementation ("org.springframework.boot:spring-boot-starter-web") {
@@ -95,7 +86,7 @@ subprojects {
             exclude group: 'org.glassfish.jersey.core', module: 'jersey-media-multipart'
         }
 
-        implementation("org.apache.commons:commons-text:1.10.0")
+        implementation "org.apache.commons:commons-lang3"
 
         implementation 'javax.xml.bind:jaxb-api:2.3.1'
 

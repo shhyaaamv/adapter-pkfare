@@ -1,3 +1,14 @@
-client:
-  address:
-    vdcConfigurator: http://vdc-configurator:8090/vdc-configurator
+pkfare:
+  vendor-codes:
+    - PKFARETESTCODE
+  ip-whitelist:
+    enabled: false
+    addresses: []
+
+verteil:
+  host: https://qaapi.sandbox.verteil.com
+
+aws:
+  secretManager:
+    name: qa/adapter-pkfare/entry-gate
+    region: ap-south-1

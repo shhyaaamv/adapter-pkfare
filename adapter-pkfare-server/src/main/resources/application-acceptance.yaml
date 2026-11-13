@@ -8,6 +8,19 @@ management:
   server:
     port: 0
 
-client:
-  address:
-    vdcConfigurator: http://localhost:${ACCEPTANCE_WIREMOCK_PORT:8091}/vdc-configurator
+pkfare:
+  vendor-codes:
+    - SHA-TEST
+  ip-whitelist:
+    addresses:
+      - 127.0.0.1
+      - "::1"
+
+verteil:
+  host: http://localhost:${ACCEPTANCE_WIREMOCK_PORT:8091}
+
+aws:
+  secretManager:
+    name: acceptance/adapter-pkfare/entry-gate
+    region: ap-south-1
+    url: http://localhost:${ACCEPTANCE_WIREMOCK_PORT:8091}

@@ -18,7 +18,6 @@ import com.verteil.schemas.ndc16_1.FlightSegmentReference;
 import com.verteil.schemas.ndc16_1.ItemIDType;
 import com.verteil.schemas.ndc16_1.PriceClassType;
 import com.verteil.schemas.ndc16_1.PricedFlightOfferType;
-import com.verteil.schemas.ndc16_1.ShoppingResponseIDType;
 import com.verteil.thirdparties.adapter.pkfare.common.model.CabinMapping;
 import com.verteil.thirdparties.adapter.pkfare.common.utils.RefUtil;
 import com.verteil.thirdparties.adapter.pkfare.offer.search.model.ItinerarySegment;
@@ -38,6 +37,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.verteil.thirdparties.adapter.pkfare.common.utils.AirShoppingConstants.DEFAULT_PRODUCT_TYPE;
+import static com.verteil.thirdparties.adapter.pkfare.common.utils.AirShoppingConstants.TICKET_ISSUE_TIME;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.DEFAULT_CABIN;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.FARE_BASIS_SEPARATOR;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.PK_DEFAULT_TICKET_SEQ;
@@ -139,10 +140,9 @@ public class ShoppingResultConverter {
                         .map(FlightCabinCoreType::getCabinDesignator)
                         .map(FlightCabinCoreType.CabinDesignator::getValue)
                         .orElse(null));
-        CabinMapping cabinMapping = context.cabinMapping();
-        return cabinMapping.toPk(vdcCabin)
+        return CabinMapping.DEFAULT.toPk(vdcCabin)
                 .or(() -> Optional.of(context.request().getCabinClass())
-                        .filter(requested -> cabinMapping.toVdc(requested).isPresent())
+                        .filter(requested -> CabinMapping.DEFAULT.toVdc(requested).isPresent())
                         .map(requested -> requested.trim().toUpperCase(Locale.ROOT)))
                 .orElse(DEFAULT_CABIN);
     }
@@ -152,7 +152,6 @@ public class ShoppingResultConverter {
                 .map(FlightCOSCoreType::getCode)
                 .map(FlightCOSCoreType.Code::getSeatsLeft)
                 .filter(seatsLeft -> seatsLeft > 0)
-                .or(() -> Optional.ofNullable(context.defaultSeatCount()).filter(defaultSeatCount -> defaultSeatCount > 0))
                 // VDC does not say how many seats are left: promise exactly what was asked for (seat-occupying passengers).
                 .orElseGet(() -> Math.max(requireNonNullElse(context.request().getAdultNumber(), 0)
                         + requireNonNullElse(context.request().getChildNumber(), 0), 1));
@@ -171,7 +170,7 @@ public class ShoppingResultConverter {
         ticket.setRefundInfoList(fareRuleConverter.refunds(itinerary, passengerPrices, currency, roundTrip, context));
         ticket.setChangeInfoList(fareRuleConverter.changes(itinerary, passengerPrices, currency, roundTrip, context));
         ticket.setCurrency(currency);
-        ticket.setTicketIssueTime(context.ticketIssueTime());
+        ticket.setTicketIssueTime(TICKET_ISSUE_TIME);
         ticket.setTag(tag);
         ticket.setOtherFareRules(otherFareRules(offer, passengerPrices, context));
         ticket.setFareBasis(fareBasis(itinerary, passengerPrices.getFirst(), context));
@@ -210,7 +209,7 @@ public class ShoppingResultConverter {
         if (remarks.contains(VDC_PUBLIC_FARE_REMARK)) {
             return PK_PUBLIC_FARE;
         }
-        return context.defaultProductType();
+        return DEFAULT_PRODUCT_TYPE;
     }
 
     /** One fare basis per segment in itinerary order, or nothing when any segment lacks one. */

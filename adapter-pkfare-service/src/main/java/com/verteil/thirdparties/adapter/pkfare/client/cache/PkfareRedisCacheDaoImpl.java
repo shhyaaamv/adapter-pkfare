@@ -15,9 +15,8 @@ import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstan
 import static java.util.Objects.isNull;
 
 /**
- * Backed by the shared connector Redis connection (from vdc-thirdparties-common-helper's
- * ConnectorRedisConfig, if present in this module) so this cache reuses one connection and one
- * {@code redis.*} config block rather than opening its own.
+ * Backed by the shared Redis connection of {@link com.verteil.thirdparties.adapter.pkfare.config.RedisConfig};
+ * every operation is a no-op when Redis is not available.
  */
 @Component
 @Slf4j

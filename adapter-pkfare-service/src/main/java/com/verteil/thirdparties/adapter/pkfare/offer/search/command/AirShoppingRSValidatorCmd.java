@@ -13,10 +13,9 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 import java.util.List;
 
+import static com.verteil.thirdparties.adapter.pkfare.common.utils.AirShoppingConstants.NO_RESULT_ERROR_CODES;
 import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.VERTEIL_ERROR;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.ERROR_MSG_EMPTY_RESPONSE;
-import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.NO_RESULT_ERROR_CODES;
-import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.PKFARE_API;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SERVICE_AIRSHOPPING;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.UNAVAILABLE_REASON_CODE;
 import static java.util.Objects.isNull;
@@ -27,7 +26,7 @@ import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
  * <ul>
  *   <li>no response -> Entry-Gate error</li>
  *   <li>offers present -> continue (errors/warnings alongside offers are only logged)</li>
- *   <li>no offers and no errors, or only errors whose code is listed in {@code PKFARE_API.NO_RESULT_ERROR_CODES}
+ *   <li>no offers and no errors, or only errors whose code is listed in {@code NO_RESULT_ERROR_CODES}
  *   -> "no content": status 0 with empty lists, as PKFARE requires; chain stops</li>
  *   <li>no offers with any other error -> Entry-Gate error carrying the first error text</li>
  * </ul>
@@ -54,7 +53,7 @@ public class AirShoppingRSValidatorCmd implements Command<PkfareAdapterContext> 
             }
             return CONTINUE_PROCESSING;
         }
-        if (errors.isEmpty() || errors.stream().allMatch(error -> isNoResult(error, context))) {
+        if (errors.isEmpty() || errors.stream().allMatch(AirShoppingRSValidatorCmd::isNoResult)) {
             log.info("AirShoppingRS has no offers{}", errors.isEmpty() ? "" : ": " + describe(errors.getFirst()));
             context.setResponse(errorResponseConverter.emptySearchResponse());
             return PROCESSING_COMPLETE;
@@ -71,11 +70,8 @@ public class AirShoppingRSValidatorCmd implements Command<PkfareAdapterContext> 
                 .orElse(false);
     }
 
-    private boolean isNoResult(ErrorType error, PkfareAdapterContext context) {
-        List<String> noResultCodes = Optional.ofNullable(context.getConfigurations().get(context.getService()))
-                .map(configuration -> configuration.getListFromCsv(PKFARE_API, NO_RESULT_ERROR_CODES, List.of()))
-                .orElse(List.of());
-        return noResultCodes.contains(error.getCode()) || noResultCodes.contains(error.getValue());
+    private static boolean isNoResult(ErrorType error) {
+        return NO_RESULT_ERROR_CODES.contains(error.getCode()) || NO_RESULT_ERROR_CODES.contains(error.getValue());
     }
 
     private static String describe(ErrorType error) {

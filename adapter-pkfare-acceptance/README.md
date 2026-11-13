@@ -1,10 +1,10 @@
 ## Acceptance tests for adapter-pkfare
 
-The suite runs the real adapter bootJar end to end. Only its two dependencies are mocked, both by WireMock:
+The suite runs the real adapter bootJar end to end. Only its external dependencies are mocked, all by WireMock:
 
 ```
 Cucumber (as PKFARE) --POST /search--> adapter-pkfare :9122 --> WireMock :8091
-                                                              ├─ /vdc-configurator/evaluator...       (configurator)
+                                                              ├─ / (X-Amz-Target: secretsmanager.GetSecretValue, at startup)
                                                               ├─ /oauth2/token                         (Entry-Gate auth)
                                                               └─ /entrygate/rest/request (Service: AirShopping, serves the real sample AirShoppingRS)
 ```
@@ -52,16 +52,17 @@ The samples come from `~/Documents/POD/PKFare/Services/SEARCH/` and are copied v
 - COK→DXB round trip, 20 Oct to 28 Oct 2026
 - 2 ADT + 1 CHD + 1 INF
 - cabin `S` (VDC `W`)
-- `returnTagPrice=N`, which gives `ShopResultPreference` `OPTIMIZED`
+- `returnTagPrice=N`, which gives `ShopResultPreference` `BEST` (the sample has `OPTIMIZED`)
 
 How the assertions compare against the samples:
-- **RQ:** the comparison is exact apart from two things. Traveler order may differ, and the sample's child `Age` is not expected because PKFARE sends no ages. `SortOrder` is checked in order, since it is a priority.
+- **RQ:** the comparison is exact apart from three things. Traveler order may differ, the sample's child `Age` is not expected because PKFARE sends no ages, and `ResponseParameters` are the adapter's own (`AirShoppingConstants`: `BEST`, sorted `PRICE, STOP, DEPARTURE_TIME`), checked by a separate step, in order since `SortOrder` is a priority.
 - **RS:** PKFARE's sample comes from a different search (NK, HOU→NYC), so values can't match. The suite checks the *shape* instead: every field path in the sample must appear in our response with the same JSON type. It also checks that every VDC offer became a shopping result and that `flightList` holds exactly the referenced flights.
 
-Configurator values live in `wiremock/__files/configurator/`:
-- `search_airshopping_combined.json` holds the `PKFARE_API.*` rows. The same rows are returned for the `Search` and `AirShopping` contexts. `SEARCH_CACHE_TTL_SECONDS` is 0, so every scenario reaches Entry-Gate.
-- `cabin-brand-configs.json` holds `CABIN_BRAND.MAPPED_CABIN`.
-- `pkfare_configs.json` holds the `ENABLE_SERVICE` gate.
+Adapter settings are in `adapter-pkfare-server/src/main/resources/application-acceptance.yaml`: vendor `SHA-TEST`,
+loopback IPs whitelisted, and Entry-Gate and Secrets Manager pointed at WireMock. The SEARCH response cache is off
+(`SEARCH_CACHE_ENABLED`), so every scenario reaches Entry-Gate. The Entry-Gate credentials come from the secret stubbed in
+`wiremock/mappings/secretsmanager.json`; the token stub only accepts those credentials. The adapter is started with
+dummy AWS credentials (`-Daws.accessKeyId`/`-Daws.secretAccessKey`), since WireMock does not check request signatures.
 
 ### Debug from the IDE
 
@@ -73,9 +74,9 @@ Configurator values live in `wiremock/__files/configurator/`:
    ```shell
    java -jar adapter-pkfare-acceptance/build/wiremock/wiremock-standalone-3.13.1.jar --port=8091 --verbose --root-dir=adapter-pkfare-acceptance/src/test/resources/wiremock
    ```
-3. Start the adapter with a debug port on 5010. You can also run `AdapterPkfareApplication` from the IDE with the `acceptance` profile.
+3. Start the adapter with a debug port on 5010. You can also run `AdapterPkfareApplication` from the IDE with the `acceptance` profile and the same two `-Daws.*` options.
    ```shell
-   java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5010 -Dspring.profiles.active=acceptance -jar adapter-pkfare-server/build/libs/adapter-pkfare-server-0.0.1-SNAPSHOT.jar
+   java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5010 -Dspring.profiles.active=acceptance -Daws.accessKeyId=acceptance -Daws.secretAccessKey=acceptance -jar adapter-pkfare-server/build/libs/adapter-pkfare-server-0.0.1-SNAPSHOT.jar
    ```
 4. Run `com.verteil.thirdparties.adapter.pkfare.acceptance.RunAcceptanceTest`. With the working directory set to `adapter-pkfare-acceptance`, outputs land in `build/acceptance/output/`.
 5. Stop both processes when you're done.
@@ -83,4 +84,4 @@ Configurator values live in `wiremock/__files/configurator/`:
 ### Adding a scenario
 
 1. Add steps to a `.feature` file under `src/test/resources/feature/`, with glue in `...acceptance.offer`/`order`.
-2. Stub any new Entry-Gate service or configurator lookup under `src/test/resources/wiremock/` ([WireMock stubbing](https://wiremock.org/docs/stubbing/)).
+2. Stub any new Entry-Gate service under `src/test/resources/wiremock/` ([WireMock stubbing](https://wiremock.org/docs/stubbing/)), and set any new adapter setting in `application-acceptance.yaml`.

@@ -4,33 +4,39 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.verteil.chain.Catalog;
 import com.verteil.chain.Chain;
 import com.verteil.chain.impl.ImmutableCatalog;
-import com.verteil.configurator.vdc.client.VdcConfiguratorServiceClient;
 import com.verteil.thirdparties.adapter.pkfare.client.ScheduledConnectionPoolMonitor;
 import com.verteil.thirdparties.adapter.pkfare.common.PkfareAdapterContext;
 import com.verteil.thirdparties.adapter.pkfare.common.json.JsonMappers;
-import com.verteil.thirdparties.common.config.ConnectorRedisConfig;
-import com.verteil.thirdparties.connector.common.chain.FetchConfigurationsCmd;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.micrometer.tagged.TaggedCircuitBreakerMetrics;
+import io.micrometer.core.instrument.MeterRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.ENTRY_GATE_CIRCUIT_BREAKER;
 import static org.apache.hc.core5.util.Timeout.ofMilliseconds;
 
+@Slf4j
 @Configuration
 @EnableScheduling
-@Import(ConnectorRedisConfig.class)
+@EnableConfigurationProperties({PkfareProperties.class, VerteilProperties.class})
 public class AdapterPkfareConfiguration {
 
     @Bean
@@ -38,21 +44,30 @@ public class AdapterPkfareConfiguration {
         return ImmutableCatalog.<PkfareAdapterContext>newBuilder().addAll(chains).build();
     }
 
-    @Bean
-    @Primary
-    public VdcConfiguratorServiceClient vdcConfiguratorServiceClient(@Value("${client.address.vdcConfigurator}") String vdcConfiguratorAddress) {
-        return new VdcConfiguratorServiceClient(vdcConfiguratorAddress);
-    }
-
-    @Bean
-    public FetchConfigurationsCmd<PkfareAdapterContext> fetchConfigurationsCmd(VdcConfiguratorServiceClient vdcConfiguratorServiceClient) {
-        return new FetchConfigurationsCmd<>(vdcConfiguratorServiceClient);
-    }
-
     @Bean(name = "pkfareAsyncThreadPoolTaskExecutor")
     @Primary
     public Executor getAsyncExecutor() {
         return Executors.newVirtualThreadPerTaskExecutor();
+    }
+
+    /** See {@link VerteilProperties.CircuitBreakerSettings}. State and call counts are exported to Prometheus. */
+    @Bean
+    public CircuitBreaker entryGateCircuitBreaker(VerteilProperties verteilProperties, MeterRegistry meterRegistry) {
+        VerteilProperties.CircuitBreakerSettings settings = verteilProperties.getCircuitBreaker();
+        CircuitBreakerRegistry registry = CircuitBreakerRegistry.of(CircuitBreakerConfig.custom()
+                .failureRateThreshold(settings.getFailureRateThreshold())
+                .slowCallRateThreshold(settings.getSlowCallRateThreshold())
+                .slowCallDurationThreshold(Duration.ofMillis(settings.getSlowCallDurationMillis()))
+                .slidingWindowSize(settings.getSlidingWindowSize())
+                .minimumNumberOfCalls(settings.getMinimumNumberOfCalls())
+                .waitDurationInOpenState(Duration.ofMillis(settings.getWaitDurationInOpenStateMillis()))
+                .permittedNumberOfCallsInHalfOpenState(settings.getPermittedNumberOfCallsInHalfOpenState())
+                .build());
+        TaggedCircuitBreakerMetrics.ofCircuitBreakerRegistry(registry).bindTo(meterRegistry);
+        CircuitBreaker circuitBreaker = registry.circuitBreaker(ENTRY_GATE_CIRCUIT_BREAKER);
+        circuitBreaker.getEventPublisher()
+                .onStateTransition(event -> log.warn("Entry-Gate circuit breaker {}", event.getStateTransition()));
+        return circuitBreaker;
     }
 
     /** VDC NDC 16.1 JSON, used for Entry-Gate requests/responses. PKFARE JSON uses the primary mapper. */
@@ -63,9 +78,9 @@ public class AdapterPkfareConfiguration {
 
     @Bean
     public PoolingHttpClientConnectionManager connectionManager(
-            @Value("${connector.http.poolMax:300}") int poolMax,
-            @Value("${connector.http.connectTimeoutMillis:5000}") int connectTimeoutMillis,
-            @Value("${connector.http.responseTimeoutMillis:180000}") int responseTimeoutMillis
+            @Value("${adapter.http.poolMax:300}") int poolMax,
+            @Value("${adapter.http.connectTimeoutMillis:5000}") int connectTimeoutMillis,
+            @Value("${adapter.http.responseTimeoutMillis:180000}") int responseTimeoutMillis
     ) {
         var connectionManager = new PoolingHttpClientConnectionManager();
         connectionManager.setMaxTotal(poolMax);
@@ -81,7 +96,7 @@ public class AdapterPkfareConfiguration {
     @Bean
     public ScheduledConnectionPoolMonitor scheduledConnectionPoolMonitor(
             PoolingHttpClientConnectionManager connectionManager,
-            @Value("${connector.monitor.idleTime:30}") long idleTimeSeconds
+            @Value("${adapter.monitor.idleTime:30}") long idleTimeSeconds
     ) {
         return new ScheduledConnectionPoolMonitor(idleTimeSeconds, connectionManager);
     }
@@ -90,8 +105,8 @@ public class AdapterPkfareConfiguration {
     @Bean
     public CloseableHttpClient pkfareHttpClient(
             PoolingHttpClientConnectionManager connectionManager,
-            @Value("${connector.http.poolTimeoutMillis:1000}") int poolTimeoutMillis,
-            @Value("${connector.http.responseTimeoutMillis:180000}") int responseTimeoutMillis
+            @Value("${adapter.http.poolTimeoutMillis:1000}") int poolTimeoutMillis,
+            @Value("${adapter.http.responseTimeoutMillis:180000}") int responseTimeoutMillis
     ) {
         return HttpClients.custom()
                 .setConnectionManager(connectionManager)

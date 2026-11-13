@@ -9,8 +9,6 @@ import com.verteil.thirdparties.adapter.pkfare.common.converter.ErrorResponseCon
 import com.verteil.thirdparties.adapter.pkfare.common.exception.PkfareAdapterException;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-
 import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.VERTEIL_ERROR;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SERVICE_AIRSHOPPING;
 import static com.verteil.thirdparties.adapter.pkfare.utils.TestUtils.airShoppingRS;
@@ -25,28 +23,20 @@ class AirShoppingRSValidatorCmdTest {
 
     @Test
     void continuesWhenOffersArePresent() {
-        assertThat(cmd.execute(context(airShoppingRS(), Map.of()))).isFalse();
+        assertThat(cmd.execute(context(airShoppingRS()))).isFalse();
     }
 
     @Test
     void returnsEmptySuccessWhenThereAreNoOffersAndNoErrors() {
-        PkfareAdapterContext context = context(new AirShoppingRS(), Map.of());
+        PkfareAdapterContext context = context(new AirShoppingRS());
 
         assertThat(cmd.execute(context)).isTrue();
         assertEmptySuccess(context);
     }
 
     @Test
-    void treatsConfiguredErrorCodesAsNoResult() {
-        PkfareAdapterContext context = context(errorResponse("911", "No fares available"), Map.of("NO_RESULT_ERROR_CODES", "404,911"));
-
-        assertThat(cmd.execute(context)).isTrue();
-        assertEmptySuccess(context);
-    }
-
-    @Test
-    void failsOnOtherErrorsWithoutOffers() {
-        PkfareAdapterContext context = context(errorResponse("INTERNAL_ERROR", "Airline unavailable"), Map.of("NO_RESULT_ERROR_CODES", "911"));
+    void failsOnErrorsWithoutOffers() {
+        PkfareAdapterContext context = context(errorResponse("INTERNAL_ERROR", "Airline unavailable"));
 
         assertThatThrownBy(() -> cmd.execute(context))
                 .isInstanceOf(PkfareAdapterException.class)
@@ -56,7 +46,7 @@ class AirShoppingRSValidatorCmdTest {
 
     @Test
     void failsWhenEntryGateReturnedNothing() {
-        assertThatThrownBy(() -> cmd.execute(context(null, Map.of())))
+        assertThatThrownBy(() -> cmd.execute(context(null)))
                 .isInstanceOf(PkfareAdapterException.class)
                 .extracting("errorCode").isEqualTo(VERTEIL_ERROR.getCode());
     }
@@ -80,8 +70,8 @@ class AirShoppingRSValidatorCmdTest {
         return response;
     }
 
-    private static PkfareAdapterContext context(AirShoppingRS response, Map<String, String> config) {
-        PkfareAdapterContext context = buildContext(searchRequest(), config);
+    private static PkfareAdapterContext context(AirShoppingRS response) {
+        PkfareAdapterContext context = buildContext(searchRequest());
         context.setProviderApiResponse(SERVICE_AIRSHOPPING, response);
         return context;
     }

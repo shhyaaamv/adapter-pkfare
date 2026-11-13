@@ -9,7 +9,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.VALIDATION_FAILURE;
@@ -26,32 +25,30 @@ class SearchRQConverterTest {
 
     @Test
     void convertsRoundTripSearchToAirShoppingRQ() throws Exception {
-        AirShoppingRQ airShoppingRQ = converter.convert(buildContext(searchRequest(), Map.of()));
+        AirShoppingRQ airShoppingRQ = converter.convert(buildContext(searchRequest()));
 
         JSONAssert.assertEquals(readString("search/VDC_AirShoppingRQ_expected.json"),
                 NDC_MAPPER.writeValueAsString(airShoppingRQ), JSONCompareMode.STRICT);
     }
 
     @Test
-    void oneWayPremiumEconomyWithoutTagsUsesConfiguredPreferences() {
+    void oneWayPremiumEconomyWithoutTagsAsksForTheBestFare() {
         SearchRequest request = searchRequest();
         request.setTripType("1");
         request.setRetDate(null);
         request.setCabinClass("s");
         request.setReturnTagPrice("N");
 
-        AirShoppingRQ airShoppingRQ = converter.convert(buildContext(request, Map.of(
-                "FARE_PREFERENCES", "PUBL",
-                "SHOP_RESULT_PREFERENCE", "OPTIMIZED",
-                "SORT_ORDER", "DEPARTURE_TIME")));
+        AirShoppingRQ airShoppingRQ = converter.convert(buildContext(request));
 
         assertThat(airShoppingRQ.getCoreQuery().getOriginDestinations().getOriginDestination()).hasSize(1);
         assertThat(airShoppingRQ.getPreference().getCabinPreferences().getCabinType().getFirst().getCode()).isEqualTo("W");
         assertThat(airShoppingRQ.getPreference().getFarePreferences().getTypes().getType())
-                .extracting("code").containsExactly("PUBL");
-        assertThat(airShoppingRQ.getResponseParameters().getShopResultPreference()).isEqualTo(AirShoppingRQ.ShopResultPreference.OPTIMIZED);
+                .extracting("code").containsExactly("PUBL", "PVT");
+        assertThat(airShoppingRQ.getResponseParameters().getShopResultPreference()).isEqualTo(AirShoppingRQ.ShopResultPreference.BEST);
         assertThat(airShoppingRQ.getResponseParameters().getSortOrder())
-                .extracting(sort -> sort.getParameter()).containsExactly(AirShoppingRQ.Sort.Parameter.DEPARTURE_TIME);
+                .extracting(sort -> sort.getParameter()).containsExactly(AirShoppingRQ.Sort.Parameter.PRICE,
+                        AirShoppingRQ.Sort.Parameter.STOP, AirShoppingRQ.Sort.Parameter.DEPARTURE_TIME);
     }
 
     @Test
@@ -59,7 +56,7 @@ class SearchRQConverterTest {
         SearchRequest request = searchRequest();
         request.setCabinClass(null);
 
-        AirShoppingRQ airShoppingRQ = converter.convert(buildContext(request, Map.of()));
+        AirShoppingRQ airShoppingRQ = converter.convert(buildContext(request));
 
         assertThat(airShoppingRQ.getPreference().getCabinPreferences().getCabinType().getFirst().getCode()).isEqualTo("Y");
     }
@@ -81,7 +78,7 @@ class SearchRQConverterTest {
         SearchRequest request = searchRequest();
         apply(change).accept(request);
 
-        assertThatThrownBy(() -> converter.convert(buildContext(request, Map.of())))
+        assertThatThrownBy(() -> converter.convert(buildContext(request)))
                 .isInstanceOf(PkfareAdapterException.class)
                 .extracting("errorCode").isEqualTo(VALIDATION_FAILURE.getCode());
     }
