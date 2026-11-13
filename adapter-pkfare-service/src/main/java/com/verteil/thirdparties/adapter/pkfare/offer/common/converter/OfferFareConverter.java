@@ -8,6 +8,7 @@ import com.verteil.schemas.ndc16_1.FareList;
 import com.verteil.schemas.ndc16_1.FlightCOSCoreType;
 import com.verteil.schemas.ndc16_1.PriceClassType;
 import com.verteil.schemas.ndc16_1.PricedFlightOfferAssocType;
+import com.verteil.thirdparties.adapter.pkfare.common.utils.NdcUtil;
 import com.verteil.thirdparties.adapter.pkfare.common.utils.RefUtil;
 import com.verteil.thirdparties.adapter.pkfare.offer.common.model.DataListsIndex;
 import com.verteil.thirdparties.adapter.pkfare.offer.common.model.ItinerarySegment;
@@ -152,10 +153,7 @@ public class OfferFareConverter {
 
     /** {@code ClassOfService.refs} of this OfferPrice's references to the segment. */
     private static Stream<String> mapClassOfServiceRefs(ItinerarySegment segment, PassengerOfferPrice passengerPrice) {
-        return Optional.ofNullable(passengerPrice.offerPrice().getRequestedDate()).stream()
-                .flatMap(requestedDate -> requestedDate.getAssociations().stream())
-                .flatMap(association -> Optional.ofNullable(association.getApplicableFlight()).stream())
-                .flatMap(applicableFlight -> applicableFlight.getFlightSegmentReference().stream())
+        return NdcUtil.segmentReferences(passengerPrice.offerPrice())
                 .filter(reference -> segment.segmentKey().equals(RefUtil.key(reference.getRef())))
                 .flatMap(reference -> Optional.ofNullable(reference.getClassOfService())
                         .map(FlightCOSCoreType::getRefs)

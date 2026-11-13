@@ -128,8 +128,7 @@ public class TicketPriceConverter {
     }
 
     private static List<String> mapTravelerKeys(OfferPriceLeadType offerPrice) {
-        return Optional.ofNullable(offerPrice.getRequestedDate()).stream()
-                .flatMap(requestedDate -> requestedDate.getAssociations().stream())
+        return NdcUtil.associations(offerPrice).stream()
                 .flatMap(association -> Optional.ofNullable(association.getAssociatedTraveler()).stream())
                 .flatMap(traveler -> RefUtil.keys(traveler.getTravelerReferences()).stream())
                 .toList();

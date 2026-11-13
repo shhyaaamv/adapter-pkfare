@@ -17,7 +17,6 @@ import com.verteil.schemas.ndc16_1.FlightPriceRS;
 import com.verteil.schemas.ndc16_1.FlightSegmentReference;
 import com.verteil.schemas.ndc16_1.ItemIDType;
 import com.verteil.schemas.ndc16_1.OfferPriceLeadDetailType;
-import com.verteil.schemas.ndc16_1.OfferPriceLeadType;
 import com.verteil.schemas.ndc16_1.PricedFlightOffer;
 import com.verteil.schemas.ndc16_1.PricedFlightOfferAssocType;
 import com.verteil.schemas.ndc16_1.ShoppingResponseIDType;
@@ -55,8 +54,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.verteil.thirdparties.adapter.pkfare.common.utils.FlightPriceConstants.DEFAULT_PRODUCT_TYPE;
 import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.VERTEIL_ERROR;
+import static com.verteil.thirdparties.adapter.pkfare.common.utils.FlightPriceConstants.DEFAULT_PRODUCT_TYPE;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.DEFAULT_CABIN;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.EMPTY;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.FARE_BASIS_SEPARATOR;
@@ -116,7 +115,7 @@ public class QteRSConverter {
         QteMappingContext qteMappingContext = mapMappingContext(context);
         List<PassengerOfferPrice> passengerPrices = mapPassengerPrices(qteMappingContext);
         List<ItinerarySegment> itinerary = itineraryConverter.convert(qteMappingContext.offerId(),
-                mapOfferAssociations(qteMappingContext.offer()), qteMappingContext.index());
+                NdcUtil.firstOfferPriceAssociations(qteMappingContext.offer().getOfferPrice()), qteMappingContext.index());
         if (itinerary.isEmpty()) {
             throw invalidFare(qteMappingContext, "itinerary is not one-way or round trip");
         }
@@ -177,15 +176,6 @@ public class QteRSConverter {
                 .filter(total -> total.signum() > 0)
                 .isPresent();
         return hasBase && hasPositiveTotal;
-    }
-
-    /** The first OfferPrice's associations carry the priced class of service per segment. */
-    private static List<PricedFlightOfferAssocType> mapOfferAssociations(PricedFlightOffer offer) {
-        return offer.getOfferPrice().stream()
-                .flatMap(offerPrice -> Optional.ofNullable(offerPrice.getRequestedDate()).stream())
-                .findFirst()
-                .map(OfferPriceLeadType.RequestedDate::getAssociations)
-                .orElse(List.of());
     }
 
     private PricedSegment mapPricedSegment(ItinerarySegment segment, PassengerOfferPrice firstPrice,
@@ -317,9 +307,7 @@ public class QteRSConverter {
     /** Every ClassOfService.Code.SeatsLeft given on the priced offer's segment references. */
     private static List<Integer> mapSeatsLeft(PricedFlightOffer offer) {
         return offer.getOfferPrice().stream()
-                .flatMap(offerPrice -> mapAssociations(offerPrice).stream())
-                .flatMap(association -> Optional.ofNullable(association.getApplicableFlight()).stream())
-                .flatMap(applicableFlight -> applicableFlight.getFlightSegmentReference().stream())
+                .flatMap(NdcUtil::segmentReferences)
                 .map(QteRSConverter::mapReferenceSeatsLeft)
                 .flatMap(Optional::stream)
                 .toList();
@@ -432,7 +420,7 @@ public class QteRSConverter {
     /** Price class names of the priced passenger types, "/"-joined; else the request's tag. */
     private String mapTag(List<PassengerOfferPrice> passengerPrices, QteMappingContext qteMappingContext) {
         List<PricedFlightOfferAssocType> associations = passengerPrices.stream()
-                .flatMap(passengerPrice -> mapAssociations(passengerPrice.offerPrice()).stream())
+                .flatMap(passengerPrice -> NdcUtil.associations(passengerPrice.offerPrice()).stream())
                 .toList();
         return Optional.of(offerFareConverter.mapPriceClassNames(associations, qteMappingContext.index()))
                 .filter(names -> !names.isEmpty())
@@ -444,14 +432,8 @@ public class QteRSConverter {
                                                      QteMappingContext qteMappingContext) {
         return passengerPrices.stream()
                 .map(passengerPrice -> QteTicketMapper.mapOtherFareRule(passengerPrice.passengerType(),
-                        offerFareConverter.mapPriceClassDetails(mapAssociations(passengerPrice.offerPrice()), qteMappingContext.index())))
+                        offerFareConverter.mapPriceClassDetails(NdcUtil.associations(passengerPrice.offerPrice()), qteMappingContext.index())))
                 .toList();
-    }
-
-    private static List<PricedFlightOfferAssocType> mapAssociations(OfferPriceLeadType offerPrice) {
-        return Optional.ofNullable(offerPrice.getRequestedDate())
-                .map(OfferPriceLeadType.RequestedDate::getAssociations)
-                .orElse(List.of());
     }
 
     private static QteResponse mapResponse(Seats seats, String sessionId, QteRouting routing) {
@@ -472,18 +454,13 @@ public class QteRSConverter {
 
     private static List<String> mapMatchKeys(List<QteSegment> segments) {
         return nullSafe(segments).stream()
-                .map(QteRSConverter::mapMatchKey)
+                .map(SegmentMatchKey::of)
                 .toList();
-    }
-
-    private static String mapMatchKey(QteSegment segment) {
-        return SegmentMatchKey.of(segment.getDepAirport(), segment.getDepTime(), segment.getArrAirport(), segment.getArrTime(),
-                segment.getMarketingCarrier(), segment.getFlightNumber());
     }
 
     private static Map<String, QteSegment> mapByMatchKey(List<QteSegment> segments) {
         return segments.stream()
-                .collect(Collectors.toMap(QteRSConverter::mapMatchKey, Function.identity(), (first, _) -> first));
+                .collect(Collectors.toMap(SegmentMatchKey::of, Function.identity(), (first, _) -> first));
     }
 
     private static <T> List<T> nullSafe(List<T> list) {

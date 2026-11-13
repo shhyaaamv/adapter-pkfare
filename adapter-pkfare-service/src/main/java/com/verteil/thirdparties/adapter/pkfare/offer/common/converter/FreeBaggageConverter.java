@@ -7,6 +7,7 @@ import com.verteil.schemas.ndc16_1.PieceAllowance;
 import com.verteil.schemas.ndc16_1.SizeUnitSimpleType;
 import com.verteil.schemas.ndc16_1.WeightAllowance;
 import com.verteil.schemas.ndc16_1.WeightUnitSimpleType;
+import com.verteil.thirdparties.adapter.pkfare.common.utils.NdcUtil;
 import com.verteil.thirdparties.adapter.pkfare.common.utils.RefUtil;
 import com.verteil.thirdparties.adapter.pkfare.offer.common.model.BaggageAllowance;
 import com.verteil.thirdparties.adapter.pkfare.offer.common.model.DataListsIndex;
@@ -158,10 +159,7 @@ public class FreeBaggageConverter {
     }
 
     private static Map<String, FlightSegmentReference> mapSegmentReferences(PassengerOfferPrice passengerPrice) {
-        return Optional.ofNullable(passengerPrice.offerPrice().getRequestedDate()).stream()
-                .flatMap(requestedDate -> requestedDate.getAssociations().stream())
-                .flatMap(association -> Optional.ofNullable(association.getApplicableFlight()).stream())
-                .flatMap(applicableFlight -> applicableFlight.getFlightSegmentReference().stream())
+        return NdcUtil.segmentReferences(passengerPrice.offerPrice())
                 .filter(reference -> nonNull(RefUtil.key(reference.getRef())))
                 .collect(Collectors.toMap(reference -> RefUtil.key(reference.getRef()), Function.identity(), (first, _) -> first));
     }

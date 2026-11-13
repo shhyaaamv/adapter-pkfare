@@ -199,7 +199,7 @@ public class QteRQConverter {
      * at the same airport. Arrival/departure times are local, so only times at a shared airport are compared.
      */
     private static void validateDateRange(List<QteSegment> itinerary) {
-        long distinctSegments = itinerary.stream().map(QteRQConverter::mapMatchKey).distinct().count();
+        long distinctSegments = itinerary.stream().map(SegmentMatchKey::of).distinct().count();
         boolean outOfOrder = IntStream.range(1, itinerary.size())
                 .anyMatch(index -> departsBeforeArrival(itinerary.get(index - 1), itinerary.get(index)));
         if (distinctSegments != itinerary.size() || outOfOrder) {
@@ -216,7 +216,7 @@ public class QteRQConverter {
         List<String> dataOrder = offerData.segments().keySet().stream()
                 .map(QteRQConverter::normalise)
                 .toList();
-        if (!dataOrder.equals(itinerary.stream().map(QteRQConverter::mapMatchKey).toList())) {
+        if (!dataOrder.equals(itinerary.stream().map(SegmentMatchKey::of).toList())) {
             throw dateRangeError();
         }
     }
@@ -301,7 +301,7 @@ public class QteRQConverter {
 
     private static RequestedSegment mapRequestedSegment(int index, QteSegment segment,
                                                         Map<String, DataSegment> byMatchKey) {
-        String matchKey = mapMatchKey(segment);
+        String matchKey = SegmentMatchKey.of(segment);
         DataSegment dataSegment = Optional.ofNullable(byMatchKey.get(matchKey))
                 .orElseThrow(() -> validationError("Unknown segment " + matchKey));
         return new RequestedSegment(index, segment, dataSegment);
@@ -557,11 +557,6 @@ public class QteRQConverter {
 
     private static List<QteSegment> segments(List<QteSegment> segments) {
         return Optional.ofNullable(segments).orElse(List.of());
-    }
-
-    private static String mapMatchKey(QteSegment segment) {
-        return SegmentMatchKey.of(segment.getDepAirport(), segment.getDepTime(), segment.getArrAirport(),
-                segment.getArrTime(), segment.getMarketingCarrier(), segment.getFlightNumber());
     }
 
     private static List<String> mapTravelerRefs(DataPassenger passenger) {

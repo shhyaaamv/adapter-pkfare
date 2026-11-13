@@ -1,5 +1,6 @@
 package com.verteil.thirdparties.adapter.pkfare.offer.common.data;
 
+import com.verteil.schema.pkfare.QteSegment;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -25,5 +26,11 @@ public final class SegmentMatchKey {
         return Stream.of(depAirport, depTime, arrAirport, arrTime, marketingCarrier, Objects.toString(flightNumber, null))
                 .map(part -> trimToEmpty(part).toUpperCase(Locale.ROOT))
                 .collect(Collectors.joining(PIPE));
+    }
+
+    /** The match key of a segment PKFARE echoes back in its QTE request. */
+    public static String of(QteSegment segment) {
+        return of(segment.getDepAirport(), segment.getDepTime(), segment.getArrAirport(), segment.getArrTime(),
+                segment.getMarketingCarrier(), segment.getFlightNumber());
     }
 }

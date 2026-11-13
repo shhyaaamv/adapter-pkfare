@@ -16,12 +16,12 @@ import com.verteil.schemas.ndc16_1.FlightCabinCoreType;
 import com.verteil.schemas.ndc16_1.FlightSegmentReference;
 import com.verteil.schemas.ndc16_1.ItemIDType;
 import com.verteil.schemas.ndc16_1.OfferItemCoreType;
-import com.verteil.schemas.ndc16_1.OfferPriceLeadType;
 import com.verteil.schemas.ndc16_1.PriceClassType;
 import com.verteil.schemas.ndc16_1.PricedFlightOfferAssocType;
 import com.verteil.schemas.ndc16_1.PricedFlightOfferType;
 import com.verteil.schemas.ndc16_1.SimpleCurrencyPriceType;
 import com.verteil.thirdparties.adapter.pkfare.common.model.CabinMapping;
+import com.verteil.thirdparties.adapter.pkfare.common.utils.NdcUtil;
 import com.verteil.thirdparties.adapter.pkfare.offer.common.converter.FareRuleConverter;
 import com.verteil.thirdparties.adapter.pkfare.offer.common.converter.FreeBaggageConverter;
 import com.verteil.thirdparties.adapter.pkfare.offer.common.converter.ItineraryConverter;
@@ -59,7 +59,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  * <pre>
  * flightRefList[]        offer-level Associations.ApplicableFlight.FlightSegmentReference[] in itinerary order
  *   cabinClass / rbd     ClassOfService.MarketingName.CabinDesignator via CabinMapping.DEFAULT (W -> S) / ClassOfService.Code
- *   seatCount            ClassOfService.Code.SeatsLeft (max 9), else configured / passenger-count default
+ *   seatCount            ClassOfService.Code.SeatsLeft, else adults + children; max 9
  * data                   Base64 {@link OfferData} ({@link SearchOfferDataFactory}); no ShoppingResponseID -> offer skipped
  * ticket.validatingCarrier ValidatingCarrier, else OfferID.Owner, else AirlineOffers.Owner
  * ticket.currency        TotalPrice, else the first OfferPrice total
@@ -150,15 +150,7 @@ public class ShoppingResultConverter {
         if (!pricedOffer.getAssociations().isEmpty()) {
             return pricedOffer.getAssociations();
         }
-        return mapFirstOfferPriceAssociations(pricedOffer);
-    }
-
-    private static List<PricedFlightOfferAssocType> mapFirstOfferPriceAssociations(PricedFlightOfferType pricedOffer) {
-        return pricedOffer.getOfferPrice().stream()
-                .flatMap(offerPrice -> Optional.ofNullable(offerPrice.getRequestedDate()).stream())
-                .findFirst()
-                .map(OfferPriceLeadType.RequestedDate::getAssociations)
-                .orElse(List.of());
+        return NdcUtil.firstOfferPriceAssociations(pricedOffer.getOfferPrice());
     }
 
     private SearchFlightReference mapFlightReference(ItinerarySegment segment, SearchMappingContext searchMappingContext) {

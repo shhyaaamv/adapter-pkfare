@@ -11,6 +11,8 @@ import java.util.Base64;
 import java.util.Optional;
 
 import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.VALIDATION_FAILURE;
+import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.ERROR_MSG_INVALID_ROUTING_DATA;
+import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.VALIDATION_FAILURE_REASON_CODE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
@@ -19,8 +21,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  */
 @Component
 public class OfferDataCodec {
-
-    private static final String ERROR_MSG_INVALID_ROUTING_DATA = "Invalid routing.data";
 
     private final ObjectMapper objectMapper = JsonMappers.pkfare();
 
@@ -63,6 +63,6 @@ public class OfferDataCodec {
 
     private static PkfareAdapterException invalidData(Throwable cause) {
         return new PkfareAdapterException(VALIDATION_FAILURE.getCode(), ERROR_MSG_INVALID_ROUTING_DATA, cause,
-                VALIDATION_FAILURE.getCode());
+                VALIDATION_FAILURE_REASON_CODE);
     }
 }

@@ -106,16 +106,6 @@ class ErrorResponseConverterTest {
     }
 
     @Test
-    void qteResponseWithoutEntryGateError() {
-        QteResponse response = converter.mapQteResponse(1, "Insufficient remaining seats");
-
-        assertThat(response.getStatus()).isEqualTo(1);
-        assertThat(response.getMsg()).isEqualTo("Insufficient remaining seats");
-        assertThat(response.getErrorCode()).isNull();
-        assertThat(response.getErrorMsg()).isNull();
-    }
-
-    @Test
     void serialisesQteErrorWithNullErrorFields() {
         JsonNode json = JsonMappers.pkfare().valueToTree(qte(new PkfareAdapterException("VALIDATION_FAILURE", "bad")));
 

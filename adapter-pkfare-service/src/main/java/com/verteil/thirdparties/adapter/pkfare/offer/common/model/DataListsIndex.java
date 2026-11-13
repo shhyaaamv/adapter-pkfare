@@ -12,6 +12,7 @@ import com.verteil.schemas.ndc16_1.OfferPriceLeadType;
 import com.verteil.schemas.ndc16_1.PenaltyType;
 import com.verteil.schemas.ndc16_1.PriceClassType;
 import com.verteil.schemas.ndc16_1.SegmentReference;
+import com.verteil.thirdparties.adapter.pkfare.common.utils.NdcUtil;
 import com.verteil.thirdparties.adapter.pkfare.common.utils.RefUtil;
 
 import java.util.Collection;
@@ -124,10 +125,7 @@ public final class DataListsIndex {
     }
 
     private static Stream<String> classOfServiceRefs(OfferPriceLeadType offerPrice) {
-        return Optional.ofNullable(offerPrice.getRequestedDate()).stream()
-                .flatMap(requestedDate -> requestedDate.getAssociations().stream())
-                .flatMap(association -> Optional.ofNullable(association.getApplicableFlight()).stream())
-                .flatMap(applicableFlight -> applicableFlight.getFlightSegmentReference().stream())
+        return NdcUtil.segmentReferences(offerPrice)
                 .flatMap(reference -> Optional.ofNullable(reference)
                         .map(FlightSegmentReference::getClassOfService)
                         .map(FlightCOSCoreType::getRefs)

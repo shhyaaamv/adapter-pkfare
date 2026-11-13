@@ -83,11 +83,6 @@ public class ErrorResponseConverter {
         return mapSearchResponse(PK_STATUS_SUCCESS, PK_SUCCESS_MSG);
     }
 
-    /** QTE answer without an Entry-Gate error, e.g. the seat statuses 1/2. */
-    public QteResponse mapQteResponse(int status, String msg) {
-        return mapQteResponse(status, msg, null, null);
-    }
-
     public static int toPkfareStatus(String errorCode) {
         if (VALIDATION_FAILURE.getCode().equals(errorCode)) {
             return PK_STATUS_REQUEST_PARAMETER_ERROR;
@@ -131,6 +126,10 @@ public class ErrorResponseConverter {
         return VERTEIL_ERROR.getCode().equals(exception.getErrorCode())
                 && isNotBlank(exception.getReason())
                 && !ADAPTER_REASON_CODES.contains(exception.getReason());
+    }
+
+    private static QteResponse mapQteResponse(int status, String msg) {
+        return mapQteResponse(status, msg, null, null);
     }
 
     private static QteResponse mapQteResponse(int status, String msg, String errorCode, String errorMsg) {

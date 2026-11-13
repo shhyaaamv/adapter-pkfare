@@ -67,7 +67,10 @@ public class EntryGateCredentialsProvider {
     }
 
     private EntryGateCredentials load() {
-        String secret = secretsManagerClient.getSecretValue(GetSecretValueRequest.builder().secretId(secretName).build())
+        String secret = secretsManagerClient.getSecretValue(
+                GetSecretValueRequest.builder()
+                        .secretId(secretName)
+                        .build())
                 .secretString();
         EntryGateCredentials loaded = read(secret);
         if (loaded == null || isAnyBlank(loaded.username(), loaded.password())) {
