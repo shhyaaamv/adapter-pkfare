@@ -1,3 +1,13 @@
-client:
-  address:
-    vdcConfigurator: http://vdc-configurator:8090/vdc-configurator
+pkfare:
+  vendor-codes: []
+  ip-whitelist:
+    enabled: true
+    addresses: []
+
+verteil:
+  host:
+
+aws:
+  secretManager:
+    name: prod/adapter-pkfare/entry-gate
+    region: ap-south-1

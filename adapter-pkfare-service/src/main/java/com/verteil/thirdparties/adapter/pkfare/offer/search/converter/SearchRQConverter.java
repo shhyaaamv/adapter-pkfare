@@ -1,6 +1,5 @@
 package com.verteil.thirdparties.adapter.pkfare.offer.search.converter;
 
-import com.verteil.configurator.vdc.data.VdcConfiguration;
 import com.verteil.schema.pkfare.SearchRequest;
 import com.verteil.schemas.ndc16_1.AirShopReqAttributeQueryType;
 import com.verteil.schemas.ndc16_1.AirShoppingRQ;
@@ -28,31 +27,23 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.verteil.thirdparties.adapter.pkfare.common.utils.AirShoppingConstants.FARE_PREFERENCES;
+import static com.verteil.thirdparties.adapter.pkfare.common.utils.AirShoppingConstants.SHOP_RESULT_PREFERENCE;
+import static com.verteil.thirdparties.adapter.pkfare.common.utils.AirShoppingConstants.SHOP_RESULT_PREFERENCE_TAGGED;
+import static com.verteil.thirdparties.adapter.pkfare.common.utils.AirShoppingConstants.SORT_ORDER;
 import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.INTERNAL_ERROR;
 import static com.verteil.thirdparties.adapter.pkfare.common.exception.ErrorType.VALIDATION_FAILURE;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.DEFAULT_CABIN;
-import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.DEFAULT_FARE_PREFERENCES;
-import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.DEFAULT_SHOP_RESULT_PREFERENCE;
-import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.DEFAULT_SHOP_RESULT_PREFERENCE_TAGGED;
-import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.DEFAULT_SORT_ORDER;
-import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.FARE_PREFERENCES;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.OD_KEY_PREFIX;
-import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.PKFARE_API;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.PK_DATE_FORMAT;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.PROCESS_FAILURE_REASON_CODE;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.PTC_ADULT;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.PTC_CHILD;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.PTC_INFANT;
-import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SERVICE_SEARCH;
-import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SHOP_RESULT_PREFERENCE;
-import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SHOP_RESULT_PREFERENCE_TAGGED;
-import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.SORT_ORDER;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.TRIP_TYPE_ONE_WAY;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.TRIP_TYPE_ROUND_TRIP;
 import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.VALIDATION_FAILURE_REASON_CODE;
@@ -68,9 +59,9 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
  * adultNumber/childNumber/infantNumber  -> Travelers.Traveler[].AnonymousTraveler.PTC (one traveler per passenger)
  * depCity/arrCity/fromDate              -> CoreQuery.OriginDestinations.OriginDestination OD1
  * tripType=2 + retDate                  -> OD2 (arrCity -> depCity on retDate)
- * cabinClass (default Y)                -> Preference.CabinPreferences.CabinType.Code via CABIN_BRAND.MAPPED_CABIN (S -> W)
+ * cabinClass (default Y)                -> Preference.CabinPreferences.CabinType.Code via CABIN_MAPPING (S -> W)
  * returnTagPrice                        -> ResponseParameters.ShopResultPreference (Y: tagged, N: plain)
- * (config)                              -> Preference.FarePreferences, ResponseParameters.SortOrder
+ * (AirShoppingConstants)               -> Preference.FarePreferences, ResponseParameters.SortOrder
  * </pre>
  */
 @Slf4j
@@ -93,14 +84,13 @@ public class SearchRQConverter {
 
     public AirShoppingRQ convert(PkfareAdapterContext context) {
         SearchRequest request = (SearchRequest) context.getRequest();
-        CabinMapping cabinMapping = context.getCabinMapping();
+        CabinMapping cabinMapping = CabinMapping.DEFAULT;
         validate(request, cabinMapping);
-        VdcConfiguration configuration = context.getConfigurations().get(SERVICE_SEARCH);
         AirShoppingRQ airShoppingRQ = new AirShoppingRQ();
         airShoppingRQ.setTravelers(mapTravelers(request));
         airShoppingRQ.setCoreQuery(mapCoreQuery(request));
-        airShoppingRQ.setPreference(mapPreference(request, configuration, cabinMapping));
-        airShoppingRQ.setResponseParameters(mapResponseParameters(request, configuration));
+        airShoppingRQ.setPreference(mapPreference(request, cabinMapping));
+        airShoppingRQ.setResponseParameters(mapResponseParameters(request));
         return airShoppingRQ;
     }
 
@@ -199,9 +189,9 @@ public class SearchRQConverter {
         return originDestination;
     }
 
-    private AirShoppingRQ.Preference mapPreference(SearchRequest request, VdcConfiguration configuration, CabinMapping cabinMapping) {
+    private AirShoppingRQ.Preference mapPreference(SearchRequest request, CabinMapping cabinMapping) {
         FarePreferencesType.Types types = new FarePreferencesType.Types();
-        fareTypes(configuration).forEach(code -> {
+        FARE_PREFERENCES.forEach(code -> {
             FarePreferencesType.Types.Type type = new FarePreferencesType.Types.Type();
             type.setCode(code);
             types.getType().add(type);
@@ -223,17 +213,15 @@ public class SearchRQConverter {
         return preference;
     }
 
-    private AirShoppingRQ.ResponseParameters mapResponseParameters(SearchRequest request, VdcConfiguration configuration) {
+    private AirShoppingRQ.ResponseParameters mapResponseParameters(SearchRequest request) {
         AirShoppingRQ.ResponseParameters responseParameters = new AirShoppingRQ.ResponseParameters();
         // returnTagPrice=Y: PKFARE wants every branded-fare (tag) solution per flight; N: only the lowest one.
         boolean tagged = YES.equalsIgnoreCase(trimToEmpty(request.getReturnTagPrice()));
-        String preference = tagged
-                ? configString(configuration, SHOP_RESULT_PREFERENCE_TAGGED, DEFAULT_SHOP_RESULT_PREFERENCE_TAGGED)
-                : configString(configuration, SHOP_RESULT_PREFERENCE, DEFAULT_SHOP_RESULT_PREFERENCE);
+        String preference = tagged ? SHOP_RESULT_PREFERENCE_TAGGED : SHOP_RESULT_PREFERENCE;
         responseParameters.setShopResultPreference(AirShoppingRQ.ShopResultPreference.valueOf(preference.trim().toUpperCase(Locale.ROOT)));
 
         // getSortOrder() is a plain getter on this class (no lazy list), so the list is set explicitly
-        responseParameters.setSortOrder(sortOrder(configuration).stream()
+        responseParameters.setSortOrder(SORT_ORDER.stream()
                 .map(parameter -> {
                     AirShoppingRQ.Sort sort = new AirShoppingRQ.Sort();
                     sort.setParameter(AirShoppingRQ.Sort.Parameter.valueOf(parameter.trim().toUpperCase(Locale.ROOT)));
@@ -242,24 +230,6 @@ public class SearchRQConverter {
                 })
                 .collect(Collectors.toCollection(ArrayList::new)));
         return responseParameters;
-    }
-
-    private List<String> fareTypes(VdcConfiguration configuration) {
-        return Optional.ofNullable(configuration)
-                .map(vdcConfiguration -> vdcConfiguration.getListFromCsv(PKFARE_API, FARE_PREFERENCES, DEFAULT_FARE_PREFERENCES))
-                .orElse(DEFAULT_FARE_PREFERENCES);
-    }
-
-    private List<String> sortOrder(VdcConfiguration configuration) {
-        return Optional.ofNullable(configuration)
-                .map(vdcConfiguration -> vdcConfiguration.getListFromCsv(PKFARE_API, SORT_ORDER, DEFAULT_SORT_ORDER))
-                .orElse(DEFAULT_SORT_ORDER);
-    }
-
-    private static String configString(VdcConfiguration configuration, String name, String defaultValue) {
-        return Optional.ofNullable(configuration)
-                .map(vdcConfiguration -> vdcConfiguration.getString(PKFARE_API, name, defaultValue))
-                .orElse(defaultValue);
     }
 
     private XMLGregorianCalendar toXmlDate(LocalDate date) {

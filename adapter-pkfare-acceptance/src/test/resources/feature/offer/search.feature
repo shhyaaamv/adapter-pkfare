@@ -9,7 +9,8 @@ Feature: PKFARE SEARCH
   Scenario: PKFARE SEARCH request is converted to the sample VDC AirShoppingRQ
     When PKFARE calls SEARCH
     Then Entry-Gate receives one AirShoppingRQ with header Service "AirShopping" and no ThirdpartyId
-    And the AirShoppingRQ matches the sample "samples/VDC_AirShoppingRQ.json" apart from child ages
+    And the AirShoppingRQ matches the sample "samples/VDC_AirShoppingRQ.json" apart from child ages and response parameters
+    And the AirShoppingRQ asks for ShopResultPreference "BEST" sorted by "PRICE, STOP, DEPARTURE_TIME"
 
   Scenario: VDC AirShoppingRS is converted to a PKFARE SEARCH response shaped like the sample
     When PKFARE calls SEARCH

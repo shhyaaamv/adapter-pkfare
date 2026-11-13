@@ -6,7 +6,7 @@
         "method": "POST",
         "headers": {
           "Authorization": {
-            "matches": "Basic .+"
+            "equalTo": "Basic YWNjZXB0YW5jZS1jbGllbnQ6YWNjZXB0YW5jZS1zZWNyZXQ="
           },
           "Content-Type": {
             "contains": "application/x-www-form-urlencoded"

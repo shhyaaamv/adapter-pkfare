@@ -7,7 +7,6 @@ configurations {
 }
 
 def serverProject = project(':adapter-pkfare-server')
-// 8091, not 8090: 8090 is where a local vdc-configurator usually runs (application.yaml default)
 def wireMockPort = 8091
 def adapterPort = 9122
 
@@ -73,7 +72,7 @@ tasks.register('copyWireMock', Copy) {
 
 tasks.register('startWireMock') {
     group = 'acceptance'
-    description = 'Starts WireMock (vdc-configurator + Entry-Gate) with the acceptance mappings.'
+    description = 'Starts WireMock (AWS Secrets Manager + Entry-Gate) with the acceptance mappings.'
     dependsOn tasks.named('copyWireMock')
     doLast {
         assertPortAvailable(wireMockPort, 'WireMock')
@@ -109,7 +108,9 @@ tasks.register('startAdapterPkfareServer') {
         def serverJar = serverProject.tasks.named('bootJar').get().archiveFile.get().asFile
         def logFile = acceptanceDir.get().asFile.toPath().resolve("logs/adapter-pkfare.log").toFile()
         logFile.parentFile.mkdirs()
+        // Dummy AWS credentials: the Secrets Manager call goes to WireMock, which does not check signatures.
         def process = new ProcessBuilder('java', '-Dspring.profiles.active=acceptance',
+                '-Daws.accessKeyId=acceptance', '-Daws.secretAccessKey=acceptance',
                 "-DACCEPTANCE_SERVER_PORT=${adapterPort}",
                 "-DACCEPTANCE_WIREMOCK_PORT=${wireMockPort}", '-jar', serverJar.absolutePath)
                 .redirectErrorStream(true)

@@ -7,16 +7,19 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import static com.verteil.thirdparties.adapter.pkfare.common.utils.PkfareConstants.CABIN_MAPPING;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 /**
- * PKFARE cabin code <-> VDC (NDC) cabin code, from configurator {@code CABIN_BRAND.MAPPED_CABIN}
- * (carrier {@code PKFARE}, {@code cabin_brand_code} = PKFARE cabin, value = VDC cabin), e.g. premium economy S -> W.
+ * PKFARE cabin code <-> VDC (NDC) cabin code, e.g. premium economy S -> W. {@link #DEFAULT} is built from
+ * {@code PkfareConstants.CABIN_MAPPING} (PKFARE cabin -> VDC cabin).
  * The VDC -> PKFARE direction is derived; when several PKFARE cabins share a VDC cabin, the identical code wins,
  * else the alphabetically first.
  */
 public record CabinMapping(Map<String, String> pkToVdc, Map<String, String> vdcToPk) {
+
+    public static final CabinMapping DEFAULT = of(CABIN_MAPPING);
 
     public static CabinMapping of(Map<String, String> pkToVdc) {
         Map<String, String> forward = new TreeMap<>();

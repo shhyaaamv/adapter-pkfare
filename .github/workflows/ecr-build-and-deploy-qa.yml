@@ -43,13 +43,9 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: adapter-pkfare
-          ECR_REPOSITORY_DB: adapter-pkfare-db-migration
           IMAGE_TAG: latest
         run: |
           aws ecr get-login-password --region ap-south-1 | sudo buildah login --username AWS --password-stdin 683455398069.dkr.ecr.ap-south-1.amazonaws.com
-          sudo buildah --no-cache --isolation=chroot build --pull --platform linux/arm64/v8 -f Dockerfile-db-migration -t $ECR_REGISTRY/$ECR_REPOSITORY_DB:$GIT_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY_DB:$IMAGE_TAG .
-          sudo buildah push $ECR_REGISTRY/$ECR_REPOSITORY_DB:$GIT_TAG
-          sudo buildah push $ECR_REGISTRY/$ECR_REPOSITORY_DB:$IMAGE_TAG
           sudo buildah --no-cache --isolation=chroot build -t $ECR_REGISTRY/$ECR_REPOSITORY:$GIT_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           sudo buildah push $ECR_REGISTRY/$ECR_REPOSITORY:$GIT_TAG
           sudo buildah push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -68,7 +64,6 @@ jobs:
           ref: master
       - name: Update Docker image version in ArgoCD repository
         run: |
-          perl -pi -e 's/adapter-pkfare-db-migration:[A-Za-z0-9]+$/adapter-pkfare-db-migration:'"$GIT_TAG"'/g' SANDBOX/qa-services/shared/v1-connectors/adapter-pkfare.yaml
           perl -pi -e 's/adapter-pkfare:[A-Za-z0-9]+$/adapter-pkfare:'"$GIT_TAG"'/g' SANDBOX/qa-services/shared/v1-connectors/adapter-pkfare.yaml
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"

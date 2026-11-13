@@ -13,7 +13,7 @@ public class ScheduledConnectionPoolMonitor {
     private final long idleTimeSeconds;
     private final PoolingHttpClientConnectionManager connectionManager;
 
-    @Scheduled(fixedDelayString = "${connector.monitor.task.interval}")
+    @Scheduled(fixedDelayString = "${adapter.monitor.task.interval}")
     public void evictExpiredAndIdleConnections() {
         log.trace("Adapter PKFARE connection pool monitor executed");
         connectionManager.closeExpired();
